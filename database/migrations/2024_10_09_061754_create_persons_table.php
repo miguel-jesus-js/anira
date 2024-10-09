@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('persons', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('first_name', 50)->nullable(false);
             $table->string('last_name', 50)->nullable(false);
             $table->string('email', 100)->nullable(false)->unique();
@@ -20,7 +21,6 @@ return new class extends Migration
             $table->char('phone_number', 11)->nullable(false);
             $table->timestamps();
             $table->softDeletes();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
     }
 
