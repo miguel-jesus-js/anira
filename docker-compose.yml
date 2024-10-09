@@ -1,45 +1,40 @@
+networks:
+    anira-network:
+volumes:
+    anira-data:
 services:
+    nginx:
+        image: nginx:1.22.0-alpine
+        container_name: 'anira-nginx'
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - .docker/nginx:/etc/nginx/conf.d
+        networks:
+            anira-network:
     app:
+        container_name: 'anira-app'
         build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: anira_app
-        working_dir: /var/www
+            context: .docker/php
+            dockerfile: dockerfile
         volumes:
-            - .:/var/www
-        ports:
-            - "9000:9000"
+            - ./:/var/www
+            - .docker/php/php.ini:/usr/local/etc/php/conf.d/local.ini
         networks:
-            - laravel
-
-    webserver:
-        image: nginx:alpine
-        container_name: anira_nginx
-        restart: unless-stopped
-        ports:
-            - "8080:80"
-        volumes:
-            - .:/var/www
-            - ./nginx/conf.d:/etc/nginx/conf.d
-        networks:
-            - laravel
-        depends_on:
-            - app
-
-    db:
-        image: mysql:8.0
-        container_name: anira_db
-        restart: unless-stopped
-        environment:
-            MYSQL_ROOT_PASSWORD: secret
-            MYSQL_DATABASE: anira
-            MYSQL_USER: anira
-            MYSQL_PASSWORD: secret
+            anira-network:
+    mysql:
+        image: mysql:8.0.39
+        container_name: 'anira-mysql'
+        platform: linux/x86_64
         ports:
             - "3306:3306"
+        environment:
+            MYSQL_DATABASE: anira_local
+            MYSQL_USER: anira
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: secret
+        volumes:
+            - ./.mysql:/var/lib/mysql
         networks:
-            - laravel
-
-networks:
-    laravel:
-        driver: bridge
+            anira-network:
