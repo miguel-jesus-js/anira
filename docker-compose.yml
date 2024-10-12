@@ -23,6 +23,8 @@ services:
             - .docker/php/php.ini:/usr/local/etc/php/conf.d/local.ini
         networks:
             anira-network:
+        ports:
+            - "5173:5173"
     mysql:
         image: mysql:8.0.39
         container_name: 'anira-mysql'
