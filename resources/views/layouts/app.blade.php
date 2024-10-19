@@ -9,6 +9,7 @@
 <body>
     <div id="app">
         <menu-component></menu-component>
+        <router-view></router-view>
         @yield('content')
     </div>
 </body>
