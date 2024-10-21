@@ -14,7 +14,9 @@ class UserController extends Controller
     }
     public function index(Request $request)
     {
-        $users = $this->userService->getAllUsers();
+        $filters = [];
+        $perPage = $request->query('perPage', 10);
+        $users = $this->userService->getAllUsers((array)$filters, $perPage);
         return response()->json($users);
     }
     public function store(Request $request)

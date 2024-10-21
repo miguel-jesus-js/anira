@@ -34,4 +34,9 @@ class UserRepository implements UserInterface
         $user = User::findOrFail($id);
         return $user->delete();
     }
+    public function filter(array $filters, $perPage = 10)
+    {
+        $query = User::query();
+        return $query->paginate($perPage);
+    }
 }

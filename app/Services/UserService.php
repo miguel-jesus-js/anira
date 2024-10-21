@@ -15,9 +15,9 @@ class UserService
     {
         return $this->userRepository->create($data);
     }
-    public function getAllUsers()
+    public function getAllUsers(array $filters, int $perPage = 10)
     {
-        return $this->userRepository->all();
+        return $this->userRepository->filter($filters, $perPage);
     }
 
     public function findUserById(int $id)
