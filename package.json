@@ -18,6 +18,7 @@
         "vue": "^3.5.11"
     },
     "dependencies": {
+        "@tabler/icons-vue": "^3.19.0",
         "vue-router": "^4.4.5"
     }
 }
