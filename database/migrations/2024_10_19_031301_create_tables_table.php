@@ -16,8 +16,6 @@ return new class extends Migration
             $table->foreignId('type_table_id')->constrained()->onDelete('cascade');
             $table->string('name', 50)->nullable(false);
             $table->integer('capacity')->nullable(false);
-            $table->integer('number_people')->nullable(false);
-            $table->string('status_name, 50')->nullable(false)->default("ACTIVE");
             $table->integer('status')->nullable(false)->default(1);
             $table->timestamps();
             $table->softDeletes();

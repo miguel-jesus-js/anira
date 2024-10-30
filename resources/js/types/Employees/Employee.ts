@@ -1,8 +1,16 @@
-export interface Employee {
+import {People} from '../People/People';
+import {TypeEmployee} from '../TypeEmployees/TypeEmployee';
+export interface Employee{
     id: number;
-    user_name: string;
-    dni: number;
-    email_verified_at: string | null;
-    created_at: string | null;
-    updated_at: string | null;
+    people_id: number,
+    type_employee_id: number,
+    status: number,
+    people: People,
+    type_employee: TypeEmployee
+}
+
+export interface CreateEmployee{
+    type_employee_id: number | string,
+    user: Omit<User, 'id'>,
+    people: Omit<People, 'id' | 'user_id' | 'profile_picture'>,
 }

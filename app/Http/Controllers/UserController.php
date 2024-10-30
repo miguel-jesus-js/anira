@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EmployeeRequest;
+use App\Http\Requests\PeopleRequest;
+use App\Http\Requests\UserRequest;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -19,10 +23,14 @@ class UserController extends Controller
         $users = $this->userService->getAllUsers((array)$filters, $perPage);
         return response()->json($users);
     }
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        $users = $this->userService->createUser($request->all());
-        return response()->json($users);
+        try {
+            $this->userService->createUser($request->all());
+            return response()->json(['type' => 'success', 'message' => 'Empleado creado', 'data' => []], 201);
+        } catch (\Exception $e) {
+            return response()->json(['type' => 'error', 'message' => 'Ocurrió un error al crear el empleado', 'data' => [$e->getMessage()]], 500);
+        }
     }
     public function update(Request $request, int $id)
     {

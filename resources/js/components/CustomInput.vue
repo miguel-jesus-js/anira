@@ -10,46 +10,64 @@
                 :id="id"
                 :name="name"
                 :placeholder="placeholder"
-                required
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                :required="required"
+                :value="modelValue"
+                @input="$emit('update:modelValue', $event.target.value)"
+                :class="[
+                'border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5',
+                'dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500',
+                errors ? 'border-red-500 bg-red-100' : 'bg-gray-50 border-gray-300'
+                ]"
             />
         </div>
+        <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors" :key="index">{{ error }}</p>
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import {computed} from "vue";
 import * as TablerIcons from '@tabler/icons-vue';
-export default {
-    props: {
-        label: {
-            type: String,
-            required: true,
-        },
-        id: {
-            type: String,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        placeholder: {
-            type: String,
-            required: true,
-        },
-        type: {
-            type: String,
-            default: 'text',
-        },
-        icon: {
-            type: String,
-            required: true,
-        },
+
+const props = defineProps({
+    label: {
+        type: String,
+        required: true,
     },
-    computed: {
-        iconComponent() {
-            return TablerIcons[this.icon] || null;
-        }
+    id: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    placeholder: {
+        type: String,
+        required: true,
+    },
+    type: {
+        type: String,
+        default: 'text',
+    },
+    required: {
+        type: String,
+        required: true,
+    },
+    modelValue: {
+        type: String,
+        required: true
+    },
+    icon: {
+        type: String,
+        required: true,
+    },
+    errors: {
+        type: Array,
+        required: false,
     }
-}
+});
+
+const iconComponent = computed(() => {
+  return TablerIcons[props.icon] || null;
+})
 </script>

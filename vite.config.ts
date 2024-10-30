@@ -15,8 +15,12 @@ export default defineConfig({
         host: '0.0.0.0', // Escucha en todas las interfaces de red
         port: 5173,       // Puerto de Vite
         strictPort: true, // Asegura que use este puerto
+        watch: {
+            usePolling: true,    // Habilita polling para la recarga en caliente en Docker
+            interval: 100
+        },
         hmr: {
-            host: 'localhost', // Usa localhost para la recarga en caliente
+            port: 5173,          // Asegúrate de que coincida con el puerto que has mapeado
         },
     },*/
 });

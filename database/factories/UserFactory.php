@@ -25,7 +25,6 @@ class UserFactory extends Factory
         return [
             'user_name' => fake()->name(),
             'password' => Hash::make('123456'),
-            'dni' => rand(100000, 999999),
         ];
     }
 

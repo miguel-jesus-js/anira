@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
             [
                 'user_name' => 'admin'.rand(100000, 999999),
                 'password' => Hash::make('123456'),
-                'dni' => rand(100000, 999999),
             ]
         ];
         DB::table('users')->insert($data);

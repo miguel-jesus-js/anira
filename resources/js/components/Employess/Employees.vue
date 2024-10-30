@@ -30,7 +30,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
 
-          <span>Agregar empleado</span>
+          <span>Agregar empleado jksjsj</span>
         </button>
       </div>
     </div>
@@ -46,7 +46,7 @@
         </button>
 
         <button
-            @click="fetchUsers('/api/users')"
+            @click="fetchEmployees('/api/employees')"
             class="px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
           Recargar
         </button>
@@ -70,20 +70,30 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th scope="col" class="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                  ID
-                </th>
-
-                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                  NOMBRE DE USUARIO
-                </th>
-
-                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                  DNI
-                </th>
-                <th scope="col" class="relative py-3.5 px-4">
-                  <span class="sr-only">ACCIONES</span>
-                </th>
+                  <th scope="col" class="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    ID
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      NOMBRE(S)
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      APELLIDO(S)
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      CORREO
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      TELÉFONO
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      TIPO
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      ESTADO
+                  </th>
+                  <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                      ACCIONES
+                  </th>
               </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900" v-if="employees.length > 0">
@@ -96,18 +106,38 @@
                   <td class="px-4 py-4 text-sm whitespace-nowrap">
                     <div class="flex items-center">
                       <img class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full dark:border-gray-700 shrink-0" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&q=80" alt="">
-                      <p class="text-gray-500 dark:text-gray-400 ml-3">{{ employee.user_name}}</p>
+                      <p class="text-gray-500 dark:text-gray-400 ml-3">{{ employee.people.first_name}}</p>
                     </div>
                   </td>
                   <td class="px-4 py-4 text-sm whitespace-nowrap">
                     <div>
-                      <h2 class="font-medium text-gray-800 dark:text-white ">{{ employee.dni }}</h2>
+                      <h2 class="font-medium text-gray-800 dark:text-white ">{{ employee.people.last_name }}</h2>
                     </div>
                   </td>
+                  <td class="px-4 py-4 text-sm whitespace-nowrap">
+                      <div>
+                          <h2 class="font-medium text-gray-800 dark:text-white ">{{ employee.people.email }}</h2>
+                      </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm whitespace-nowrap">
+                      <div>
+                          <h2 class="font-medium text-gray-800 dark:text-white ">{{ employee.people.country_code + ' ' + employee.people.phone_number }}</h2>
+                      </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm whitespace-nowrap">
+                      <div>
+                          <h2 class="font-medium text-gray-800 dark:text-white ">{{ employee.type_employee.type }}</h2>
+                      </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm whitespace-nowrap">
+                      <div>
+                          <div class="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
+                              <small>{{ employee.type_employee.status }}</small>
+                          </div>
+                      </div>
+                  </td>
                   <td class="px-12 py-4 text-sm font-medium whitespace-nowrap">
-                    <div class="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
-                      Customer
-                    </div>
+
                   </td>
                 </tr>
               </tbody>
@@ -184,18 +214,136 @@
                         </button>
                     </div>
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                        <form class="max-w-5xl">
-                            <div class="grid grid-cols-3 grid-rows-1 gap-4">
-                                <CustomInput placeholder="Nombre(s)" name="first_name" id="first_name" label="Nombre(s)" icon="IconUser"></CustomInput>
-                                <CustomInput placeholder="Apellido(s)" name="last_name" id="last_name" label="Apellido(s)" icon="IconUser"></CustomInput>
-                                <CustomInput placeholder="Correo" name="email" id="email" label="Correo" type="email" icon="IconMail"></CustomInput>
+                        <form class="max-w-5xl" @submit.prevent="fetchCreateUser">
+                            <!-- Pestañas (Botones) -->
+                            <div class="flex border-b border-gray-300">
+                                <button
+                                    v-for="(tab, index) in tabs"
+                                    :key="index"
+                                    :class="['py-2 px-4 text-sm font-medium focus:outline-none', selectedTab === tab ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
+                                    @click="selectedTab = tab"
+                                    type="button">
+                                    {{ tab }}
+                                </button>
+                            </div>
+
+                            <div class="mt-4">
+                                <div v-if="selectedTab === 'Datos personales'">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4 ">
+                                        <CustomInput
+                                            placeholder="Nombre(s)"
+                                            name="first_name"
+                                            id="first_name"
+                                            label="Nombre(s)"
+                                            required="true"
+                                            v-model="employee.people.first_name"
+                                            icon="IconUser"
+                                            :errors="errors['people.first_name']"
+                                            >
+                                        </CustomInput>
+                                        <CustomInput
+                                            placeholder="Apellido(s)"
+                                            name="last_name"
+                                            id="last_name"
+                                            label="Apellido(s)"
+                                            required="true"
+                                            v-model="employee.people.last_name"
+                                            icon="IconUser"
+                                            :errors="errors['people.last_name']"
+                                            >
+                                        </CustomInput>
+                                        <vue3-phone-input
+                                            v-model="phone"
+                                            placeholder="Número de teléfono"
+                                            required
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"/>
+                                        <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors['people.phone_number']" :key="index">{{ error }}</p>
+                                        <CustomSelect
+                                            icon="IconId"
+                                            name="type_employee_id"
+                                            id="type_employee_id"
+                                            label="Tipo de empleado"
+                                            v-model="employee.type_employee_id"
+                                            :options="typeEmployees"
+                                            :errors="errors['type_employee_id'] ? errors['type_employee_id'] : []"
+                                            >
+                                        </CustomSelect>
+                                        <CustomInput
+                                            placeholder="DNI"
+                                            name="dni"
+                                            id="dni"
+                                            label="DNI"
+                                            required="true"
+                                            v-model="employee.people.dni"
+                                            icon="IconId"
+                                            :errors="errors['people.dni']"
+                                        >
+                                        </CustomInput>
+                                    </div>
+                                </div>
+                                <div v-if="selectedTab === 'Datos de acceso'">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4 ">
+                                        <CustomInput
+                                            placeholder="Correo"
+                                            name="email"
+                                            id="email"
+                                            label="Correo"
+                                            type="email"
+                                            required=""
+                                            v-model="employee.people.email"
+                                            icon="IconMail"
+                                            :errors="errors['people.email']"
+                                            >
+                                        </CustomInput>
+                                        <CustomInput
+                                            placeholder="Nombre de usuario"
+                                            name="user_name"
+                                            id="user_name"
+                                            label="Nombre de usuario"
+                                            required="true"
+                                            v-model="employee.user.user_name"
+                                            icon="IconUser"
+                                            :errors="errors['user.user_name']"
+                                            >
+                                        </CustomInput>
+                                        <CustomInput
+                                            placeholder="Contraseña"
+                                            name="password"
+                                            id="password"
+                                            label="Contraseña"
+                                            type="password"
+                                            required="true"
+                                            v-model="employee.user.password"
+                                            icon="IconKey"
+                                            :errors="errors['user.password']"
+                                            >
+                                        </CustomInput>
+                                        <CustomInput
+                                            placeholder="Repetir contraseña"
+                                            name="password_repeat"
+                                            id="password_repeat"
+                                            label="Repetir contraseña"
+                                            type="password"
+                                            required="true"
+                                            v-model="employee.user.password_repeat"
+                                            icon="IconKey"
+                                            :errors="errors['user.password_repeat']"
+                                            >
+                                        </CustomInput>
+                                    </div>
+                                </div>
+                                <div v-if="selectedTab === 'Direcciónes'">
+                                    <p>Contenido del Tab 3</p>
+                                </div>
+                                <div v-if="selectedTab === 'Permisos'">
+                                    <p>Contenido del Tab 3</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                <button type="submit" class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">Agregar</button>
+                                <button @click="closeModal" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cerrar</button>
                             </div>
                         </form>
-
-                    </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                        <button type="button" class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">Agregar</button>
-                        <button @click="closeModal" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -204,69 +352,101 @@
 
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import axios from 'axios';
-import {Employee} from '../../types/Employees/Employee';
-import {Response} from '../../types/Response';
-import CustomInput from "../../components/CustomInput.vue";
+<script setup lang="ts">
+    import {onMounted, computed, ref } from 'vue';
+    import axios from 'axios';
+    import {Employee, CreateEmployee} from '@/types/Employees/Employee';
+    import {Response} from '@/types/Response';
+    import CustomInput from '../CustomInput.vue'
+    import CustomSelect from '../CustomSelect.vue';
+    import Vue3PhoneInput from 'vue3-phone-input';
+    import {TypeEmployee} from "@/types/TypeEmployees/TypeEmployee";
 
-export default defineComponent({
-    components: {
-        CustomInput
-    },
-      data(){
-        return {
-            employees: [] as Employee[],
-            response: null as Response<Employee>,
-            isModalOpen: false as boolean
-        };
-      },
-      computed: {
-        visiblePages(): number[] {
-          const totalPages = this.response?.last_page || 0;
-          const currentPage = this.response?.current_page || 1;
+    const employees = ref<Employee>([]);
+    const response = ref<Response<Employee> | null>(null);
+    const isModalOpen = ref(false);
+    const tabs = ['Datos personales', 'Datos de acceso', 'Direcciónes', 'Permisos'];
+    const selectedTab = ref('Datos personales');
+    const typeEmployees = ref<TypeEmployee[]>([]);
+    const phone = ref({country_code: '', phone_number: ''});
+    const errors = ref({});
+    const employee = ref<CreateEmployee>({
+        type_employee_id: '0',
+        user: {
+            user_name: '',
+            password: '',
+            password_repeat: '',
+        },
+        people: {
+            first_name: '',
+            last_name: '',
+            email: '',
+            dni: '0',
+            country_code: '',
+            phone_number: ''
+        }
+    });
 
-          // Calcular el rango de páginas a mostrar
-          const startPage = Math.max(1, currentPage - 2); // Empieza 2 antes de la página actual
-          const endPage = Math.min(totalPages, startPage + 4); // Muestra un total de 5 páginas
+    const fetchEmployees = async (pageUrl: string = '/api/employees') => {
+        try {
+            const res = await axios.get<Response<Employee>>(pageUrl);
+            employees.value = res.data.data.data;
+            response.value = res.data.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+    const fetchTypeEmployees = async (pageUrl: string = '/api/type-employees') => {
+        try {
+            const res = await axios.get<Response<TypeEmployees>>(pageUrl);
+            typeEmployees.value = res.data.data;
+        } catch (error) {
+            console.error('Error fetching type employees:', error);
+        }
+    };
+    const fetchCreateUser = async () => {
+        employee.value.people.country_code = phone.value.callingCode;
+        employee.value.people.phone_number = phone.value.nationalNumber;
+        try {
+            const res = await axios.post('api/users', employee.value);
+            fetchEmployees();
+        } catch (error) {
+            if(error.response && error.response.data.errors){
+                errors.value = error.response.data.errors;
+            }
+        }
+    }
+    const openModal = () => {
+        isModalOpen.value = true;
+        fetchTypeEmployees();
+    };
+    const closeModal = () => {
+        isModalOpen.value = false;
+    };
+    const visiblePages = computed(() => {
+        const totalPages = response.value?.last_page || 0;
+        const currentPage = response.value?.current_page || 1;
 
-          // Ajusta el rango si la página actual está cerca del inicio o del final
-          const pages = [];
-          for (let i = startPage; i <= endPage; i++) {
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, startPage + 4);
+
+        const pages: number[] = [];
+        for (let i = startPage; i <= endPage; i++) {
             if (i <= totalPages) pages.push(i);
-          }
+        }
 
-          // Asegúrate de que al menos 5 botones sean mostrados
-          if (pages.length < 5 && totalPages > 5) {
+        if (pages.length < 5 && totalPages > 5) {
             const start = Math.max(1, totalPages - 4);
             for (let i = start; i <= totalPages; i++) {
-              pages.push(i);
+                pages.push(i);
             }
-          }
-
-          return pages;
         }
-      },
-      mounted() {
-        this.fetchUsers();
-      },
-      methods: {
-        async fetchUsers(pageUrl: string = '/api/users') {
-          try {
-            const response = await axios.get<Response>(pageUrl);
-            this.employees = response.data.data;
-            this.response = response.data;
-          } catch (error) {
-            console.error('Error fetching users:', error);
-          }
-        },
-          openModal() {
-              this.isModalOpen = true;
-          },
-          closeModal() {
-              this.isModalOpen = false;
-          }
-      }
-});
+
+        return pages;
+    });
+
+    onMounted(() => {
+        fetchEmployees();
+    })
+
 </script>

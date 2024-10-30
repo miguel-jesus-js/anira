@@ -2,18 +2,41 @@
 
 namespace App\Services;
 
+use App\Repositories\Employee\EmployeeRepository;
+use App\Repositories\People\PeopleRepository;
 use App\Repositories\User\UserRepository;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
     protected $userRepository;
-    public function __construct(UserRepository $userRepository)
+    protected $peopleRepository;
+    protected $employeeRepository;
+    public function __construct(UserRepository $userRepository, PeopleRepository $peopleRepository, EmployeeRepository $employeeRepository)
     {
         $this->userRepository = $userRepository;
+        $this->peopleRepository = $peopleRepository;
+        $this->employeeRepository = $employeeRepository;
     }
+
+    /**
+     * @throws \Exception
+     */
     public function createUser(array $data)
     {
-        return $this->userRepository->create($data);
+        DB::beginTransaction();
+        try {
+            $user = $this->userRepository->create($data['user']);
+            $data['people'] = array_merge($data['people'], ['user_id' => $user->id]);
+            $people = $this->peopleRepository->create($data['people']);
+            $data= array_merge($data, ['people_id' => $people->id]);
+            $this->employeeRepository->create($data);
+            DB::commit();
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
     public function getAllUsers(array $filters, int $perPage = 10)
     {

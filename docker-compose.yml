@@ -13,6 +13,17 @@ services:
             - .docker/nginx:/etc/nginx/conf.d
         networks:
             anira-network:
+    vite:
+        image: node:18
+        container_name: anira_vite
+        working_dir: /var/www
+        command: [ "npm", "run", "dev" ]
+        volumes:
+            - .:/var/www
+        ports:
+            - "5173:5173"
+        networks:
+            - anira-network
     app:
         container_name: 'anira-app'
         build:
@@ -23,8 +34,6 @@ services:
             - .docker/php/php.ini:/usr/local/etc/php/conf.d/local.ini
         networks:
             anira-network:
-        ports:
-            - "5173:5173"
     mysql:
         image: mysql:8.0.39
         container_name: 'anira-mysql'
