@@ -27,9 +27,9 @@ class UserController extends Controller
     {
         try {
             $this->userService->createUser($request->all());
-            return response()->json(['type' => 'success', 'message' => 'Empleado creado', 'data' => []], 201);
+            return response()->json(['type' => 'success', 'title' => 'Éxito', 'message' => 'Empleado creado', 'data' => []], 201);
         } catch (\Exception $e) {
-            return response()->json(['type' => 'error', 'message' => 'Ocurrió un error al crear el empleado', 'data' => [$e->getMessage()]], 500);
+            return response()->json(['type' => 'error', 'title' => 'Éxito', 'message' => 'Ocurrió un error al crear el empleado', 'data' => [$e->getMessage()]], 500);
         }
     }
     public function update(Request $request, int $id)

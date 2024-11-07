@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@tabler/icons-vue": "^3.19.0",
+        "sweetalert2": "^11.14.4",
         "vue-router": "^4.4.5",
         "vue3-phone-input": "^0.1.7"
     }

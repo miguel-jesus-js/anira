@@ -38,6 +38,9 @@ class EmployeeRepository implements EmployeeInterface
     {
         $query = Employee::query();
         $query->with($relations)->orderBy('employees.id', 'DESC');
+        if(isset($filters['email'])) {
+            $query->filterByEmail($filters['email']);
+        }
         return $query->paginate($perPage);
     }
 }

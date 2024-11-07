@@ -6,7 +6,7 @@
     <title>Laravel + Vue</title>
     @vite(['resources/js/app.ts', 'resources/css/app.css'])
 </head>
-<body>
+<body class="bg-gray-100">
     <div id="app">
         <menu-component></menu-component>
         <router-view></router-view>

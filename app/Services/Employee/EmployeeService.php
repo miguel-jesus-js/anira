@@ -2,7 +2,6 @@
 
 namespace App\Services\Employee;
 
-use App\Models\Employee;
 use App\Repositories\Employee\EmployeeRepository;
 
 class EmployeeService

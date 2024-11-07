@@ -15,7 +15,7 @@ class EmployeeController extends Controller
     }
     public function index(Request $request)
     {
-        $filters = [];
+        $filters = $request->query('filters');
         $perPage = $request->query('perPage', 10);
         $employees = $this->employeeService->getAllEmployees($filters, ['typeEmployee', 'people', 'people.user'], $perPage);
         return response()->json(['type' => 'success', 'message' => 'Datos consultados', 'data' => $employees], 201);
