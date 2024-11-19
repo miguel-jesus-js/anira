@@ -8,9 +8,6 @@
 </head>
 <body class="bg-gray-100">
     <div id="app">
-        <menu-component></menu-component>
-        <router-view></router-view>
-        @yield('content')
     </div>
 </body>
 </html>

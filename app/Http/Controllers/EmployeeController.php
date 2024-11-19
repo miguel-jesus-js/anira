@@ -20,4 +20,9 @@ class EmployeeController extends Controller
         $employees = $this->employeeService->getAllEmployees($filters, ['typeEmployee', 'people', 'people.user'], $perPage);
         return response()->json(['type' => 'success', 'message' => 'Datos consultados', 'data' => $employees], 201);
     }
+    public function show(int $id)
+    {
+        $employee = $this->employeeService->findEmployeeById($id, ['typeEmployee', 'people', 'people.user']);
+        return response()->json(['type' => 'success', 'message' => 'Datos obtenidos', 'data' => $employee], 201);
+    }
 }

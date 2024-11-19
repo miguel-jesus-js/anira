@@ -16,4 +16,8 @@ class EmployeeService
     {
         return $this->employeeRepository->filter($filters, $relations, $perPage);
     }
+    public function findEmployeeById(int $id, array $relations = [])
+    {
+        return $this->employeeRepository->find($id, $relations);
+    }
 }

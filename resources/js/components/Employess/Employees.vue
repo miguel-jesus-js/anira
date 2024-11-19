@@ -15,7 +15,7 @@
             <CustomInput icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
         </template>
     </HeaderModule>
-    <TableModule :columns="columns" :is-fetch="isFetchEmployees" :data="employees" :response="response" :onClick="fetchEmployees">
+    <TableModule :columns="columns" :is-fetch="isFetchEmployees" :data="employees" :response="response" :onClick="fetchEmployees" url-view="EmployeeDetails" url-edit="EmployeeDetails">
 
     </TableModule>
     <Modal title="AGREGAR EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
@@ -212,8 +212,7 @@
         {key: 'people.email', label: 'CORREO'},
         {key: 'people.phone_number', label: 'TELÉFONO'},
         {key: 'type_employee.type', label: 'TIPO'},
-        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)
-        },
+        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
     ]);
     const filters = ref({
         email: '',
@@ -266,7 +265,6 @@
     }
     const nextTab = () => {
         selectedTab.value = selectedTab.value + 1;
-        console.log(selectedTab.value);
     }
     const previousTabs = () => {
         selectedTab.value = selectedTab.value - 1;

@@ -17,10 +17,10 @@ class EmployeeRepository implements EmployeeInterface
         // TODO: Implement all() method.
         return Employee::with($relations)->get();
     }
-    public function find(int $id)
+    public function find(int $id, array $relations = [])
     {
         // TODO: Implement find() method.
-        return Employee::find($id);
+        return Employee::find($id)->load($relations);
     }
     public function update(int $id, array $data)
     {

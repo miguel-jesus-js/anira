@@ -8,11 +8,12 @@
                             <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white dark:text-gray-400">
                                 {{ column.label }}
                             </th>
+                            <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white dark:text-gray-400">Acciones</th>
                         </tr>
                     </thead>
                     <tbody v-if="isFetch">
                         <tr>
-                            <td :colspan="columns.length" class="p-5">
+                            <td :colspan="columns.length + 1" class="p-5">
                                 <LoaderTable></LoaderTable>
                             </td>
                         </tr>
@@ -29,6 +30,13 @@
                                     </p>
                                 </td>
                             </template>
+                            <th>
+                                <div class="flex">
+                                    <Button @click="redirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
+                                    <Button @click="redirect(urlEdit, row.id)" icon="IconPencil" button-class="px-1 text-gray-500"></Button>
+                                    <Button  @click="redirect(urlView, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
+                                </div>
+                            </th>
                         </tr>
                     </tbody>
                     <tbody v-if="data.length < 1 && !isFetch">
@@ -80,6 +88,7 @@
     import {StatusEmployeeEnum} from "@/types/Employees/StatusEmployeeEnum";
     import Button from "@/components/Button.vue";
     import TablerIcon from "@/components/TablerIcon.vue";
+    import router from "@/router";
 
     const props = defineProps({
         columns: {
@@ -105,6 +114,14 @@
         onClick: {
             type: Function,
             default: () => {},
+        },
+        urlView: {
+            type: String,
+            required: true
+        },
+        urlEdit: {
+            type: String,
+            required: true
         }
     });
     const getNestedValue = (obj: Record<string, any>, path: string): any => {
@@ -140,6 +157,9 @@
     const handleClick = () => {
         props.onClick();
     };
+    const redirect = (url: string, id: number) => {
+        router.push({name: url, params: {id: id}});
+    }
 </script>
 
 <style scoped>
