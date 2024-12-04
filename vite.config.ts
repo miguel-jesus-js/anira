@@ -1,26 +1,32 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
+import laravel from "laravel-vite-plugin";
 
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [
+        vue(),
+        laravel({
+            input: ['resources/js/app.ts', 'resources/css/app.css'],
+        }),
+    ],
     resolve: {
         alias: {
-            'vue': 'vue/dist/vue.esm-bundler.js', // Alias para habilitar runtime + template compilation
+            'vue': 'vue/dist/vue.esm-bundler.js',
             '@': path.resolve(__dirname, './resources/js'),
         },
     },
     //Habilitar para docker
-    /*server: {
-        host: '0.0.0.0', // Escucha en todas las interfaces de red
-        port: 5173,       // Puerto de Vite
-        strictPort: true, // Asegura que use este puerto
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
         watch: {
-            usePolling: true,    // Habilita polling para la recarga en caliente en Docker
+            usePolling: true,
             interval: 100
         },
         hmr: {
-            port: 5173,          // Asegúrate de que coincida con el puerto que has mapeado
+            port: 5173,
         },
-    },*/
+    },
 });

@@ -1,14 +1,14 @@
 <template>
     <div class="mt-4 overflow-x-auto">
         <div class="inline-block min-w-full align-middle">
-            <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-blue-400 dark:bg-gray-800">
+            <div class="overflow-x-auto border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-blue-400">
                         <tr>
-                            <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white dark:text-gray-400">
+                            <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">
                                 {{ column.label }}
                             </th>
-                            <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white dark:text-gray-400">Acciones</th>
+                            <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">Acciones</th>
                         </tr>
                     </thead>
                     <tbody v-if="isFetch">
@@ -18,14 +18,14 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900" v-if="data.length > 0 && !isFetch">
+                    <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
                         <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 odd:bg-gray-100 even:bg-white">
                             <template v-for="column in columns" :key="column.key">
                                 <td v-if="column.rowRenderer">
                                     <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
                                 </td>
                                 <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
-                                    <p class="text-gray-600 dark:text-white">
+                                    <p class="text-gray-600">
                                         {{ formatValue(row, column) }}
                                     </p>
                                 </td>
@@ -51,15 +51,15 @@
         </div>
     </div>
     <div class="mt-6 sm:flex sm:items-center sm:justify-between" v-if="data.length > 0">
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            Pagína <span class="font-medium text-gray-700 dark:text-gray-100">{{ response.current_page }} de {{ response.last_page }}</span>
+        <div class="text-sm text-gray-500">
+            Pagína <span class="font-medium text-gray-700">{{ response.current_page }} de {{ response.last_page }}</span>
         </div>
 
         <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
             <button
                 :disabled="response.current_page == 1"
                 @click="handleClick(response.prev_page_url)"
-                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-l border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">
+                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-l border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
                 <TablerIcon size="20" icon="IconChevronLeft"></TablerIcon>
             </button>
             <button
@@ -73,7 +73,7 @@
             <button
                 :disabled="response.next_page_url == null"
                 @click="handleClick(response.next_page_url)"
-                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-r border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">
+                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-r border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
                 <TablerIcon size="20" icon="IconChevronRight"></TablerIcon>
             </button>
         </nav>

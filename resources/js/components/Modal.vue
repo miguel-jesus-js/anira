@@ -6,14 +6,14 @@
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full" :class="width">
                     <!-- Modal header -->
-                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                        <h3 class="text-xl font-semibold text-gray-900">
                             {{ title }}
                         </h3>
                         <Button
                             :on-click="closeModal"
                             icon="IconX"
-                            button-class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"></Button>
+                            button-class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"></Button>
                     </div>
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                       <slot></slot>
