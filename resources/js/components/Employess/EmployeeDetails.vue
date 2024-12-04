@@ -1,103 +1,156 @@
 <template>
-    <div class="bg-white mx-10 my-5 rounded">
-        <div class="relative w-full" v-if="!isFetchEmployees && Object.keys(employee).length != 0">
-            <!-- Contenedor de las imágenes -->
-            <div class="relative w-full h-[400px]">
-                <!-- Imagen de fondo -->
-                <img
-                    src="https://images.squarespace-cdn.com/content/v1/5d530c602cb2ef000173d953/1716253082507-KECLUUYXBYUZYV99OE33/0W5A3364.JPG?format=1500w"
-                    alt="Imagen de fondo"
-                    class="w-full h-full object-cover"
-                />
-                <!-- Imagen superpuesta -->
-                <div class="absolute bottom-0 left-10 transform translate-y-1/2">
+    <div class="bg-white border mx-10 mt-5">
+        <div class="grid grid-cols-[30%_70%]" v-if="!isFetchEmployees && Object.keys(employee).length != 0">
+            <div class="grid grid-cols-1 border-r">
+                <div
+                    :class="[selectedTab === index ? 'bg-[#F5F9FD]' : 'bg-white']"
+                    v-for="(tab, index) in tabs"
+                    :key="index"
+                    >
+                    <Button
+                        :class="['py-3 text-sm font-medium focus:outline-none', selectedTab === index ? 'font-semibold text-black' : 'text-gray-600']"
+                        @click="selectedTab = index"
+                        :label="tab.label"
+                        :icon="tab.icon"
+                    >
+                    </Button>
+                </div>
+                <div class="mb-3 flex align-center items-center w-full px-4">
                     <img
-                        src="https://img.freepik.com/fotos-premium/chef-preparando-comida-cocina-restaurante_777271-3987.jpg"
-                        alt="Imagen superpuesta"
-                        class=" w-32 h-32 rounded-full border-4 border-white shadow-lg"
+                        src="https://images.squarespace-cdn.com/content/v1/5d530c602cb2ef000173d953/1716253082507-KECLUUYXBYUZYV99OE33/0W5A3364.JPG?format=1500w"
+                        alt="Imagen de fondo"
+                        class="object-cover rounded-xl"
                     />
                 </div>
             </div>
-            <div class="flex mt-20 px-4">
-                <Button
-                    v-for="(tab, index) in tabs"
-                    :key="index"
-                    :class="['py-2 text-sm font-medium focus:outline-none', selectedTab === index ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
-                    @click="selectedTab = index"
-                    :label="tab.label"
-                    :icon="tab.icon"
-                >
-                </Button>
-            </div>
-            <div v-show="selectedTab === 0" class="mt-4 px-10 pb-5">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Nombre(s)</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.first_name }}</dd>
-                    </div>
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Apellido(s)</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.last_name }}</dd>
-                    </div>
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Teléfono</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.country_code + ' ' + employee.people.phone_number }}</dd>
-                    </div>
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Tipo de empleado</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.type_employee.type }}</dd>
-                    </div>
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">DNI</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.dni }}</dd>
-                    </div>
-                </div>
-            </div>
-            <div v-show="selectedTab === 1" class="mt-4 px-10 pb-5">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Correo</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.email }}</dd>
-                    </div>
-                    <div class="mb-3">
-                        <dt class="text-md text-gray-900">Nombre de usuario</dt>
-                        <dd class="mt-2 text-xs text-gray-500">{{ employee.people.user.user_name }}</dd>
-                    </div>
-                </div>
-            </div>
-        </div >
+            <div class="">
+                <div v-show="selectedTab === 0" class="mt-4 px-10">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
 
-        <div class="relative w-full" v-else>
-            <!-- Contenedor de las imágenes -->
-            <div class="relative w-full h-[400px]">
-                <div role="status" class="flex items-center justify-center w-full h-full object-cover bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700">
-                    <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
-                        <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
-                        <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z"/>
-                    </svg>
-                    <span class="sr-only">Loading...</span>
-                </div>
-
-                <!-- Imagen superpuesta -->
-                <div class="absolute bottom-0 left-10 transform translate-y-1/2">
-                    <div role="status" class="max-w-sm p-4 rounded-full animate-pulse md:p-6 dark:border-gray-700">
-                        <div class="flex items-center mt-4">
-                            <svg class="w-32 h-32 me-3 text-gray-200 dark:text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
-                            </svg>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Nombre(s)</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.first_name }}</dd>
                         </div>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Apellido(s)</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.last_name }}</dd>
+                        </div>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Teléfono</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.country_code + ' ' + employee.people.phone_number }}</dd>
+                        </div>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Tipo de empleado</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.type_employee.type }}</dd>
+                        </div>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">DNI</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.dni }}</dd>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+                <div v-show="selectedTab === 1" class="mt-4 px-10">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Correo</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.email }}</dd>
+                        </div>
+                        <div class="mb-3">
+                            <dt class="text-sm text-gray-900">Nombre de usuario</dt>
+                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.user.user_name }}</dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-[30%_70%]" v-else>
+            <div class="grid grid-cols-1 border-r">
+                <div>
+                    <div role="status" class="w-full border-gray-200 rounded animate-pulse p-6 dark:border-gray-700">
+                        <div class="mb-4 h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                        <div class="mb-4 h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                        <div class="mb-4 h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                        <div class="mb-4 h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                    </div>
+                </div>
+                <div class="mb-3 flex align-center items-center w-full px-4">
+                    <div role="status" class="flex items-center justify-center w-full py-10 h-full object-cover bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700">
+                        <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                            <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
+                            <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z"/>
+                        </svg>
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>
-            <div role="status" class="flex mt-20 px-4 w-full border-gray-200 rounded animate-pulse md:p-6 dark:border-gray-700">
-                <div class="w-48 h-2 bg-gray-200 mx-2 rounded-full dark:bg-gray-700"></div>
-                <div class="w-48 h-2 bg-gray-200 mx-2 rounded-full dark:bg-gray-700"></div>
-                <div class="w-48 h-2 bg-gray-200 mx-2 rounded-full dark:bg-gray-700"></div>
-                <div class="w-48 h-2 bg-gray-200 mx-2 rounded-full dark:bg-gray-700"></div>
+            <div class="mt-4 px-10">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
+
+                    <div class="mb-3">
+                        <dt class="text-sm text-gray-900">
+                            <div role="status" class="w-1/2 mt-2 border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-3 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dt>
+                        <dd class="mt-2">
+                            <div role="status" class="w-full border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="mb-3">
+                        <dt class="text-sm text-gray-900">
+                            <div role="status" class="w-1/2 mt-2 border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-3 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dt>
+                        <dd class="mt-2">
+                            <div role="status" class="w-full border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="mb-3">
+                        <dt class="text-sm text-gray-900">
+                            <div role="status" class="w-1/2 mt-2 border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-3 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dt>
+                        <dd class="mt-2">
+                            <div role="status" class="w-full border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="mb-3">
+                        <dt class="text-sm text-gray-900">
+                            <div role="status" class="w-1/2 mt-2 border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-3 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dt>
+                        <dd class="mt-2">
+                            <div role="status" class="w-full border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="mb-3">
+                        <dt class="text-sm text-gray-900">
+                            <div role="status" class="w-1/2 mt-2 border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-3 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dt>
+                        <dd class="mt-2">
+                            <div role="status" class="w-full border-gray-200 rounded animate-pulse dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 rounded dark:bg-gray-700"></div>
+                            </div>
+                        </dd>
+                    </div>
+                    <br>
+                </div>
             </div>
         </div>
-
     </div>
 </template>
 
