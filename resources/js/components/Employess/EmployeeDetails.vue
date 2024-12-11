@@ -26,7 +26,6 @@
             <div class="">
                 <div v-show="selectedTab === 0" class="mt-4 px-10">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
-
                         <div class="mb-3">
                             <dt class="text-sm text-gray-900">Nombre(s)</dt>
                             <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ employee.people.first_name }}</dd>
@@ -156,12 +155,11 @@
 
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-    import Button from "@/components/Button.vue";
-    import router from "@/router";
+    import Button from "../../components/Button.vue";
     import {useRoute} from "vue-router";
     import axios from "axios";
-    import {Response} from "@/types/Response";
-    import {Employee} from "@/types/Employees/Employee";
+    import {Response} from "../../types/Response";
+    import {Employee} from "../../types/Employees/Employee";
 
     const tabs = [
         {label: 'Datos personales', icon: 'IconNotes'},

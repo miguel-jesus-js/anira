@@ -81,14 +81,15 @@
 </template>
 
 <script setup lang="ts">
-    import LoaderTable from "@/components/Loader/LoaderTable.vue";
+    import LoaderTable from "../../components/Loader/LoaderTable.vue";
     import {computed, PropType} from "vue";
-    import {Column} from "@/types/TableModule/Column";
-    import {Row} from "@/types/TableModule/Row";
-    import {StatusEmployeeEnum} from "@/types/Employees/StatusEmployeeEnum";
-    import Button from "@/components/Button.vue";
-    import TablerIcon from "@/components/TablerIcon.vue";
-    import router from "@/router";
+    import {Column} from "../../types/TableModule/Column";
+    import {Row} from "../../types/TableModule/Row";
+    import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
+    import Button from "../../components/Button.vue";
+    import TablerIcon from "../../components/TablerIcon.vue";
+    import router from '../../router';
+    import {Redirect} from "../../composables/Redirect";
 
     const props = defineProps({
         columns: {
@@ -158,7 +159,7 @@
         props.onClick();
     };
     const redirect = (url: string, id: number) => {
-        router.push({name: url, params: {id: id}});
+        Redirect(url, id);
     }
 </script>
 

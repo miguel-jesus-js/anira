@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-    import TablerIcon from "@/components/TablerIcon.vue";
+    import TablerIcon from "../components/TablerIcon.vue";
 
     const props = defineProps({
        buttonClass: {

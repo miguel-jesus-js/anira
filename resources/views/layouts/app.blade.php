@@ -9,5 +9,8 @@
 <body class="bg-gray-100">
     <div id="app">
     </div>
+    <script async
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfXIJfiuZQMGautrWfbmgD-2PlNrB580I&loading=async&libraries=places&callback=initMap">
+    </script>
 </body>
 </html>

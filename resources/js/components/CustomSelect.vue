@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {computed, PropType} from "vue";
 import * as TablerIcons from "@tabler/icons-vue";
-import {TypeEmployees} from "../types/TypeEmployees/TypeEmployee";
+import {TypeEmployee} from "../types/TypeEmployees/TypeEmployee";
 
 const props = defineProps({
     label: {
@@ -46,7 +46,7 @@ const props = defineProps({
         required: true,
     },
     options: {
-        type: Array as PropType<TypeEmployees[]>,
+        type: Array as PropType<TypeEmployee[]>,
         required: true,
     },
     errors: {

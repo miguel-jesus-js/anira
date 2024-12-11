@@ -3,7 +3,7 @@
         <!-- Sidebar -->
         <div
             :class="[
-                'fixed top-0 left-0 h-full bg-white text-white transition-transform duration-300 z-50',
+                'fixed top-0 left-0 h-full bg-white text-white transition-transform duration-300 z-40',
                 isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 'md:block md:w-64',
                 'w-64'
@@ -39,7 +39,7 @@
               'md:pl-0'
             ]"
              :style="{ marginLeft: isSidebarOpen ? '256px' : '0px' }">
-            <div class="fixed top-0 left-0 right-0 bg-blue-600 text-white h-16 px-4 z-40 flex items-center justify-between">
+            <div class="fixed top-0 left-0 right-0 bg-blue-600 text-white h-16 px-4 z-30 flex items-center justify-between">
                 <Button icon="IconMenu2" :on-click="toggleSidebar"></Button>
             </div>
             <div class="py-16 overflow-y-auto">
@@ -52,9 +52,9 @@
 
 
 <script lang="ts" setup>
-    import Button from "@/components/Button.vue";
+    import Button from "../components/Button.vue";
     import {ref} from "vue";
-    import TablerIcon from "@/components/TablerIcon.vue";
+    import TablerIcon from "../components/TablerIcon.vue";
     const isSidebarOpen = ref(true);
     const accordions = ref(
         [
