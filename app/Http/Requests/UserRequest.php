@@ -22,7 +22,7 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'user.user_name' => 'required|min:10|max:20|unique:users,user_name',
             'user.password' => 'required|min:8',
             'user.password_repeat' => 'required|same:user.password',
@@ -31,8 +31,14 @@ class UserRequest extends FormRequest
             'people.email' => 'required|min:10|max:50|email|unique:people,email',
             'people.dni' => 'required|numeric|digits_between:10,20|unique:people,dni',
             'people.phone_number' => 'required|min:8|max:11|unique:people,phone_number',
-            'type_employee_id' => 'required|numeric|exists:type_employees,id',
         ];
+
+        if ($this->get('type_entity') === 'employee') {
+            $rules['type_employee_id'] = 'required|numeric|exists:type_employees,id';
+        } else {
+            $rules['type_customer_id'] = 'required|numeric|exists:type_customers,id';
+        }
+        return $rules;
     }
 
     /**
@@ -42,7 +48,7 @@ class UserRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
+        $messages = [
             'user.user_name.required' => 'El nombre de usuario es obligatorio.',
             'user.user_name.min' => 'El nombre de usuario debe tener al menos 10 caracteres.',
             'user.user_name.max' => 'El nombre de usuario debe tener máximo 20 caracteres.',
@@ -72,9 +78,17 @@ class UserRequest extends FormRequest
             'people.phone_number.min' => 'El teléfono debe tener mínimo 8 caracteres',
             'people.phone_number.max' => 'El teléfono debe tener máximo 11 caracteres',
             'people.phone_number.unique' => 'El teléfono ya existe',
-            'type_employee_id.required' => 'Seleccione un tipo de empleado',
-            'type_employee_id.numeric'  => 'El tipo de empleado debe ser un número',
-            'type_employee_id.exists'   => 'El tipo de empleado no coincide con la base de datos',
         ];
+
+        if ($this->get('type_entity') === 'employee') {
+            $messages['type_employee_id.required'] = 'Seleccione un tipo de empleado';
+            $messages['type_employee_id.numeric'] = 'El tipo de empleado debe ser un número';
+            $messages['type_employee_id.exists'] = 'El tipo de empleado no coincide con la base de datos';
+        } else {
+            $messages['type_customer_id.required'] = 'Seleccione un tipo de cliente';
+            $messages['type_customer_id.numeric'] = 'El tipo de cliente debe ser un número';
+            $messages['type_customer_id.exists'] = 'El tipo de cliente no coincide con la base de datos';
+        }
+        return $messages;
     }
 }

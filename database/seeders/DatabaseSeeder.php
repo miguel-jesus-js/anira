@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\TypeCustomer;
 use App\Models\TypeEmployee;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             TypeEmployee::factory(5)->create(),
+            TypeCustomer::factory(5)->create(),
         ]);
     }
 }

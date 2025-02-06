@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="w-full">
         <label :for="id" class="block mb-2 text-sm font-sm text-gray-500" v-if="label != ''">{{ label }}</label>
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
@@ -14,9 +14,10 @@
                 :value="modelValue"
                 @input="onInput"
                 :class="[
-                'border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5',
-                errors ? 'border-red-500 bg-red-100' : 'bg-gray-50 border-gray-300'
+                'text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5',
+                errors ? 'border-red-500 bg-red-100' : inputClass
                 ]"
+                :disabled="disabled"
             />
         </div>
         <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors" :key="index">{{ error }}</p>
@@ -28,6 +29,11 @@
     import * as TablerIcons from '@tabler/icons-vue';
 
     const props = defineProps({
+        inputClass: {
+            type: String,
+            required: false,
+            default: 'border text-gray-900 bg-gray-50 border-gray-300'
+        },
         label: {
             type: String,
             required: false,
@@ -63,6 +69,11 @@
         errors: {
             type: Array,
             required: false,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     });
     const emits = defineEmits(['update:modelValue', 'input-change']);

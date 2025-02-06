@@ -7,6 +7,11 @@ use App\Models\People;
 
 class PeopleRepository implements PeopleInterface
 {
+    protected $people;
+    public function __construct(People $people)
+    {
+        $this->people = $people;
+    }
     public function create(array $data)
     {
         // TODO: Implement create() method.
@@ -25,7 +30,7 @@ class PeopleRepository implements PeopleInterface
     public function update(int $id, array $data)
     {
         // TODO: Implement update() method.
-        $user = People::findOrFail($id);
+        $user = $this->find($id);
         return $user->update($data);
     }
     public function delete(int $id)
@@ -38,5 +43,10 @@ class PeopleRepository implements PeopleInterface
     {
         $query = People::query();
         return $query->paginate($perPage);
+    }
+
+    public function attach(People $people,  $address)
+    {
+        $people->addresses()->attach($address);
     }
 }

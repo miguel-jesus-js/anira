@@ -1,4 +1,5 @@
 import {User} from '../Users/User';
+import {Address} from "../Addresses/Address";
 
 export interface People {
     id: number,
@@ -11,4 +12,5 @@ export interface People {
     phone_number: string,
     profile_picture: string | null,
     user: User
+    addresses: Address
 }

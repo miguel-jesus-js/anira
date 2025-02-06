@@ -16,3 +16,20 @@ export function showAlert(type: String, title: String, message: String){
         }
     });
 }
+
+export function confirmDelete(url, id, onConfirm){
+    Swal.fire({
+        title: "¿Estas segur@ de eliminar este registro?",
+        text: "Esta operación no se puede deshacer",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            onConfirm(url, id);
+        }
+    });
+}

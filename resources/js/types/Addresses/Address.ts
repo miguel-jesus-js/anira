@@ -1,13 +1,16 @@
 export interface Address {
-    address: String,
-    street: String,
-    neighborhood: String,
-    interior_number: String,
-    outer_number: String,
-    city: String,
-    state: String,
-    locality: String,
+    id: number
+    address: string,
+    street: string,
+    neighborhood: string,
+    interior_number: string,
+    outer_number: string,
+    city: string,
+    state: string,
+    locality: string,
     cp: number,
-    latitude: String,
-    longitude: String
+    latitude: string,
+    longitude: string
 }
+
+export interface createAddress extends Omit<Address, 'id'>{}

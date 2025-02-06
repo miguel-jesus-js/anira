@@ -1,22 +1,21 @@
 <template>
   <!-- component -->
-  <section class="mx-10 mt-5 bg-white p-4 rounded-md">
-    <HeaderModule :total-records="response ? response.total : 0">
+  <section class="p-4">
+    <HeaderModule :total-records="response ? response.total : 0" title="EMPLEADOS">
         <template #section1>
-            <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg"></Button>
-            <Button :onClick="openModal" buttonClass="border rounded-lg bg-blue-500 text-white hover:bg-blue-600" icon="IconPlus" label="Agregar empleado"></Button>
+            <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
+            <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar empleado"></Button>
         </template>
         <template #section2>
-            <Button icon="IconCloudDownload" button-class="border-0" label="Exportar"></Button>
-            <Button icon="IconFilterPlus" button-class="border-0" label="Filtros"></Button>
-            <Button :onClick="fetchEmployees" button-class="border-0" icon="IconRefresh" label="Recargar"></Button>
+            <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
+            <Button icon="IconFilter" button-class="border-0 text-[#F2E9E0]" label="Filtros" :on-click="toggleDrawer"></Button>
+            <Button :onClick="fetchEmployees" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
         </template>
         <template #section3>
-            <CustomInput icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
+            <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
         </template>
     </HeaderModule>
-      <input ref="autocompleteInput">
-    <TableModule :columns="columns" :is-fetch="isFetchEmployees" :data="employees" :response="response" :onClick="fetchEmployees" url-view="EmployeeDetails" url-edit="EmployeeDetails">
+    <TableModule :columns="columns" :is-fetch="isFetchEmployees" :data="employees" :response="response" :onClick="fetchEmployees" url-view="EmployeeDetails" url-edit="EmployeeDetails" url-delete="api/employees/">
 
     </TableModule>
     <Modal title="AGREGAR EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
@@ -59,12 +58,15 @@
                             :errors="errors['people.last_name']"
                         >
                         </CustomInput>
-                        <vue3-phone-input
-                            v-model="phone"
-                            placeholder="Número de teléfono"
-                            required
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
-                        <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors['people.phone_number']" :key="index">{{ error }}</p>
+                        <div class="block">
+                            <label  class="block mb-2 text-sm font-sm text-gray-500">Télefono</label>
+                            <vue3-phone-input
+                                v-model="phone"
+                                placeholder="Número de teléfono"
+                                required
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 h-10"/>
+                            <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors['people.phone_number']" :key="index">{{ error }}</p>
+                        </div>
                         <CustomSelect
                             icon="IconId"
                             name="type_employee_id"
@@ -203,22 +205,252 @@
         </form>
     </Modal>
     <Modal title="AGREGAR DIRECCIÓN" width="sm:max-w-2xl" :is-modal-open="isModalAddressOpen" @close="closeModalAddress" >
-          <form class="max-w-5xl" @submit.prevent="addAddress">
-              <CustomInput ref="autocompleteInput" label="Direccion" id="address" icon="IconLocationFilled" v-model="address.address" required="true" placeholder="Dirección" name="address"></CustomInput>
+          <form class="max-w-5xl" @submit.prevent="fetchValidateAddress">
+              <CustomInput
+                  ref="autocompleteInput"
+                  label="Direccion"
+                  id="address"
+                  icon="IconLocationFilled"
+                  v-model="address.address"
+                  required="true"
+                  placeholder="Dirección"
+                  name="address"
+                  :errors="errorsAddress['address']">
+              </CustomInput>
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4 my-3">
-                  <CustomInput label="Calle" id="" icon="IconSmartHome" v-model="address.street" required="true" placeholder="Anira 18" name="street"></CustomInput>
-                  <CustomInput label="Colonia" id="" icon="IconSmartHome" v-model="address.neighborhood" required="true" placeholder="Albania alta" name="neighborhood"></CustomInput>
-                  <CustomInput label="N° interior" id="" icon="IconNumber" v-model="address.interior_number" placeholder="S/N" name="interior_number"></CustomInput>
-                  <CustomInput label="N° exterior" id="" icon="IconNumber" v-model="address.outer_number" placeholder="S/N" name="outer_number"></CustomInput>
-                  <CustomInput label="Ciudad" id="" icon="IconBuildingSkyscraper" v-model="address.city" required="true" placeholder="Mexico" name="city"></CustomInput>
-                  <CustomInput label="Estado" id="" icon="IconBuildings" v-model="address.state" required="true" placeholder="Chiapas" name="state"></CustomInput>
-                  <CustomInput label="Localidad" id="" icon="IconMap" v-model="address.locality" required="true" placeholder="Tuxtla Gutierrez" name="locality"></CustomInput>
-                  <CustomInput label="CP" id="" icon="IconMapCode" v-model="address.cp" required="true" placeholder="29950" name="cp"></CustomInput>
+                  <CustomInput
+                      label="Calle"
+                      id=""
+                      icon="IconSmartHome"
+                      v-model="address.street"
+                      required="true"
+                      placeholder="Anira 18"
+                      name="street"
+                      :errors="errorsAddress['street']">
+                  </CustomInput>
+                  <CustomInput
+                      label="Colonia"
+                      id=""
+                      icon="IconSmartHome"
+                      v-model="address.neighborhood"
+                      required="true"
+                      placeholder="Albania alta"
+                      name="neighborhood"
+                      :errors="errorsAddress['neighborhood']">
+                  </CustomInput>
+                  <CustomInput
+                      label="N° interior"
+                      id=""
+                      icon="IconNumber"
+                      v-model="address.interior_number"
+                      placeholder="S/N"
+                      name="interior_number"
+                      :errors="errorsAddress['interior_number']">
+                  </CustomInput>
+                  <CustomInput
+                      label="N° exterior"
+                      id=""
+                      icon="IconNumber"
+                      v-model="address.outer_number"
+                      placeholder="S/N"
+                      name="outer_number"
+                      :errors="errorsAddress['outer_number']">
+                  </CustomInput>
+                  <CustomInput
+                      label="Ciudad"
+                      id=""
+                      icon="IconBuildingSkyscraper"
+                      v-model="address.city"
+                      required="true"
+                      placeholder="Mexico"
+                      name="city"
+                      :errors="errorsAddress['city']">
+                  </CustomInput>
+                  <CustomInput
+                      label="Estado"
+                      id=""
+                      icon="IconBuildings"
+                      v-model="address.state"
+                      required="true"
+                      placeholder="Chiapas"
+                      name="state"
+                      :errors="errorsAddress['state']">
+                  </CustomInput>
+                  <CustomInput
+                      label="Localidad"
+                      id=""
+                      icon="IconMap"
+                      v-model="address.locality"
+                      required="true"
+                      placeholder="Tuxtla Gutierrez"
+                      name="locality"
+                      :errors="errorsAddress['locality']">
+                  </CustomInput>
+                  <CustomInput
+                      label="CP"
+                      id=""
+                      icon="IconMapCode"
+                      v-model="address.cp"
+                      required="true"
+                      placeholder="29950"
+                      name="cp"
+                      :errors="errorsAddress['cp']">
+                  </CustomInput>
               </div>
               <Button button-class="bg-green-500 rounded text-white" icon="IconPlus" label="Guardar" type="submit"></Button>
           </form>
       </Modal>
+    <Modal title="EXPORTAR" :is-modal-open="isModalExport" width="sm:max-w-xl" @close="toggleModalExport">
+        <form @submit.prevent="fetchExport">
+            <p class="mb-5 text-md text-gray-600">Datos a exportar</p>
+            <div class="flex gap-10 mb-5">
+                <div class="inline-flex items-center">
+                    <label class="relative flex items-center cursor-pointer" for="html">
+                        <input name="data_export" type="radio" value="all" v-model="dataExport" id="export-all" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" required>
+                        <span class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    </span>
+                    </label>
+                    <label class="ml-2 text-slate-600 cursor-pointer text-sm" for="export-all">Todos</label>
+                </div>
 
+                <div class="inline-flex items-center">
+                    <label class="relative flex items-center cursor-pointer">
+                        <input name="data_export" type="radio" value="filters" v-model="dataExport" id="export-filters" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" required>
+                        <span class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    </span>
+                    </label>
+                    <label class="ml-2 text-slate-600 cursor-pointer text-sm" for="export-filters">Filtros aplicados</label>
+                </div>
+            </div>
+            <p class="mb-5 text-md text-gray-600">Formato</p>
+            <div class="flex gap-10 mb-5">
+                <div class="inline-flex items-center">
+                    <label class="relative flex items-center cursor-pointer" for="html">
+                        <input name="format" type="radio" value="xlsx" v-model="format" id="format-excel" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" required>
+                        <span class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    </span>
+                    </label>
+                    <label class="ml-2 text-slate-600 cursor-pointer text-sm" for="format-excel">Excel</label>
+                </div>
+
+                <div class="inline-flex items-center">
+                    <label class="relative flex items-center cursor-pointer">
+                        <input name="format" type="radio" value="pdf" v-model="format" id="format-pdf" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" required>
+                        <span class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    </span>
+                    </label>
+                    <label class="ml-2 text-slate-600 cursor-pointer text-sm" for="format-pdf">PDF</label>
+                </div>
+            </div>
+            <p class="mb-5 text-md text-gray-600">Información a exportar</p>
+            <div class="mb-3">
+                <nav class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 grid-rows-1 gap-2">
+                    <div
+                        v-for="(column, index) in columnsExport"
+                        :key="index"
+                        role="button"
+                        class="flex w-full items-center rounded-lg p-0 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"
+                    >
+                        <label class="flex w-full cursor-pointer items-center space-x-2 px-3 py-2">
+                            <div class="relative flex items-center">
+                                <input
+                                    type="checkbox"
+                                    :value="index"
+                                    name="columns[]"
+                                    v-model="columnsSelected"
+                                    class="peer h-5 w-5 cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                                />
+                                <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <TablerIcon size="22" icon="IconCheck"></TablerIcon>
+                                </span>
+                            </div>
+                            <span class="text-slate-600 text-sm">{{ column }}</span>
+                        </label>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="flex justify-end">
+                <Button button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
+            </div>
+        </form>
+    </Modal>
+    <Drawer title="FILTROS AVANZADOS" :is-drawer-open="isDrawerOpen" @close="toggleDrawer">
+        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 grid-rows-1 gap-4 ">
+            <CustomInput
+                placeholder="Nombre(s)"
+                name="first_name"
+                id="first_name"
+                label="Nombre(s)"
+                required="true"
+                v-model="filters.first_name"
+                icon="IconUser"
+            >
+            </CustomInput>
+            <CustomInput
+                placeholder="Apellido(s)"
+                name="last_name"
+                id="last_name"
+                label="Apellido(s)"
+                required="true"
+                v-model="filters.last_name"
+                icon="IconUser"
+            >
+            </CustomInput>
+            <div class="block">
+                <label  class="block mb-2 text-sm font-sm text-gray-500">Télefono</label>
+                <vue3-phone-input
+                    v-model="filterPhone"
+                    placeholder="Número de teléfono"
+                    required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 h-10"/>
+            </div>
+            <CustomSelect
+                icon="IconId"
+                name="type_employee_id"
+                id="type_employee_id"
+                label="Tipo de empleado"
+                v-model="filters.type_employee_id"
+                :options="typeEmployees"
+            >
+            </CustomSelect>
+            <CustomInput
+                placeholder="DNI"
+                name="dni"
+                id="dni"
+                label="DNI"
+                required="true"
+                v-model="filters.dni"
+                icon="IconId"
+            >
+            </CustomInput>
+            <CustomInput
+                placeholder="Correo"
+                name="email"
+                id="email"
+                label="Correo"
+                type="email"
+                required=""
+                v-model="filters.email"
+                icon="IconMail"
+            >
+            </CustomInput>
+            <CustomInput
+                placeholder="Nombre de usuario"
+                name="user_name"
+                id="user_name"
+                label="Nombre de usuario"
+                required="true"
+                v-model="filters.user_name"
+                icon="IconUser"
+            >
+            </CustomInput>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-4">
+            <Button button-class="border bg-white text-red-600 rounded-lg mb-3 hover:bg-red-600 hover:text-white" :on-click="cleanFilters" icon="IconTrashFilled" label="Limpiar filtros" type="button"></Button>
+            <Button button-class="border bg-white text-blue-600 rounded-lg mb-3 hover:bg-blue-600 hover:text-white" :on-click="fetchEmployees" icon="IconFilterSearch" label="Aplicar filtros" type="button"></Button>
+        </div>
+    </Drawer>
   </section>
 
 </template>
@@ -226,7 +458,7 @@
 <script setup lang="ts">
     import {onMounted, ref, markRaw, nextTick } from 'vue';
     import axios from 'axios';
-    import {Employee, CreateEmployee} from '../../types/Employees/Employee';
+    import {Employee, CreateEmployee, ColumnsExportAnsFilters} from '../../types/Employees/Employee';
     import {Response} from '../../types/Response';
     import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import CustomInput from '../CustomInput.vue'
@@ -242,11 +474,14 @@
     import Modal from "../../components/Modal.vue";
     import TablerIcon from "../TablerIcon.vue";
     import {Address} from "../../types/Addresses/Address";
+    import Drawer from "../Drawer.vue";
+    import {apiGet, apiPost} from "../../src/services/api";
 
     const employees = ref<Employee>([]);
     const response = ref<Response<Employee> | null>(null);
     const isModalOpen = ref(false);
     const isModalAddressOpen = ref(false);
+    const isModalExport = ref(false);
     const tabs = [
         {label: 'Datos personales', icon: 'IconNotes'},
         {label: 'Datos de acceso', icon: 'IconKey'},
@@ -256,10 +491,14 @@
     const selectedTab = ref(0);
     const typeEmployees = ref<TypeEmployee[]>([]);
     const phone = ref({country_code: '', phone_number: ''});
+    const filterPhone = ref({});
     const errors = ref({});
+    const errorsAddress = ref({});
     const isFetchEmployees = ref(false);
+    const itemAddresses = ref<Address[]>([]);
     const employee = ref<CreateEmployee>({
         type_employee_id: '0',
+        type_entity: 'employee',
         user: {
             user_name: '',
             password: '',
@@ -272,7 +511,18 @@
             dni: '0',
             country_code: '',
             phone_number: ''
-        }
+        },
+        addresses: itemAddresses
+    });
+    const columnsExport = ref<ColumnsExportAnsFilters>({
+        first_name: '',
+        last_name: '',
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_employee_id: '',
+        status: '',
     });
     const columns = ref<Column>([
         {key: 'id', label: 'ID'},
@@ -283,10 +533,19 @@
         {key: 'type_employee.type', label: 'TIPO'},
         {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
     ]);
-    const itemAddresses = ref<Address[]>([]);
-    const filters = ref({
-        email: '',
-    });
+    const dataExport = ref('');
+    const format = ref('');
+    const columnsSelected = ref([]);
+    const filters = ref<ColumnsExportAnsFilters>({
+        first_name: '',
+        last_name: '',
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_employee_id: '0',
+        status: '',
+    })
     const autocompleteInput = ref(null);
     const address = ref<Address>({
         address: '',
@@ -301,26 +560,28 @@
         latitude: '',
         longitude: ''
     });
-
-    const fetchEmployees = async (pageUrl: string = '/api/employees') => {
+    const isDrawerOpen = ref(false);
+    const fetchEmployees = async (pageUrl: string = 'employees') => {
         employees.value = [];
         isFetchEmployees.value = true;
+        if(Object.keys(filterPhone.value).length !== 0){
+            filters.value.phone_number = filterPhone.value.callingCode + filterPhone.value.nationalNumber;
+        }
         try {
-            const res = await axios.get<Response<Employee>>(pageUrl,{
-                params: {filters: filters.value}
-            });
-            employees.value = res.data.data.data;
-            response.value = res.data.data;
+            const res = await apiGet(pageUrl, filters.value, true)
+            employees.value = res.data.data;
+            response.value = res.data;
+            columnsExport.value = res.columnsExport;
             isFetchEmployees.value = false;
         } catch (error) {
             isFetchEmployees.value = false;
-            console.error('Error fetching users:', error);
+            showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
         }
     };
-    const fetchTypeEmployees = async (pageUrl: string = '/api/type-employees') => {
+    const fetchTypeEmployees = async () => {
         try {
-            const res = await axios.get<Response<TypeEmployees>>(pageUrl);
-            typeEmployees.value = res.data.data;
+            const res = await apiGet<TypeEmployees>('type-employees');
+            typeEmployees.value = res.data;
         } catch (error) {
             console.error('Error fetching type employees:', error);
         }
@@ -329,11 +590,53 @@
         employee.value.people.country_code = phone.value.callingCode;
         employee.value.people.phone_number = phone.value.nationalNumber;
         try {
-            const res = await axios.post('api/users', employee.value);
-            if(res.data.type === 'success'){
-                showAlert(res.data.type, res.data.title, res.data.message);
+            const res = await apiPost('users', employee.value);
+            if(res.type === 'success'){
+                showAlert(res.type, res.title, res.message);
                 fetchEmployees();
                 closeModal();
+            }else{
+                showAlert(res.type, res.title, res.message);
+            }
+        } catch (error) {
+            if(error.response && error.response.data.errors){
+                showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
+                errors.value = error.response.data.errors;
+            }
+        }
+    }
+    const fetchExport = async () => {
+        try {
+            const res = await axios.get('api/employees-export', {
+                params: {
+                    data_export: dataExport.value,
+                    filters: filters.value,
+                    format: format.value,
+                    columns_selected: columnsSelected.value
+                },
+            });
+            if(res.data.type === 'success'){
+                // Extraer datos del JSON
+                const { file, mime } = res.data.data;
+
+                // Decodificar el archivo base64
+                const byteCharacters = atob(file);
+                const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+                const byteArray = new Uint8Array(byteNumbers);
+
+                // Crear un Blob con el contenido del archivo
+                const blob = new Blob([byteArray], { type: mime });
+
+                // Crear URL y desencadenar la descarga
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Empleados' + format.value); // Usar el nombre proporcionado por el backend
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showAlert(res.data.type, res.data.title, res.data.message);
+                toggleModalExport()
             }else{
                 showAlert(res.data.type, res.data.title, res.data.message);
             }
@@ -341,6 +644,23 @@
             if(error.response && error.response.data.errors){
                 showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
                 errors.value = error.response.data.errors;
+            }
+        }
+    }
+    const fetchValidateAddress = async () => {
+        try {
+            const res = await apiPost('address-validate', address.value);
+            if(res.type === 'success'){
+                addAddress();
+                showAlert(res.type, res.title, res.message);
+                closeModalAddress();
+            }else{
+                showAlert(res.type, res.title, res.message);
+            }
+        } catch (error) {
+            if(error.response && error.response.errors){
+                showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
+                errorsAddress.value = error.response.errors;
             }
         }
     }
@@ -379,6 +699,20 @@
         });
         itemAddresses.value[index].isOpen = !itemAddresses.value[index].isOpen;
     };
+    const cleanFilters = () => {
+        filters.value = {
+            first_name: '',
+            last_name: '',
+            email:'',
+            dni:  '',
+            phone_number: '',
+            user_name: '',
+            type_employee_id: '0',
+            status: '',
+        }
+        filterPhone.value = {};
+        fetchEmployees();
+    }
     const nextTab = () => {
         selectedTab.value = selectedTab.value + 1;
     }
@@ -395,6 +729,13 @@
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
     };
+    const toggleModalExport = () => {
+        isModalExport.value = !isModalExport.value;
+    }
+    const toggleDrawer = () => {
+        fetchTypeEmployees();
+        isDrawerOpen.value = !isDrawerOpen.value;
+    }
     const initAutocomplete = async () => {
         await nextTick();
         const input = document.getElementById("address");
@@ -437,6 +778,8 @@
                     address.value.cp = component.long_name;
                 }
             });
+            address.value.latitude = place.geometry.location.lat();
+            address.value.longitude = place.geometry.location.lng();
         });
     };
     onMounted(() => {

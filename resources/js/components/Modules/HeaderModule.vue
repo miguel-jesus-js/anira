@@ -3,8 +3,8 @@
         <div class="sm:flex sm:items-center sm:justify-between">
             <div>
                 <div class="flex items-center gap-x-3">
-                    <h2 class="font-medium text-2xl text-gray-800">Empleados</h2>
-                    <span class="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full">{{ totalRecords }} Empleados</span>
+                    <h2 class="font-medium text-2xl text-gray-800">{{ title }}</h2>
+                    <span class="px-3 py-1 text-xs text-[#E9F5F3] bg-[#6DBCB6] rounded-full">{{ totalRecords + ' ' + title }}</span>
                 </div>
             </div>
 
@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="mt-6 md:flex md:items-center md:justify-between">
-            <div class="inline-flex overflow-hidden bg-white border divide-x rounded-lg rtl:flex-row-reverse">
+            <div class="block md:inline-flex overflow-hidden bg-[#A97E59] rounded-lg rtl:flex-row-reverse">
                 <slot name="section2"></slot>
             </div>
 
@@ -29,7 +29,12 @@
         totalRecords: {
             type: Number,
             required: true
+        },
+        title: {
+            type: String,
+            required: true
         }
+
     })
 </script>
 

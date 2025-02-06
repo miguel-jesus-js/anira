@@ -25,7 +25,7 @@ class UserRepository implements UserInterface
     public function update(int $id, array $data)
     {
         // TODO: Implement update() method.
-        $user = User::findOrFail($id);
+        $user = $this->find($id);
         return $user->update($data);
     }
     public function delete(int $id)

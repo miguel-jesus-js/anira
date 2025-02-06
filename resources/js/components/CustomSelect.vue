@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label :for="id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ label }}</label>
+        <label :for="id" class="block mb-2 text-sm font-sm text-gray-500">{{ label }}</label>
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                 <component :is="iconComponent" class="w-4 h-4 text-gray-500" />
@@ -10,7 +10,9 @@
                 :name="name"
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value.toString())"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5">
+                :class="selectClass"
+                :disabled="disabled"
+                class="text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5">
                 <option value="0" disabled selected>Selecciona una opción</option>
                 <option v-for="option in options" :key="option.id" :value="option.id">{{ option.type }}</option>
             </select>
@@ -25,6 +27,11 @@ import * as TablerIcons from "@tabler/icons-vue";
 import {TypeEmployee} from "../types/TypeEmployees/TypeEmployee";
 
 const props = defineProps({
+    selectClass: {
+        type: String,
+        required: false,
+        default: 'border text-gray-900 bg-gray-50 border-gray-300'
+    },
     label: {
         type: String,
         required: true,
@@ -38,7 +45,7 @@ const props = defineProps({
         required: true,
     },
     modelValue: {
-        type: String,
+        type: [String, Number],
         required: true,
     },
     icon: {
@@ -51,7 +58,12 @@ const props = defineProps({
     },
     errors: {
         type: Array,
-        required: true,
+        required: false,
+    },
+    disabled: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 })
 const iconComponent = computed(() => {
