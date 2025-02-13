@@ -84,13 +84,19 @@
     import Button from "../../components/Button.vue";
     import TablerIcon from "../../components/TablerIcon.vue";
     import {useRedirect} from "../../composables/Redirect";
-    import {confirmDelete, showAlert} from "../../composables/SweetAlert";
+    import {confirmDelete, defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
     import axios from "axios";
+    import {apiDelete} from "../../src/services/api";
 
     const props = defineProps({
         columns: {
             type: Array as PropType<Column[]>,
             required: true
+        },
+        fetchApi: {
+            type: Function,
+            default: () => {},
+            required: false,
         },
         isFetch: {
             type: Boolean,
@@ -164,10 +170,15 @@
     };
     const handleDelete = async (url: string, id: number) => {
         try {
-            const res = await axios.delete(url + id );
-            showAlert(res.data.type, res.data.title, res.data.message);
+            const res = await apiDelete(url + id);
+            showAlert(res.type, res.title, res.message);
+            props.fetchApi();
         } catch (error) {
-
+            if(error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
         }
     };
     const onDeleteClick = (url: string, id: number) => {

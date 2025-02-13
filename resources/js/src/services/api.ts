@@ -7,9 +7,9 @@ export const apiClient = axios.create({
     timeout: 10000
 })
 
-export const apiGet = async (pageUrl: string, filters: [] = [], paginate: boolean = false): Promise<T> => {
+export const apiGet = async (pageUrl: string, payload: {}): Promise<T> => {
     const response = await apiClient.get(pageUrl,{
-        params: {filters: filters, paginate: paginate}
+        params: payload
     });
     return response.data
 };
@@ -23,6 +23,11 @@ export const apiPut = async (pageUrl: string, data: []): Promise<T> => {
     const response = await apiClient.put(pageUrl, data);
     return response.data
 };
+
+export const apiDelete = async (pageUrl: string): Promise<T> => {
+    const response = await apiClient.delete(pageUrl);
+    return response.data
+}
 /*apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {

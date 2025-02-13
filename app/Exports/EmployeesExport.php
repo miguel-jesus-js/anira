@@ -8,9 +8,9 @@ use Maatwebsite\Excel\Concerns\FromView;
 
 class EmployeesExport implements FromView
 {
-    protected $format;
-    protected $filters;
-    protected $columns;
+    protected string $format;
+    protected array $filters;
+    protected array $columns;
 
     public function __construct(string $format, array $filters, array $columns)
     {

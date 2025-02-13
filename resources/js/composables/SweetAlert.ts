@@ -33,3 +33,10 @@ export function confirmDelete(url, id, onConfirm){
         }
     });
 }
+
+export function defaultError(){
+    showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
+}
+export function defaultErrorUser(){
+    showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
+}

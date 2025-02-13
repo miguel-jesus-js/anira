@@ -4,12 +4,18 @@ import EmployeeDetails from "./components/Employess/EmployeeDetails.vue";
 import Home from './components/Home.vue';
 import Customer from "./components/Customers/Customer.vue";
 import CustomerDetails from "./components/Customers/CustomerDetails.vue";
+import TypeEmployee from "./components/Customers/TypeEmployee.vue";
 
 const routes = [
     {
         path: '/',
         name: 'Home',
         component: Home
+    },
+    {
+        path: '/tipo-de-empleados',
+        name: 'TypeEmployees',
+        component: TypeEmployee
     },
     {
         path: '/empleados',

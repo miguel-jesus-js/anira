@@ -18,7 +18,7 @@ class TypeCustomerRepository implements BaseRepositoryInterface
         // TODO: Implement create() method.
         return $this->typeCustomer::create($data);
     }
-    public function all(array $filters, array $relations, bool $paginate, int $perPage)
+    public function all(array $filters = [], array $relations = [], bool $paginate = false, int $perPage = 10)
     {
         // TODO: Implement all() method.
         return $this->typeCustomer::all();

@@ -19,13 +19,16 @@ Route::get('/type-employees', [TypeEmployeeController::class, 'index']);
 Route::post('/type-employees', [TypeEmployeeController::class, 'store']);
 Route::get('/type-employees/{id}', [TypeEmployeeController::class, 'show']);
 Route::put('/type-employees/{id}', [TypeEmployeeController::class, 'update']);
-Route::delete('/type-employees/{id}', [TypeEmployeeController::class, 'destroy']);
+Route::delete('/type-employees/{id}', [TypeEmployeeController::class, 'delete']);
+Route::get('/type-employees-export', [TypeEmployeeController::class, 'export']);
+
 
 Route::get('/type-customers', [TypeCustomerController::class, 'index']);
 Route::post('/type-customers', [TypeCustomerController::class, 'store']);
 Route::get('/type-customers/{id}', [TypeCustomerController::class, 'show']);
 Route::put('/type-customers/{id}', [TypeCustomerController::class, 'update']);
 Route::delete('/type-customers/{id}', [TypeCustomerController::class, 'destroy']);
+Route::get('/type-customers-export', [TypeCustomerController::class, 'destroy']);
 
 Route::get('/employees', [EmployeeController::class, 'index']);
 Route::post('/employees', [EmployeeController::class, 'store']);
