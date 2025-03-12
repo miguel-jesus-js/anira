@@ -17,7 +17,7 @@ class TypeCustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'type' => fake()->name(),
+            'type_customer' => fake()->name(),
             'status' => 1
         ];
     }

@@ -5,37 +5,85 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddressRequest;
 use App\Repositories\Addresses\AddressesRepository;
 use App\Repositories\People\PeopleRepository;
+use Exception;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
 class AddressController extends Controller
 {
-    protected $addressRepository;
-    protected $peopleRepository;
-
+    use ApiResponse;
+    protected AddressesRepository $addressRepository;
+    protected PeopleRepository $peopleRepository;
     public function __construct(AddressesRepository $addressRepository, PeopleRepository $peopleRepository)
     {
         $this->addressRepository = $addressRepository;
         $this->peopleRepository = $peopleRepository;
     }
-    public function store(int $peopleId, AddressRequest $request)
+
+
+    /**
+     * @param int $peopleId
+     * @param AddressRequest $request
+     * @return JsonResponse
+     */
+    public function store(int $peopleId, AddressRequest $request): JsonResponse
     {
-        $address = $this->addressRepository->create($request->all());
-        $people = $this->peopleRepository->find($peopleId);
-        $this->peopleRepository->attach($people, $address);
-        return response()->json(['type' => 'success', 'title' => 'Éxito', 'message' => 'Dirrección registrada', 'data' => []], 201);
-    }
-    public function update(int $addressId, AddressRequest $request)
-    {
-        $address = $this->addressRepository->update($addressId, $request->all());
-        return response()->json(['type' => 'success', 'title' => 'Éxito', 'message' => 'Dirrección actualizada', 'data' => []], 201);
-    }
-    public function validate(AddressRequest $request)
-    {
-        return response()->json(['type' => 'success', 'title' => 'Éxito', 'message' => 'Dirrección valida', 'data' => []], 201);
+        try {
+            $addressInfo = $request->all();
+            $existingAddress = $this->addressRepository->existAddressWithLocation($addressInfo['latitude'], $addressInfo['longitude']);
+            $people = $this->peopleRepository->find($peopleId);
+            if(is_null($existingAddress))
+            {
+                $newAddress = $this->addressRepository->create($addressInfo);
+                $this->peopleRepository->attach($people->id, $newAddress);
+            }else{
+                if(!$existingAddress->people()->exists())
+                {
+                    $this->peopleRepository->attach($people->id, $existingAddress);
+                }
+            }
+            return $this->successResponse(self::MESSAGE_CREATED);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), $e->getCode());
+        }
     }
 
-    public function delete(int $id)
+    /**
+     * @param int $id
+     * @param AddressRequest $request
+     * @return JsonResponse
+     */
+    public function update(int $id, AddressRequest $request): JsonResponse
     {
-        $employee = $this->addressRepository->delete($id);
-        return response()->json(['type' => 'success', 'message' => 'Registro eliminado', 'data' => []], 201);
+        try {
+            $this->addressRepository->update($id, $request->all());
+            return $this->successResponse(self::MESSAGE_UPDATED);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @param AddressRequest $request
+     * @return JsonResponse
+     */
+    public function validate(AddressRequest $request): JsonResponse
+    {
+        return $this->successResponse('Dirección validada');
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $this->addressRepository->delete($id);
+            return $this->successResponse(self::MESSAGE_DELETED);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 }

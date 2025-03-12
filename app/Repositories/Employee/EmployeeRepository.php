@@ -2,35 +2,18 @@
 
 namespace App\Repositories\Employee;
 
-use App\Interfaces\Employee\EmployeeInterface;
 use App\Models\Employee;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
+use App\Repositories\BaseRepository;
 
-class EmployeeRepository implements EmployeeInterface
+class EmployeeRepository extends BaseRepository
 {
-    protected $employee;
-
     public function __construct(Employee $employee)
     {
-        $this->employee = $employee;
-    }
-    public function create(array $data)
-    {
-        // TODO: Implement create() method.
-        return Employee::create($data);
+        parent::__construct($employee);
     }
 
-    /**
-     * @param array $filters
-     * @param array $relations
-     * @param bool $paginate
-     * @param int $perPage
-     * @return LengthAwarePaginator|Collection
-     */
-    public function all(array $filters, array $relations, bool $paginate, int $perPage): LengthAwarePaginator|Collection
+    protected function applyFilters($query, array $filters): void
     {
-        $query = $this->employee->newQuery();
         if(!empty($filters['first_name']))
         {
             $query->firstName($filters['first_name']);
@@ -63,42 +46,5 @@ class EmployeeRepository implements EmployeeInterface
         {
             $query->status($filters['status']);
         }
-        $query->with($relations);
-        if($paginate)
-        {
-            return $query->paginate($perPage);
-        }
-        return $query->get();
-    }
-
-    /**
-     * @param int $id
-     * @param array $relations
-     * @return object
-     */
-    public function find(int $id, array $relations = []) : object
-    {
-        return $this->employee->find($id)->load($relations);
-    }
-    public function update(int $id, array $data)
-    {
-        // TODO: Implement update() method.
-        $employee = $this->find($id);
-        return $employee->update($data);
-    }
-    public function delete(int $id)
-    {
-        // TODO: Implement delete() method.
-        $employee = $this->employee->find($id);
-        return $employee->delete();
-    }
-    public function filter(array $filters, array $relations = [], int $perPage = 10)
-    {
-        $query = Employee::query();
-        $query->with($relations)->orderBy('employees.id', 'DESC');
-        if(isset($filters['email'])) {
-            $query->filterByEmail($filters['email']);
-        }
-        return $query->paginate($perPage);
     }
 }

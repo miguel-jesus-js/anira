@@ -2,27 +2,18 @@
 
 namespace App\Repositories\Customers;
 
-use App\Interfaces\BaseRepositoryInterface;
 use App\Models\Customer;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use App\Repositories\BaseRepository;
 
-class CustomerRepository implements BaseRepositoryInterface
+class CustomerRepository extends BaseRepository
 {
-    protected $customer;
-
     public function __construct(Customer $customer)
     {
-        $this->customer = $customer;
+        parent::__construct($customer);
     }
-    public function create(array $data)
+
+    protected function applyFilters($query, array $filters): void
     {
-        return $this->customer::create($data);
-    }
-    public function all(array $filters, array $relations, bool $paginate, int $perPage): LengthAwarePaginator|Collection
-    {
-        $query = $this->customer->newQuery();
         if(!empty($filters['first_name']))
         {
             $query->firstName($filters['first_name']);
@@ -55,26 +46,5 @@ class CustomerRepository implements BaseRepositoryInterface
         {
             $query->status($filters['status']);
         }
-        $query->with($relations);
-        if($paginate)
-        {
-            return $query->paginate($perPage);
-        }
-        return $query->get();
-    }
-
-    public function find(int $id, $relations = []): object
-    {
-        return $this->customer->find($id)->load($relations);
-
-    }
-    public function update(int $id, array $data)
-    {
-        $customer = $this->find($id);
-        return $customer->update($data);
-    }
-    public function delete(int $id)
-    {
-
     }
 }

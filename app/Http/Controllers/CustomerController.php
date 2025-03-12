@@ -6,13 +6,19 @@ use App\Models\Customer;
 use App\Repositories\Customers\CustomerRepository;
 use App\Repositories\People\PeopleRepository;
 use App\Repositories\User\UserRepository;
+use App\Services\Export\ExportService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Exception;
+use Illuminate\Http\JsonResponse;
 
 class CustomerController extends Controller
 {
-    protected $customerRepository;
-    protected $peopleRepository;
-    protected $userRepository;
+    use ApiResponse;
+    protected CustomerRepository $customerRepository;
+    protected PeopleRepository $peopleRepository;
+    protected UserRepository $userRepository;
 
     public function __construct(CustomerRepository $customerRepository, PeopleRepository $peopleRepository, UserRepository $userRepository)
     {
@@ -20,37 +26,98 @@ class CustomerController extends Controller
         $this->peopleRepository = $peopleRepository;
         $this->userRepository = $userRepository;
     }
-    public function index(Request $request)
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
     {
-        $filters = $request->query('filters');
-        $relations = ['typeCustomer', 'people', 'people.user'];
-        $paginate = $request->query('paginate', true);
-        $perPage = $request->query('perPage', 10);
-        $employees = $this->customerRepository->all($filters, $relations, $paginate, $perPage);
-        $columnsExport = Customer::columnsExport;
-        $filters = Customer::filters;
-        return response()->json([
-            'type' => 'success',
-            'message' => 'Datos consultados',
-            'data' => $employees,
-            'columnsExport' => $columnsExport,
-            'filters' => $filters,
-        ], 201);
+        try {
+            $filters = $request->query('filters', []);
+            $relations = ['typeCustomer', 'people', 'people.user'];
+            $paginate = $request->query('paginate', false);
+            $perPage = $request->query('perPage', 10);
+            $customers = $this->customerRepository->all($filters, $relations, $paginate, $perPage);
+            $columnsExport = Customer::columnsExport;
+            $filters = Customer::filters;
+            $data = [
+                'customers' => $customers,
+                'columnsExport' => $columnsExport,
+                'filters' => $filters,
+            ];
+            return $this->successResponse(self::MESSAGE_FETCHED, $data);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), $e->getCode());
+        }
     }
 
-    public function show(int $id)
+    /**
+     * @param int $id
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function show(int $id): JsonResponse
     {
-        $customer = $this->customerRepository->find($id, ['typeCustomer', 'people', 'people.user', 'people.addresses']);
-        return response()->json(['type' => 'success', 'message' => 'Datos obtenidos', 'data' => $customer], 201);
+        try {
+            $customer = $this->customerRepository->find($id, ['typeCustomer', 'people', 'people.user', 'people.addresses']);
+            return $this->successResponse(self::MESSAGE_FETCHED, [$customer]);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), $e->getCode());
+        }
     }
 
-    public function update(Request $request, int $id)
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, int $id): JsonResponse
     {
-        $data = $request->all();
-        $customer = $this->customerRepository->update($id, $data);
-        $people = $this->peopleRepository->update($data['people_id'], $data['people']);
-        $jsj = $data['people']['user_id'];
-        $user = $this->userRepository->update($data['people']['user_id'], $data['people']['user']);
-        return response()->json(['type' => 'success', 'message' => 'Registro actualizado', 'data' => []], 201);
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $this->customerRepository->update($id, $data);
+            $this->peopleRepository->update($data['people_id'], $data['people']);
+            $this->userRepository->update($data['people']['user_id'], $data['people']['user']);
+            DB::commit();
+            return $this->successResponse(self::MESSAGE_UPDATED);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $this->customerRepository->delete($id);
+            return $this->successResponse(self::MESSAGE_DELETED);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function export(Request $request): JsonResponse
+    {
+        $format = $request->query('format');
+        $filters = $request->query('filters', []);
+        $columnsSelected = $request->query('columns_selected');
+        $columns = array_intersect_key(Customer::columnsExport, array_flip($columnsSelected));
+        try {
+            $export = new ExportService();
+            $archive = $export->exportBase64('customers', $format, $filters, $columns);
+            return $this->successResponse(self::MESSAGE_CREATED, $archive);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 }

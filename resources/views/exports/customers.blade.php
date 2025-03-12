@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tipo de empleados</title>
+    <title>Clientes</title>
     <style>
         table {
             border-collapse: collapse;
@@ -18,7 +18,7 @@
         }
         table th, table td {
             text-align: center;
-            padding: 5px 0;
+            padding: 5px 0px;
         }
         table tbody tr {
             border-bottom: 1px solid #dddddd;
@@ -49,13 +49,34 @@
         </tr>
         </thead>
         <tbody>
-        @for ($i = 0; $i < sizeof($type_employees); $i++)
+        @for ($i = 0; $i < sizeof($customers); $i++)
             <tr>
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
-                        @case('type_employee')
-                            <th>{{ $type_employees[$i][$key]  }}</th>
+                        @case('first_name')
+                            <th>{{ $customers[$i]['people'][$key]  }}</th>
+                            @break
+                        @case('last_name')
+                            <th>{{ $customers[$i]['people'][$key]  }}</th>
+                            @break
+                        @case('email')
+                            <th>{{ $customers[$i]['people'][$key]  }}</th>
+                            @break
+                        @case('dni')
+                            <th>{{ $customers[$i]['people'][$key]  }}</th>
+                            @break
+                        @case('phone_number')
+                            <th>{{ $customers[$i]['people'][$key]  }}</th>
+                            @break
+                        @case('user_name')
+                            <th>{{ $customers[$i]['people']['user'][$key]  }}</th>
+                            @break
+                        @case('type_customer_id')
+                            <th>{{ $customers[$i]['typeCustomer']['type_customer']  }}</th>
+                            @break
+                        @case('status')
+                            <th>{{ \App\Models\Customer::STATUS[$customers[$i]['status']]  }}</th>
                             @break
                     @endswitch
                 @endforeach

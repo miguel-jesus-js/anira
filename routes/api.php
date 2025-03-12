@@ -27,8 +27,8 @@ Route::get('/type-customers', [TypeCustomerController::class, 'index']);
 Route::post('/type-customers', [TypeCustomerController::class, 'store']);
 Route::get('/type-customers/{id}', [TypeCustomerController::class, 'show']);
 Route::put('/type-customers/{id}', [TypeCustomerController::class, 'update']);
-Route::delete('/type-customers/{id}', [TypeCustomerController::class, 'destroy']);
-Route::get('/type-customers-export', [TypeCustomerController::class, 'destroy']);
+Route::delete('/type-customers/{id}', [TypeCustomerController::class, 'delete']);
+Route::get('/type-customers-export', [TypeCustomerController::class, 'export']);
 
 Route::get('/employees', [EmployeeController::class, 'index']);
 Route::post('/employees', [EmployeeController::class, 'store']);

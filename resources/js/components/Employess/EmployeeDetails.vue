@@ -200,7 +200,7 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 mx-4 mt-6">
-                                    <Button button-class="border bg-red-600 text-white rounded-lg mb-3" :on-click="() => onDeleteClick(item.id)" icon="IconX" label="Eliminar" type="button"></Button>
+                                    <Button button-class="border bg-red-600 text-white rounded-lg mb-3" :on-click="() => onDeleteClick('/api/address/', item.id)" icon="IconX" label="Eliminar" type="button"></Button>
                                     <Button button-class="border bg-blue-600 text-white rounded-lg mb-3" :on-click="() => editAddress(item)" icon="IconCheck" label="Editar" type="button"></Button>
                                 </div>
                             </div>
@@ -300,127 +300,32 @@
             </div>
         </div>
     </div>
-    <Modal title="AGREGAR DIRECCIÓN" width="sm:max-w-2xl" :is-modal-open="isModalAddressOpen" @close="closeModalAddress" >
-        <form class="max-w-5xl" @submit.prevent="isEditingAddress ? fetchUpdateAddress(address.id) : fetchCreateAddress(employee.people_id)">
-            <CustomInput
-                ref="autocompleteInput"
-                label="Dirección"
-                id="address"
-                icon="IconLocationFilled"
-                v-model="address.address"
-                required="true"
-                placeholder="Dirección"
-                name="address"
-                :errors="errorsAddress['address']">
-            </CustomInput>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4 my-3">
-                <CustomInput
-                    label="Calle"
-                    id=""
-                    icon="IconSmartHome"
-                    v-model="address.street"
-                    required="true"
-                    placeholder="Anira 18"
-                    name="street"
-                    :errors="errorsAddress['street']">
-                </CustomInput>
-                <CustomInput
-                    label="Colonia"
-                    id=""
-                    icon="IconSmartHome"
-                    v-model="address.neighborhood"
-                    required="true"
-                    placeholder="Albania alta"
-                    name="neighborhood"
-                    :errors="errorsAddress['neighborhood']">
-                </CustomInput>
-                <CustomInput
-                    label="N° interior"
-                    id=""
-                    icon="IconNumber"
-                    v-model="address.interior_number"
-                    placeholder="S/N"
-                    name="interior_number"
-                    :errors="errorsAddress['interior_number']">
-                </CustomInput>
-                <CustomInput
-                    label="N° exterior"
-                    id=""
-                    icon="IconNumber"
-                    v-model="address.outer_number"
-                    placeholder="S/N"
-                    name="outer_number"
-                    :errors="errorsAddress['outer_number']">
-                </CustomInput>
-                <CustomInput
-                    label="Ciudad"
-                    id=""
-                    icon="IconBuildingSkyscraper"
-                    v-model="address.city"
-                    required="true"
-                    placeholder="Mexico"
-                    name="city"
-                    :errors="errorsAddress['city']">
-                </CustomInput>
-                <CustomInput
-                    label="Estado"
-                    id=""
-                    icon="IconBuildings"
-                    v-model="address.state"
-                    required="true"
-                    placeholder="Chiapas"
-                    name="state"
-                    :errors="errorsAddress['state']">
-                </CustomInput>
-                <CustomInput
-                    label="Localidad"
-                    id=""
-                    icon="IconMap"
-                    v-model="address.locality"
-                    required="true"
-                    placeholder="Tuxtla Gutierrez"
-                    name="locality"
-                    :errors="errorsAddress['locality']">
-                </CustomInput>
-                <CustomInput
-                    label="CP"
-                    id=""
-                    icon="IconMapCode"
-                    v-model="address.cp"
-                    required="true"
-                    placeholder="29950"
-                    name="cp"
-                    :errors="errorsAddress['cp']">
-                </CustomInput>
-            </div>
-            <Button button-class="bg-green-500 rounded text-white" icon="IconPlus" :label="isEditingAddress ? 'Actualizar' : 'Guardar'" type="submit"></Button>
-        </form>
+    <Modal :title="isEditingAddress ? 'EDITAR DIRECCIÓN' : 'AGREGAR DIRECCIÓN'" width="sm:max-w-2xl" :is-modal-open="isModalAddressOpen" @close="closeModalAddress" >
+        <AddressComponent :submit="() => handleAddress(employee.people_id)" :address="address" :errors-address="errorsAddress"></AddressComponent>
     </Modal>
 
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, ref} from "vue";
+    import {onMounted, ref} from "vue";
     import Vue3PhoneInput from 'vue3-phone-input';
     import Button from "../../components/Button.vue";
     import {useRoute} from "vue-router";
     import axios from "axios";
-    import {Response} from "../../types/Response";
     import {Employee} from "../../types/Employees/Employee";
     import CustomInput from "../CustomInput.vue";
     import CustomSelect from "../CustomSelect.vue";
     import {TypeEmployee} from "../../types/TypeEmployees/TypeEmployee";
-    import {updateEmployee} from "../../src/services/Employee";
     import LoaderFetch from '../Loader/LoaderFetch.vue';
-    import {confirmDelete, showAlert} from "../../composables/SweetAlert";
+    import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
     import Modal from "../Modal.vue";
     import {Address} from "../../types/Addresses/Address";
-    import {postAddress, putAddress} from "../../src/services/Address";
     import TablerIcon from "../TablerIcon.vue";
-import {apiGet, apiPost, apiPut} from "../../src/services/api";
+    import {apiGet, apiPut} from "../../src/services/api";
+    import AddressComponent from "../Addresses/AddressComponent.vue";
+    import {useAutocomplete, useAddressValidation} from "../../composables/AddressValidation";
 
     const typeEmployees = ref<TypeEmployee[]>([]);
-
     const tabs = [
         {label: 'Datos personales', icon: 'IconNotes'},
         {label: 'Datos de acceso', icon: 'IconKey'},
@@ -449,7 +354,8 @@ import {apiGet, apiPost, apiPut} from "../../src/services/api";
         latitude: '',
         longitude: ''
     });
-    const errorsAddress = ref({});
+    const { initAutocomplete } = useAutocomplete();
+    const { fetchCreateAddress, errorsAddress } = useAddressValidation();
 
     const fetchEmployee = async () => {
         employee.value = {};
@@ -457,13 +363,17 @@ import {apiGet, apiPost, apiPut} from "../../src/services/api";
         isEditing.value = false;
         try {
             const res = await apiGet(`employees/${route.params.id}`);
-            employee.value = res.data;
+            employee.value = res.data[0];
             phoneNumber.value.number = '+' + employee.value.people.country_code + employee.value.people.phone_number;
             phoneNumber.value.nationalNumber = employee.value.people.phone_number
             isFetchEmployee.value = false;
         } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
             isFetchEmployee.value = false;
-            showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
         }
     };
     const fetchTypeEmployees = async () => {
@@ -487,39 +397,8 @@ import {apiGet, apiPost, apiPut} from "../../src/services/api";
             isEditing.value = false
         }
     }
-    const fetchCreateAddress = async (peopleId: number) => {
-        try {
-            const res = await apiPost(`address/${peopleId}`, address.value);
-            if(res.type === 'success'){
-                showAlert(res.type, res.title, res.message);
-                closeModalAddress();
-                fetchEmployee()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.errors){
-                showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-                errorsAddress.value = error.response.data.errors;
-            }
-        }
-    }
-    const fetchUpdateAddress = async (addressId: number) => {
-        try {
-            const res = await putAddress(`address/${addressId}`, address.value);
-            if(res.type === 'success'){
-                showAlert(res.type, res.title, res.message);
-                closeModalAddress();
-                fetchEmployee()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.errors){
-                showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-                errorsAddress.value = error.response.data.errors;
-            }
-        }
+    const handleAddress = (peopleId: number) => {
+        fetchCreateAddress(isEditingAddress.value, peopleId, address, closeModalAddress, fetchEmployee);
     }
     const editAddress = (dataAddress: Address) => {
         isEditingAddress.value = true;
@@ -531,9 +410,9 @@ import {apiGet, apiPost, apiPut} from "../../src/services/api";
         try {
             isLoader.value = true;
             const res = await axios.delete(url + id );
-            showAlert(res.data.type, res.data.title, res.data.message);
+            showAlert(res.type, res.title, res.message);
             isLoader.value = false;
-            fetchEmployee();
+            await fetchEmployee();
         } catch (error) {
             isLoader.value = false;
         }
@@ -543,56 +422,11 @@ import {apiGet, apiPost, apiPut} from "../../src/services/api";
     };
     const addItemAddresses = () => {
         isModalAddressOpen.value = true;
-        initAutocomplete();
+        initAutocomplete(address);
     }
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
-    };
-    const initAutocomplete = async () => {
-        await nextTick();
-        const input = document.getElementById("address");
-
-        if (!window.google || !window.google.maps) {
-            console.error("Google Maps no cargado");
-            return;
-        }
-
-        const autocomplete = new google.maps.places.Autocomplete(input, {
-            types: ['address']
-        });
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            address.value.address = place.formatted_address;
-            place.address_components.forEach(component => {
-                const types = component.types;
-                if (types.includes("route")) {
-                    address.value.street = component.long_name;
-                }
-                if (types.includes("sublocality_level_1")) {
-                    address.value.neighborhood = component.long_name;
-                }
-                if (types.includes("street_number")) {
-                    address.value.outer_number = component.long_name;
-                }
-                if (types.includes("subpremise")) {
-                    address.value.interior_number = component.long_name;
-                }
-                if (types.includes("country")) {
-                    address.value.city = component.long_name;
-                }
-                if (types.includes("administrative_area_level_1")) {
-                    address.value.state = component.long_name;
-                }
-                if (types.includes("locality")) {
-                    address.value.locality = component.long_name;
-                }
-                if (types.includes("postal_code")) {
-                    address.value.cp = component.long_name;
-                }
-            });
-            address.value.latitude = place.geometry.location.lat();
-            address.value.longitude = place.geometry.location.lng();
-        });
+        address.value = {};
     };
     onMounted(() => {
         fetchEmployee();

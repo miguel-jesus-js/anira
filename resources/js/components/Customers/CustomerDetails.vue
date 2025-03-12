@@ -400,200 +400,217 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, ref} from "vue";
-import Vue3PhoneInput from 'vue3-phone-input';
-import Button from "../../components/Button.vue";
-import {useRoute} from "vue-router";
-import axios from "axios";
-import {Customer} from "../../types/Customers/Customer";
-import CustomInput from "../CustomInput.vue";
-import CustomSelect from "../CustomSelect.vue";
-import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
-import LoaderFetch from '../Loader/LoaderFetch.vue';
-import {confirmDelete, showAlert} from "../../composables/SweetAlert";
-import Modal from "../Modal.vue";
-import {Address} from "../../types/Addresses/Address";
-import TablerIcon from "../TablerIcon.vue";
-import {apiGet, apiPost, apiPut} from "../../src/services/api";
+    import {nextTick, onMounted, ref} from "vue";
+    import Vue3PhoneInput from 'vue3-phone-input';
+    import Button from "../../components/Button.vue";
+    import {useRoute} from "vue-router";
+    import axios from "axios";
+    import {Customer} from "../../types/Customers/Customer";
+    import CustomInput from "../CustomInput.vue";
+    import CustomSelect from "../CustomSelect.vue";
+    import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
+    import LoaderFetch from '../Loader/LoaderFetch.vue';
+    import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
+    import Modal from "../Modal.vue";
+    import {Address} from "../../types/Addresses/Address";
+    import TablerIcon from "../TablerIcon.vue";
+    import {apiGet, apiPost, apiPut} from "../../src/services/api";
 
-const typeCustomers = ref<TypeCustomer[]>([]);
+    const typeCustomers = ref<TypeCustomer[]>([]);
 
-const tabs = [
-    {label: 'Datos personales', icon: 'IconNotes'},
-    {label: 'Datos de acceso', icon: 'IconKey'},
-    {label: 'Direcciónes', icon: 'IconMapPin'},
-    {label: 'Permisos', icon: 'IconLock'}
-];
-const selectedTab = ref(0);
-const route = useRoute();
-const customer = ref<Customer>({});
-const phoneNumber = ref({});
-const isFetchCustomer = ref(false);
-const isLoader = ref(false);
-const isEditing = ref(false);
-const isEditingAddress = ref(false);
-const isModalAddressOpen = ref(false);
-const address = ref<Address>({
-    address: '',
-    street: '',
-    neighborhood: '',
-    interior_number: '',
-    outer_number: '',
-    city: '',
-    state: '',
-    locality: '',
-    cp: '0',
-    latitude: '',
-    longitude: ''
-});
-const errorsAddress = ref({});
-
-const fetchCustomer = async () => {
-    customer.value = {};
-    isFetchCustomer.value = true;
-    isEditing.value = false;
-    try {
-        const res = await apiGet(`customers/${route.params.id}`);
-        customer.value = res.data;
-        phoneNumber.value.number = '+' + customer.value.people.country_code + customer.value.people.phone_number;
-        phoneNumber.value.nationalNumber = customer.value.people.phone_number
-        isFetchCustomer.value = false;
-    } catch (error) {
-        isFetchCustomer.value = false;
-        showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
-    }
-};
-const fetchTypeCustomers = async () => {
-    try {
-        typeCustomers.value = await apiGet('type-customers');
-    } catch (error) {
-        showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
-    }
-};
-const fetchUpdateCustomer = async () => {
-    try {
-        isLoader.value = true;
-        const res = await apiPut(`customers/${route.params.id}`, customer.value);
-        isLoader.value = false;
-        isEditing.value = false
-        showAlert(res.type, res.title, res.message);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        isLoader.value = false;
-        isEditing.value = false
-    }
-}
-const fetchCreateAddress = async (peopleId: number) => {
-    try {
-        const res = await apiPost(`address/${peopleId}`, address.value);
-        if(res.type === 'success'){
-            showAlert(res.type, res.title, res.message);
-            closeModalAddress();
-            fetchCustomer()
-        }else{
-            showAlert(res.type, res.title, res.message);
-        }
-    } catch (error) {
-        if(error.response && error.response.data.errors){
-            showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-            errorsAddress.value = error.response.data.errors;
-        }
-    }
-}
-const fetchUpdateAddress = async (addressId: number) => {
-    try {
-        const res = await putAddress(`address/${addressId}`, address.value);
-        if(res.type === 'success'){
-            showAlert(res.type, res.title, res.message);
-            closeModalAddress();
-            fetchCustomer()
-        }else{
-            showAlert(res.type, res.title, res.message);
-        }
-    } catch (error) {
-        if(error.response && error.response.data.errors){
-            showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-            errorsAddress.value = error.response.data.errors;
-        }
-    }
-}
-const editAddress = (dataAddress: Address) => {
-    isEditingAddress.value = true;
-    address.value = dataAddress;
-    addItemAddresses();
-}
-
-const handleDelete = async (url: string, id: number) => {
-    try {
-        isLoader.value = true;
-        const res = await axios.delete(url + id );
-        showAlert(res.data.type, res.data.title, res.data.message);
-        isLoader.value = false;
-        fetchCustomer();
-    } catch (error) {
-        isLoader.value = false;
-    }
-};
-const onDeleteClick = (url: string, id: number) => {
-    confirmDelete(url, id, handleDelete);
-};
-const addItemAddresses = () => {
-    isModalAddressOpen.value = true;
-    initAutocomplete();
-}
-const closeModalAddress = () => {
-    isModalAddressOpen.value = false;
-};
-const initAutocomplete = async () => {
-    await nextTick();
-    const input = document.getElementById("address");
-
-    if (!window.google || !window.google.maps) {
-        console.error("Google Maps no cargado");
-        return;
-    }
-
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['address']
+    const tabs = [
+        {label: 'Datos personales', icon: 'IconNotes'},
+        {label: 'Datos de acceso', icon: 'IconKey'},
+        {label: 'Direcciónes', icon: 'IconMapPin'},
+        {label: 'Permisos', icon: 'IconLock'}
+    ];
+    const selectedTab = ref(0);
+    const route = useRoute();
+    const customer = ref<Customer>({});
+    const phoneNumber = ref({});
+    const isFetchCustomer = ref(false);
+    const isLoader = ref(false);
+    const isEditing = ref(false);
+    const isEditingAddress = ref(false);
+    const isModalAddressOpen = ref(false);
+    const address = ref<Address>({
+        address: '',
+        street: '',
+        neighborhood: '',
+        interior_number: '',
+        outer_number: '',
+        city: '',
+        state: '',
+        locality: '',
+        cp: '0',
+        latitude: '',
+        longitude: ''
     });
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        address.value.address = place.formatted_address;
-        place.address_components.forEach(component => {
-            const types = component.types;
-            if (types.includes("route")) {
-                address.value.street = component.long_name;
+    const errorsAddress = ref({});
+
+    const fetchCustomer = async () => {
+        customer.value = {};
+        isFetchCustomer.value = true;
+        isEditing.value = false;
+        try {
+            const res = await apiGet(`customers/${route.params.id}`);
+            customer.value = res.data[0];
+            phoneNumber.value.number = '+' + customer.value.people.country_code + customer.value.people.phone_number;
+            phoneNumber.value.nationalNumber = customer.value.people.phone_number
+            isFetchCustomer.value = false;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
             }
-            if (types.includes("sublocality_level_1")) {
-                address.value.neighborhood = component.long_name;
+            isFetchCustomer.value = false;
+        }
+    };
+    const fetchTypeCustomers = async () => {
+        try {
+            const res = await apiGet<TypeCustomer>('type-customers');
+            typeCustomers.value = res.data.type_customers;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
             }
-            if (types.includes("street_number")) {
-                address.value.outer_number = component.long_name;
+        }
+    };
+    const fetchUpdateCustomer = async () => {
+        try {
+            isLoader.value = true;
+            const res = await apiPut(`customers/${route.params.id}`, customer.value);
+            isLoader.value = false;
+            isEditing.value = false
+            showAlert(res.type, res.title, res.message);
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
             }
-            if (types.includes("subpremise")) {
-                address.value.interior_number = component.long_name;
+            isLoader.value = false;
+            isEditing.value = false
+        }
+    }
+    const fetchCreateAddress = async (peopleId: number) => {
+        try {
+            const res = await apiPost(`address/${peopleId}`, address.value);
+            if(res.type === 'success'){
+                showAlert(res.type, res.title, res.message);
+                closeModalAddress();
+                await fetchCustomer()
+            }else{
+                showAlert(res.type, res.title, res.message);
             }
-            if (types.includes("country")) {
-                address.value.city = component.long_name;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+                errorsAddress.value = error.response.data.errors;
+            }else{
+                defaultError();
             }
-            if (types.includes("administrative_area_level_1")) {
-                address.value.state = component.long_name;
+        }
+    }
+    const fetchUpdateAddress = async (addressId: number) => {
+        try {
+            const res = await putAddress(`address/${addressId}`, address.value);
+            if(res.type === 'success'){
+                showAlert(res.type, res.title, res.message);
+                closeModalAddress();
+                await fetchCustomer()
+            }else{
+                showAlert(res.type, res.title, res.message);
             }
-            if (types.includes("locality")) {
-                address.value.locality = component.long_name;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+                errorsAddress.value = error.response.data.errors;
+            }else{
+                defaultError();
             }
-            if (types.includes("postal_code")) {
-                address.value.cp = component.long_name;
-            }
+        }
+    }
+    const editAddress = (dataAddress: Address) => {
+        isEditingAddress.value = true;
+        address.value = dataAddress;
+        addItemAddresses();
+    }
+
+    const handleDelete = async (url: string, id: number) => {
+        try {
+            isLoader.value = true;
+            const res = await axios.delete(url + id );
+            showAlert(res.data.type, res.data.title, res.data.message);
+            isLoader.value = false;
+            fetchCustomer();
+        } catch (error) {
+            isLoader.value = false;
+        }
+    };
+    const onDeleteClick = (url: string, id: number) => {
+        confirmDelete(url, id, handleDelete);
+    };
+    const addItemAddresses = () => {
+        isModalAddressOpen.value = true;
+        initAutocomplete();
+    }
+    const closeModalAddress = () => {
+        isModalAddressOpen.value = false;
+    };
+    const initAutocomplete = async () => {
+        await nextTick();
+        const input = document.getElementById("address");
+
+        if (!window.google || !window.google.maps) {
+            console.error("Google Maps no cargado");
+            return;
+        }
+
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['address']
         });
-        address.value.latitude = place.geometry.location.lat();
-        address.value.longitude = place.geometry.location.lng();
-    });
-};
-onMounted(() => {
-    fetchCustomer();
-    fetchTypeCustomers();
-})
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            address.value.address = place.formatted_address;
+            place.address_components.forEach(component => {
+                const types = component.types;
+                if (types.includes("route")) {
+                    address.value.street = component.long_name;
+                }
+                if (types.includes("sublocality_level_1")) {
+                    address.value.neighborhood = component.long_name;
+                }
+                if (types.includes("street_number")) {
+                    address.value.outer_number = component.long_name;
+                }
+                if (types.includes("subpremise")) {
+                    address.value.interior_number = component.long_name;
+                }
+                if (types.includes("country")) {
+                    address.value.city = component.long_name;
+                }
+                if (types.includes("administrative_area_level_1")) {
+                    address.value.state = component.long_name;
+                }
+                if (types.includes("locality")) {
+                    address.value.locality = component.long_name;
+                }
+                if (types.includes("postal_code")) {
+                    address.value.cp = component.long_name;
+                }
+            });
+            address.value.latitude = place.geometry.location.lat();
+            address.value.longitude = place.geometry.location.lng();
+        });
+    };
+    onMounted(() => {
+        fetchCustomer();
+        fetchTypeCustomers();
+    })
 </script>
 
 <style scoped>

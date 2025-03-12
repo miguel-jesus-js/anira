@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasPeopleScopes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+    use HasPeopleScopes;
     protected $fillable = ['people_id', 'type_employee_id', 'status'];
 
     const filters = [
@@ -35,42 +39,6 @@ class Employee extends Model
         'Inactivo',
         'Activo',
     ];
-    public function scopeFirstName($query, $firstName)
-    {
-        return $query->whereHas('people', function ($q) use ($firstName){
-         $q->where('first_name', 'like', '%' . $firstName . '%');
-        });
-    }
-    public function scopeLastName($query, $lastName)
-    {
-        return $query->whereHas('people', function ($q) use ($lastName){
-            $q->where('last_name', 'like', '%' . $lastName . '%');
-        });
-    }
-    public function scopeEmail($query, $email)
-    {
-        return $query->whereHas('people', function ($q) use ($email){
-            $q->where('email', 'like', '%' . $email . '%');
-        });
-    }
-    public function scopeDni($query, $dni)
-    {
-        return $query->whereHas('people', function ($q) use ($dni){
-            $q->where('dni', 'like', '%' . $dni . '%');
-        });
-    }
-    public function scopePhone($query, $phoneNumber)
-    {
-        return $query->whereHas('people', function ($q) use ($phoneNumber){
-            $q->where('phone_number', 'like', '%' . $phoneNumber . '%');
-        });
-    }
-    public function scopeUserName($query, $userName)
-    {
-        return $query->whereHas('user', function ($query) use ($userName) {
-            $query->where('user_name', 'LIKE', "%$userName%");
-        });
-    }
     public function scopeType($query, $type)
     {
         return  $query->where('type_employee_id', $type);

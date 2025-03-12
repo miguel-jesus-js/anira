@@ -1,6 +1,4 @@
 import axios from 'axios';
-import {Employee} from "../../types/Employees/Employee";
-import {Response} from "../../types/Response";
 
 export const apiClient = axios.create({
     baseURL: '/api/',

@@ -16,7 +16,7 @@ class ExportService
         $exportInstance = ExportFactory::make($export, $format, $filters, $columns);
         $strategy = match ($format)
         {
-            'xls' => new XlsxExportStrategy(),
+            'xlsx' => new XlsxExportStrategy(),
             'pdf' => new PdfExportStrategy(),
             default => throw new Exception("Export {$format} no implementado"),
         };

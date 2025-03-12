@@ -73,7 +73,7 @@
                             <th>{{ $employees[$i]['people']['user'][$key]  }}</th>
                             @break
                         @case('type_employee_id')
-                            <th>{{ $employees[$i]['typeEmployee']['type']  }}</th>
+                            <th>{{ $employees[$i]['typeEmployee']['type_employee']  }}</th>
                             @break
                         @case('status')
                             <th>{{ \App\Models\Employee::STATUS[$employees[$i]['status']]  }}</th>

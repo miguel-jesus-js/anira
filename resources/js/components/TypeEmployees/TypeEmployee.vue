@@ -14,15 +14,15 @@
                 <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.type_employee" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
             </template>
         </HeaderModule>
-        <TableModule :columns="columns" :fetch-api="fetchTypeEmployees" :is-fetch="isFetchTypeEmployee" :data="typeEmployees" :response="response" :onClick="fetchTypeEmployees" url-view="CustomerDetails" url-edit="CustomerDetails" url-delete="type-employees/">
+        <TableModule :columns="columns" :is-fetch="isFetchTypeEmployee" :data="typeEmployees" :response="response" :onClick="fetchTypeEmployees" url-view="TypeEmployeesDetails" url-delete="type-employees/">
 
         </TableModule>
         <Modal title="AGREGAR TIPO DE EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
             <form class="max-w-5xl" @submit.prevent="fetchCreateTypeEmployee">
                 <CustomInput
                     placeholder="Administrador"
-                    name="type"
-                    id="type"
+                    name="type_employee"
+                    id="type_employee"
                     label="Tipo de empleado"
                     required=""
                     v-model="typeEmployee.type_employee"
@@ -122,12 +122,12 @@
     import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import CustomInput from '../CustomInput.vue'
     import {defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
-    import HeaderModule from "../../components/Modules/HeaderModule.vue";
-    import Button from "../../components/Button.vue";
-    import TableModule from "../../components/Modules/TableModule.vue";
+    import HeaderModule from "../Modules/HeaderModule.vue";
+    import Button from "../Button.vue";
+    import TableModule from "../Modules/TableModule.vue";
     import {Column} from "../../types/TableModule/Column";
-    import SpanStatus from "../../components/Modules/SpanStatus.vue";
-    import Modal from "../../components/Modal.vue";
+    import SpanStatus from "../Modules/SpanStatus.vue";
+    import Modal from "../Modal.vue";
     import TablerIcon from "../TablerIcon.vue";
     import {apiGet, apiPost} from "../../src/services/api";
 
@@ -138,7 +138,7 @@
     const errors = ref({});
     const isFetchTypeEmployee = ref(false);
     const typeEmployee = ref<CreateTypeEmployee>({
-        type: '',
+        type_employee: '',
     });
     const columnsExport = ref<ColumnsExportAnsFilters>({
         type_employee: '',
@@ -202,9 +202,7 @@
                 columns_selected: columnsSelected.value
             }
             const res = await apiGet('type-employees-export', payload);
-            debugger;
             if(res.type === 'success'){
-                debugger;
                 // Extraer datos del JSON
                 const { file, mime } = res.data;
 
@@ -230,7 +228,6 @@
                 showAlert(res.type, res.title, res.message);
             }
         } catch (error) {
-            debugger;
             if(error.response && error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
             }else{

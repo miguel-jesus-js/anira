@@ -2,51 +2,25 @@
 
 namespace App\Repositories\People;
 
-use App\Interfaces\People\PeopleInterface;
+use App\Interfaces\AttachableInterface;
 use App\Models\People;
+use App\Repositories\BaseRepository;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 
-class PeopleRepository implements PeopleInterface
+class PeopleRepository extends BaseRepository implements AttachableInterface
 {
-    protected $people;
     public function __construct(People $people)
     {
-        $this->people = $people;
-    }
-    public function create(array $data)
-    {
-        // TODO: Implement create() method.
-        return People::create($data);
-    }
-    public function all()
-    {
-        // TODO: Implement all() method.
-        return People::all();
-    }
-    public function find(int $id)
-    {
-        // TODO: Implement find() method.
-        return People::find($id);
-    }
-    public function update(int $id, array $data)
-    {
-        // TODO: Implement update() method.
-        $user = $this->find($id);
-        return $user->update($data);
-    }
-    public function delete(int $id)
-    {
-        // TODO: Implement delete() method.
-        $user = People::findOrFail($id);
-        return $user->delete();
-    }
-    public function filter(array $filters, $perPage = 10)
-    {
-        $query = People::query();
-        return $query->paginate($perPage);
+        parent::__construct($people);
     }
 
-    public function attach(People $people,  $address)
+    /**
+     * @throws Exception
+     */
+    public function attach(int $id, Model $idRelation): void
     {
-        $people->addresses()->attach($address);
+        $address = $this->find($id);
+        $address->addresses()->attach($idRelation);
     }
 }

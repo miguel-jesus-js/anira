@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class TypeEmployeeController extends Controller
 {
     use ApiResponse;
-    protected $typeEmployeeRepository;
+    protected TypeEmployeeRepository $typeEmployeeRepository;
     public function __construct(TypeEmployeeRepository $typeEmployeeRepository)
     {
         $this->typeEmployeeRepository = $typeEmployeeRepository;
@@ -28,8 +28,8 @@ class TypeEmployeeController extends Controller
     public function index(Request $request): JsonResponse
     {
         try{
-            $filters = $request->query('filters');
-            $paginate = $request->query('paginate', true);
+            $filters = $request->query('filters', []);
+            $paginate = $request->query('paginate', false);
             $perPage = $request->query('perPage', 10);
             $typeEmployees = $this->typeEmployeeRepository->all($filters, [], $paginate, $perPage);
             $columnsExport = TypeEmployee::columnsExport;
@@ -55,8 +55,12 @@ class TypeEmployeeController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $user = $this->typeEmployeeRepository->find($id);
-        return response()->json($user);
+        try {
+            $typeEmployee = $this->typeEmployeeRepository->find($id);
+            return $this->successResponse(self::MESSAGE_CREATED, [$typeEmployee]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), $e->getCode());
+        }
     }
 
     /**

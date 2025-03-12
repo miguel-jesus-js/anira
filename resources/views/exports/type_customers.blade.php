@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tipo de empleados</title>
+    <title>Tipo de clientes</title>
     <style>
         table {
             border-collapse: collapse;
@@ -49,13 +49,13 @@
         </tr>
         </thead>
         <tbody>
-        @for ($i = 0; $i < sizeof($type_employees); $i++)
+        @for ($i = 0; $i < sizeof($type_customers); $i++)
             <tr>
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
-                        @case('type_employee')
-                            <th>{{ $type_employees[$i][$key]  }}</th>
+                        @case('type_customer')
+                            <th>{{ $type_customers[$i][$key]  }}</th>
                             @break
                     @endswitch
                 @endforeach

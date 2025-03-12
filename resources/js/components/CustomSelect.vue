@@ -14,7 +14,7 @@
                 :disabled="disabled"
                 class="text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5">
                 <option value="0" disabled selected>Selecciona una opción</option>
-                <option v-for="option in options" :key="option.id" :value="option.id">{{ option.type }}</option>
+                <option v-for="option in options" :key="option.id" :value="option.id">{{ option[value_name] }}</option>
             </select>
         </div>
         <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors" :key="index">{{ error }}</p>
@@ -55,6 +55,10 @@ const props = defineProps({
     options: {
         type: Array as PropType<TypeEmployee[]>,
         required: true,
+    },
+    value_name:{
+        type: String,
+        required: true
     },
     errors: {
         type: Array,

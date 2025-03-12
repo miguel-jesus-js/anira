@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('state', '50')->nullable(false);
             $table->string('locality', '50')->nullable(false);
             $table->char('cp', '8')->nullable(false);
-            $table->decimal('latitude', 10, 8)->nullable(false);
-            $table->decimal('longitude', 11, 8)->nullable(false);
+            $table->decimal('latitude', 19, 16)->nullable(false);
+            $table->decimal('longitude', 19, 16)->nullable(false);
             $table->timestamps();
             $table->softDeletes();
         });

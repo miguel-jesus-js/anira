@@ -2,42 +2,20 @@
 
 namespace App\Repositories\TypeCustomer;
 
-use App\Interfaces\BaseRepositoryInterface;
 use App\Models\TypeCustomer;
+use App\Repositories\BaseRepository;
 
-class TypeCustomerRepository implements BaseRepositoryInterface
+class TypeCustomerRepository extends BaseRepository
 {
-    protected $typeCustomer;
+    public function __construct(TypeCustomer $model)
+    {
+        parent::__construct($model);
+    }
 
-    public function __construct(TypeCustomer $typeCustomer)
+    protected function applyFilters($query, array $filters): void
     {
-        $this->typeCustomer = $typeCustomer;
-    }
-    public function create(array $data)
-    {
-        // TODO: Implement create() method.
-        return $this->typeCustomer::create($data);
-    }
-    public function all(array $filters = [], array $relations = [], bool $paginate = false, int $perPage = 10)
-    {
-        // TODO: Implement all() method.
-        return $this->typeCustomer::all();
-    }
-    public function find(int $id)
-    {
-        // TODO: Implement find() method.
-        return $this->typeCustomer::find($id);
-    }
-    public function update(int $id, array $data)
-    {
-        // TODO: Implement update() method.
-        $user = $this->typeCustomer::findOrFail($id);
-        return $user->update($data);
-    }
-    public function delete(int $id)
-    {
-        // TODO: Implement delete() method.
-        $user = $this->typeCustomer::findOrFail($id);
-        return $user->delete();
+        if (!empty($filters['type_customer'])) {
+            $query->where('type_customer', $filters['type_customer']);
+        }
     }
 }

@@ -2,34 +2,50 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as ResponsetatusCode;
 
 trait ApiResponse
 {
-    private const MESSAGE_FETCHED = '';
-    private const MESSAGE_CREATED = '';
-    private const MESSAGE_UPDATED = '';
-    private const MESSAGE_DELETED = '';
+    private const MESSAGE_FETCHED = 'Datos cargado correctamente';
+    private const MESSAGE_CREATED = 'Registro creado correctamente';
+    private const MESSAGE_UPDATED = 'Registro actualizado correctamente';
+    private const MESSAGE_DELETED = 'Registro eliminado correctamente';
+    private const MESSAGE_EXPORT = 'Datos exportados correctamente';
 
-    private const ERROR_FETCHED = '';
-    private const ERROR_CREATED = '';
-    private const ERROR_UPDATED = '';
-    private const ERROR_DELETED = '';
-    private function successResponse(string $message, array $data = [], $code = ResponsetatusCode::HTTP_OK): \Illuminate\Http\JsonResponse
+    private const ERROR_FETCHED = 'Error al cargar los datos';
+    private const ERROR_CREATED = 'Error al crear los datos';
+    private const ERROR_UPDATED = 'Error al actualizar los datos';
+    private const ERROR_DELETED = 'Error al eliminar los datos';
+    private const ERROR_EXPORT = 'Error al exportar los datos';
+
+
+    /**
+     * @param string $message
+     * @param array $data
+     * @param int $code
+     * @return JsonResponse
+     */
+    private function successResponse(string $message, array $data = [], int $code = ResponsetatusCode::HTTP_OK): JsonResponse
     {
         return response()->json([
             'type' => 'success',
-            'title' => '',
+            'title' => 'Éxito',
             'message' => $message,
             'data' => $data,
         ], $code);
     }
-    private function errorResponse(string $message, $code = ResponsetatusCode::HTTP_INTERNAL_SERVER_ERROR): \Illuminate\Http\JsonResponse
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return JsonResponse
+     */
+    private function errorResponse(string $message, int $code = ResponsetatusCode::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
     {
         return response()->json([
             'type' => 'error',
-            'title' => '',
+            'title' => 'Error',
             'message' => $message,
         ], $code);
     }

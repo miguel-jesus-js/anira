@@ -93,11 +93,6 @@
             type: Array as PropType<Column[]>,
             required: true
         },
-        fetchApi: {
-            type: Function,
-            default: () => {},
-            required: false,
-        },
         isFetch: {
             type: Boolean,
             required: true,
@@ -119,10 +114,6 @@
             default: () => {},
         },
         urlView: {
-            type: String,
-            required: true
-        },
-        urlEdit: {
             type: String,
             required: true
         },
@@ -172,7 +163,7 @@
         try {
             const res = await apiDelete(url + id);
             showAlert(res.type, res.title, res.message);
-            props.fetchApi();
+            props.onClick();
         } catch (error) {
             if(error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);

@@ -15,7 +15,7 @@
                 <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
             </template>
         </HeaderModule>
-        <TableModule :columns="columns" :is-fetch="isFetchCustomers" :data="customers" :response="response" :onClick="fetchCustomers" url-view="CustomerDetails" url-edit="CustomerDetails" url-delete="api/customers/">
+        <TableModule :columns="columns" :is-fetch="isFetchCustomers" :data="customers" :response="response" :onClick="fetchCustomers" url-view="CustomerDetails" url-delete="api/customers/">
 
         </TableModule>
         <Modal title="AGREGAR EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
@@ -456,227 +456,98 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, markRaw, nextTick } from 'vue';
-import axios from 'axios';
-import {Customer, CreateCustomer, ColumnsExportAnsFilters} from '../../types/Customers/Customer';
-import {Response} from '../../types/Response';
-import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
-import CustomInput from '../CustomInput.vue'
-import CustomSelect from '../CustomSelect.vue';
-import Vue3PhoneInput from 'vue3-phone-input';
-import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
-import {showAlert} from "../../composables/SweetAlert";
-import HeaderModule from "../../components/Modules/HeaderModule.vue";
-import Button from "../../components/Button.vue";
-import TableModule from "../../components/Modules/TableModule.vue";
-import {Column} from "../../types/TableModule/Column";
-import SpanStatus from "../../components/Modules/SpanStatus.vue";
-import Modal from "../../components/Modal.vue";
-import TablerIcon from "../TablerIcon.vue";
-import {Address} from "../../types/Addresses/Address";
-import Drawer from "../Drawer.vue";
-import {apiGet, apiPost} from "../../src/services/api";
+    import {onMounted, ref, markRaw, nextTick } from 'vue';
+    import axios from 'axios';
+    import {Customer, CreateCustomer, ColumnsExportAnsFilters} from '../../types/Customers/Customer';
+    import {Response} from '../../types/Response';
+    import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
+    import CustomInput from '../CustomInput.vue'
+    import CustomSelect from '../CustomSelect.vue';
+    import Vue3PhoneInput from 'vue3-phone-input';
+    import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
+    import {defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
+    import HeaderModule from "../../components/Modules/HeaderModule.vue";
+    import Button from "../../components/Button.vue";
+    import TableModule from "../../components/Modules/TableModule.vue";
+    import {Column} from "../../types/TableModule/Column";
+    import SpanStatus from "../../components/Modules/SpanStatus.vue";
+    import Modal from "../../components/Modal.vue";
+    import TablerIcon from "../TablerIcon.vue";
+    import {Address} from "../../types/Addresses/Address";
+    import Drawer from "../Drawer.vue";
+    import {apiGet, apiPost} from "../../src/services/api";
 
-const customers = ref<Customer>([]);
-const response = ref<Response<Customer> | null>(null);
-const isModalOpen = ref(false);
-const isModalAddressOpen = ref(false);
-const isModalExport = ref(false);
-const tabs = [
-    {label: 'Datos personales', icon: 'IconNotes'},
-    {label: 'Datos de acceso', icon: 'IconKey'},
-    {label: 'Direcciónes', icon: 'IconMapPin'},
-    {label: 'Permisos', icon: 'IconLock'}
-];
-const selectedTab = ref(0);
-const typeCustomers = ref<TypeCustomer[]>([]);
-const phone = ref({country_code: '', phone_number: ''});
-const filterPhone = ref({});
-const errors = ref({});
-const errorsAddress = ref({});
-const isFetchCustomers = ref(false);
-const itemAddresses = ref<Address[]>([]);
-const customer = ref<CreateCustomer>({
-    type_customer_id: '0',
-    type_entity: 'customer',
-    user: {
-        user_name: '',
-        password: '',
-        password_repeat: '',
-    },
-    people: {
+    const customers = ref<Customer>([]);
+    const response = ref<Response<Customer> | null>(null);
+    const isModalOpen = ref(false);
+    const isModalAddressOpen = ref(false);
+    const isModalExport = ref(false);
+    const tabs = [
+        {label: 'Datos personales', icon: 'IconNotes'},
+        {label: 'Datos de acceso', icon: 'IconKey'},
+        {label: 'Direcciónes', icon: 'IconMapPin'},
+        {label: 'Permisos', icon: 'IconLock'}
+    ];
+    const selectedTab = ref(0);
+    const typeCustomers = ref<TypeCustomer[]>([]);
+    const phone = ref({country_code: '', phone_number: ''});
+    const filterPhone = ref({});
+    const errors = ref({});
+    const errorsAddress = ref({});
+    const isFetchCustomers = ref(false);
+    const itemAddresses = ref<Address[]>([]);
+    const customer = ref<CreateCustomer>({
+        type_customer_id: '0',
+        type_entity: 'customer',
+        user: {
+            user_name: '',
+            password: '',
+            password_repeat: '',
+        },
+        people: {
+            first_name: '',
+            last_name: '',
+            email: '',
+            dni: '0',
+            country_code: '',
+            phone_number: ''
+        },
+        addresses: itemAddresses
+    });
+    const columnsExport = ref<ColumnsExportAnsFilters>({
         first_name: '',
         last_name: '',
-        email: '',
-        dni: '0',
-        country_code: '',
-        phone_number: ''
-    },
-    addresses: itemAddresses
-});
-const columnsExport = ref<ColumnsExportAnsFilters>({
-    first_name: '',
-    last_name: '',
-    email:'',
-    dni:  '',
-    phone_number: '',
-    user_name: '',
-    type_customer_id: '',
-    status: '',
-});
-const columns = ref<Column>([
-    {key: 'id', label: 'ID'},
-    {key: 'people.first_name', label: 'NOMBRE(S)'},
-    {key: 'people.last_name', label: 'APELLIDO(S)'},
-    {key: 'people.email', label: 'CORREO'},
-    {key: 'people.phone_number', label: 'TELÉFONO'},
-    {key: 'type_customer.type', label: 'TIPO'},
-    {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
-]);
-const dataExport = ref('');
-const format = ref('');
-const columnsSelected = ref([]);
-const filters = ref<ColumnsExportAnsFilters>({
-    first_name: '',
-    last_name: '',
-    email:'',
-    dni:  '',
-    phone_number: '',
-    user_name: '',
-    type_customer_id: '0',
-    status: '',
-})
-const autocompleteInput = ref(null);
-const address = ref<Address>({
-    address: '',
-    street: '',
-    neighborhood: '',
-    interior_number: '',
-    outer_number: '',
-    city: '',
-    state: '',
-    locality: '',
-    cp: '0',
-    latitude: '',
-    longitude: ''
-});
-const isDrawerOpen = ref(false);
-const fetchCustomers = async (pageUrl: string = 'customers') => {
-    customers.value = [];
-    isFetchCustomers.value = true;
-    if(Object.keys(filterPhone.value).length !== 0){
-        filters.value.phone_number = filterPhone.value.callingCode + filterPhone.value.nationalNumber;
-    }
-    try {
-        const res = await apiGet(pageUrl, filters.value, true)
-        customers.value = res.data.data;
-        response.value = res.data;
-        columnsExport.value = res.columnsExport;
-        isFetchCustomers.value = false;
-    } catch (error) {
-        isFetchCustomers.value = false;
-        showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
-    }
-};
-const fetchTypeCustomers = async () => {
-    try {
-        const res = await apiGet<TypeCustomer>('type-customers');
-        typeCustomers.value = res;
-    } catch (error) {
-        console.error('Error fetching type customers:', error);
-    }
-};
-const fetchCreateUser = async () => {
-    customer.value.people.country_code = phone.value.callingCode;
-    customer.value.people.phone_number = phone.value.nationalNumber;
-    try {
-        const res = await apiPost('users', customer.value);
-        if(res.type === 'success'){
-            showAlert(res.type, res.title, res.message);
-            fetchCustomers();
-            closeModal();
-        }else{
-            showAlert(res.type, res.title, res.message);
-        }
-    } catch (error) {
-        if(error.response && error.response.data.errors){
-            showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-            errors.value = error.response.data.errors;        }
-    }
-}
-const fetchExport = async () => {
-    try {
-        const res = await axios.get('api/customers-export', {
-            params: {
-                data_export: dataExport.value,
-                filters: filters.value,
-                format: format.value,
-                columns_selected: columnsSelected.value
-            },
-        });
-        if(res.data.type === 'success'){
-            // Extraer datos del JSON
-            const { file, mime } = res.data.data;
-
-            // Decodificar el archivo base64
-            const byteCharacters = atob(file);
-            const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-            const byteArray = new Uint8Array(byteNumbers);
-
-            // Crear un Blob con el contenido del archivo
-            const blob = new Blob([byteArray], { type: mime });
-
-            // Crear URL y desencadenar la descarga
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Empleados' + format.value); // Usar el nombre proporcionado por el backend
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showAlert(res.data.type, res.data.title, res.data.message);
-            toggleModalExport()
-        }else{
-            showAlert(res.data.type, res.data.title, res.data.message);
-        }
-    } catch (error) {
-        if(error.response && error.response.data.errors){
-            showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-            errors.value = error.response.data.errors;
-        }
-    }
-}
-const fetchValidateAddress = async () => {
-    try {
-        const res = await apiPost('address-validate', address.value);
-        if(res.type === 'success'){
-            addAddress();
-            showAlert(res.type, res.title, res.message);
-            closeModalAddress();
-        }else{
-            showAlert(res.type, res.title, res.message);
-        }
-    } catch (error) {
-        if(error.response && error.response.errors){
-            showAlert('warning', 'Advertencia', 'Tienes errores en algunos campos');
-            errorsAddress.value = error.response.errors;
-        }
-    }
-}
-const handleInputChange = () => {
-    fetchCustomers();
-}
-const addItemAddresses = () => {
-    isModalAddressOpen.value = true;
-    initAutocomplete();
-}
-const removeItemAddresses = (index) => {
-    itemAddresses.value.splice(index, 1);
-}
-const addAddress = () => {
-    itemAddresses.value.push({ ...address.value });
-    isModalAddressOpen.value = false;
-    address.value = {
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_customer_id: '',
+        status: '',
+    });
+    const columns = ref<Column>([
+        {key: 'id', label: 'ID'},
+        {key: 'people.first_name', label: 'NOMBRE(S)'},
+        {key: 'people.last_name', label: 'APELLIDO(S)'},
+        {key: 'people.email', label: 'CORREO'},
+        {key: 'people.phone_number', label: 'TELÉFONO'},
+        {key: 'type_customer.type', label: 'TIPO'},
+        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
+    ]);
+    const dataExport = ref('');
+    const format = ref('');
+    const columnsSelected = ref([]);
+    const filters = ref<ColumnsExportAnsFilters>({
+        first_name: '',
+        last_name: '',
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_customer_id: '0',
+        status: '',
+    })
+    const autocompleteInput = ref(null);
+    const address = ref<Address>({
         address: '',
         street: '',
         neighborhood: '',
@@ -688,101 +559,251 @@ const addAddress = () => {
         cp: '0',
         latitude: '',
         longitude: ''
-    };
-}
-const toggleAddress = (index) => {
-    itemAddresses.value.forEach((item, i) => {
-        if (i !== index) {
-            item.isOpen = false;
+    });
+    const isDrawerOpen = ref(false);
+    const fetchCustomers = async (pageUrl: string = 'customers') => {
+        customers.value = [];
+        isFetchCustomers.value = true;
+        if(Object.keys(filterPhone.value).length !== 0){
+            filters.value.phone_number = filterPhone.value.callingCode + filterPhone.value.nationalNumber;
         }
-    });
-    itemAddresses.value[index].isOpen = !itemAddresses.value[index].isOpen;
-};
-const cleanFilters = () => {
-    filters.value = {
-        first_name: '',
-        last_name: '',
-        email:'',
-        dni:  '',
-        phone_number: '',
-        user_name: '',
-        type_customer_id: '0',
-        status: '',
+        try {
+            const payload = {filters: filters.value, paginate: true};
+            const res = await apiGet(pageUrl, payload);
+            customers.value = res.data.customers.data;
+            response.value = res.data.customers;
+            columnsExport.value = res.data.columnsExport;
+            isFetchCustomers.value = false;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
+            isFetchCustomers.value = false;
+        }
+    };
+    const fetchTypeCustomers = async () => {
+        try {
+            const res = await apiGet<TypeCustomer>('type-customers');
+            typeCustomers.value = res.data.type_customers;
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
+        }
+    };
+    const fetchCreateUser = async () => {
+        customer.value.people.country_code = phone.value.callingCode;
+        customer.value.people.phone_number = phone.value.nationalNumber;
+        try {
+            const res = await apiPost('users', customer.value);
+            if(res.type === 'success'){
+                showAlert(res.type, res.title, res.message);
+                await fetchCustomers();
+                closeModal();
+            }else{
+                showAlert(res.type, res.title, res.message);
+            }
+        } catch (error) {
+            if(error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }
+            if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errors.value = error.response.data.errors;
+            }else{
+                defaultError();
+            }
+        }
     }
-    filterPhone.value = {};
-    fetchCustomers();
-}
-const nextTab = () => {
-    selectedTab.value = selectedTab.value + 1;
-}
-const previousTabs = () => {
-    selectedTab.value = selectedTab.value - 1;
-}
-const openModal = () => {
-    isModalOpen.value = true;
-    fetchTypeCustomers();
-};
-const closeModal = () => {
-    isModalOpen.value = false;
-};
-const closeModalAddress = () => {
-    isModalAddressOpen.value = false;
-};
-const toggleModalExport = () => {
-    isModalExport.value = !isModalExport.value;
-}
-const toggleDrawer = () => {
-    fetchTypeCustomers();
-    isDrawerOpen.value = !isDrawerOpen.value;
-}
-const initAutocomplete = async () => {
-    await nextTick();
-    const input = document.getElementById("address");
+    const fetchExport = async () => {
+        try {
+            const res = await axios.get('api/customers-export', {
+                params: {
+                    data_export: dataExport.value,
+                    filters: filters.value,
+                    format: format.value,
+                    columns_selected: columnsSelected.value
+                },
+            });
+            if(res.data.type === 'success'){
+                // Extraer datos del JSON
+                const { file, mime } = res.data.data;
 
-    if (!window.google || !window.google.maps) {
-        console.error("Google Maps no cargado");
-        return;
+                // Decodificar el archivo base64
+                const byteCharacters = atob(file);
+                const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+                const byteArray = new Uint8Array(byteNumbers);
+
+                // Crear un Blob con el contenido del archivo
+                const blob = new Blob([byteArray], { type: mime });
+
+                // Crear URL y desencadenar la descarga
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Empleados' + format.value); // Usar el nombre proporcionado por el backend
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showAlert(res.data.type, res.data.title, res.data.message);
+                toggleModalExport()
+            }else{
+                showAlert(res.data.type, res.data.title, res.data.message);
+            }
+        } catch (error) {
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError()
+            }
+        }
     }
-
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['address']
-    });
-
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        place.address_components.forEach(component => {
-            const types = component.types;
-            if (types.includes("route")) {
-                address.value.street = component.long_name;
+    const fetchValidateAddress = async () => {
+        try {
+            const res = await apiPost('address-validate', address.value);
+            if(res.type === 'success'){
+                addAddress();
+                showAlert(res.type, res.title, res.message);
+                closeModalAddress();
+            }else{
+                showAlert(res.type, res.title, res.message);
             }
-            if (types.includes("sublocality_level_1")) {
-                address.value.neighborhood = component.long_name;
+        } catch (error) {
+            if(error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
             }
-            if (types.includes("street_number")) {
-                address.value.outer_number = component.long_name;
+            if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errorsAddress.value = error.response.data.errors;
+            }else{
+                defaultError();
             }
-            if (types.includes("subpremise")) {
-                address.value.interior_number = component.long_name;
-            }
-            if (types.includes("country")) {
-                address.value.city = component.long_name;
-            }
-            if (types.includes("administrative_area_level_1")) {
-                address.value.state = component.long_name;
-            }
-            if (types.includes("locality")) {
-                address.value.locality = component.long_name;
-            }
-            if (types.includes("postal_code")) {
-                address.value.cp = component.long_name;
+        }
+    }
+    const handleInputChange = () => {
+        fetchCustomers();
+    }
+    const addItemAddresses = () => {
+        isModalAddressOpen.value = true;
+        initAutocomplete();
+    }
+    const removeItemAddresses = (index) => {
+        itemAddresses.value.splice(index, 1);
+    }
+    const addAddress = () => {
+        itemAddresses.value.push({ ...address.value });
+        isModalAddressOpen.value = false;
+        address.value = {
+            address: '',
+            street: '',
+            neighborhood: '',
+            interior_number: '',
+            outer_number: '',
+            city: '',
+            state: '',
+            locality: '',
+            cp: '0',
+            latitude: '',
+            longitude: ''
+        };
+    }
+    const toggleAddress = (index) => {
+        itemAddresses.value.forEach((item, i) => {
+            if (i !== index) {
+                item.isOpen = false;
             }
         });
-        address.value.latitude = place.geometry.location.lat();
-        address.value.longitude = place.geometry.location.lng();
-    });
-};
-onMounted(() => {
-    fetchCustomers();
-})
+        itemAddresses.value[index].isOpen = !itemAddresses.value[index].isOpen;
+    };
+    const cleanFilters = () => {
+        filters.value = {
+            first_name: '',
+            last_name: '',
+            email:'',
+            dni:  '',
+            phone_number: '',
+            user_name: '',
+            type_customer_id: '0',
+            status: '',
+        }
+        filterPhone.value = {};
+        fetchCustomers();
+    }
+    const nextTab = () => {
+        selectedTab.value = selectedTab.value + 1;
+    }
+    const previousTabs = () => {
+        selectedTab.value = selectedTab.value - 1;
+    }
+    const openModal = () => {
+        isModalOpen.value = true;
+        fetchTypeCustomers();
+    };
+    const closeModal = () => {
+        isModalOpen.value = false;
+    };
+    const closeModalAddress = () => {
+        isModalAddressOpen.value = false;
+    };
+    const toggleModalExport = () => {
+        isModalExport.value = !isModalExport.value;
+    }
+    const toggleDrawer = () => {
+        fetchTypeCustomers();
+        isDrawerOpen.value = !isDrawerOpen.value;
+    }
+    const initAutocomplete = async () => {
+        await nextTick();
+        const input = document.getElementById("address");
+
+        if (!window.google || !window.google.maps) {
+            console.error("Google Maps no cargado");
+            return;
+        }
+
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['address']
+        });
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            place.address_components.forEach(component => {
+                const types = component.types;
+                if (types.includes("route")) {
+                    address.value.street = component.long_name;
+                }
+                if (types.includes("sublocality_level_1")) {
+                    address.value.neighborhood = component.long_name;
+                }
+                if (types.includes("street_number")) {
+                    address.value.outer_number = component.long_name;
+                }
+                if (types.includes("subpremise")) {
+                    address.value.interior_number = component.long_name;
+                }
+                if (types.includes("country")) {
+                    address.value.city = component.long_name;
+                }
+                if (types.includes("administrative_area_level_1")) {
+                    address.value.state = component.long_name;
+                }
+                if (types.includes("locality")) {
+                    address.value.locality = component.long_name;
+                }
+                if (types.includes("postal_code")) {
+                    address.value.cp = component.long_name;
+                }
+            });
+            address.value.latitude = place.geometry.location.lat();
+            address.value.longitude = place.geometry.location.lng();
+        });
+    };
+    onMounted(() => {
+        fetchCustomers();
+    })
 
 </script>
