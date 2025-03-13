@@ -2,12 +2,8 @@
 
 namespace App\Repositories\TypeEmployee;
 
-use App\Interfaces\BaseRepositoryInterface;
 use App\Models\TypeEmployee;
 use App\Repositories\BaseRepository;
-use App\Traits\ApiResponse;
-use Exception;
-use Symfony\Component\HttpFoundation\Response;
 
 class TypeEmployeeRepository extends BaseRepository
 {

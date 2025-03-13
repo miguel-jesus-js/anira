@@ -46,6 +46,6 @@ Route::get('/customers-export', [CustomerController::class, 'export']);
 
 Route::post('/address/{id}', [AddressController::class, 'store']);
 Route::put('/address/{id}', [AddressController::class, 'update']);
-Route::delete('/address/{id}', [AddressController::class, 'delete']);
+Route::delete('/address/{peopleId}/{addressId}', [AddressController::class, 'delete']);
 Route::post('/address-validate', [AddressController::class, 'validate']);
 

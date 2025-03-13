@@ -2,7 +2,7 @@
 
 namespace App\Strategys\ExportStrategies;
 
-use App\Interfaces\Export\ExportInterface;
+use App\Repositories\Contracts\ExportInterface;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
 

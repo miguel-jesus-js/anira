@@ -152,62 +152,7 @@
                 </div>
                 <div v-show="selectedTab === 2" class="mt-4 px-10">
                     <div class="grid grid-cols-1 gap-4 h-screen overflow-y-auto">
-                        <div class="flex justify-end">
-                            <Button button-class="border bg-green-600 text-white rounded-lg mb-3" :on-click="addItemAddresses" icon="IconPlus" label="Agregar dirección" type="button"></Button>
-                        </div>
-                        <div v-for="(item, index) in employee.people.addresses" :key="index" class="border rounded my-2">
-                            <div>
-                                <div class="flex justify-between items-center p-4">
-                                    <div class="w-full">
-                                        <div class="mb-3">
-                                            <dt class="text-sm text-gray-900">Dirección completa</dt>
-                                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.address }}</dd>
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Calle</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.street }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Colonia</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.neighborhood }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">N° interior</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.interior_number }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">N° Exterior</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.outer_number }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Ciudad</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.city }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Estado</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.state }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Localidad</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.locality }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Código postal</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.cp }}</dd>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 mx-4 mt-6">
-                                    <Button button-class="border bg-red-600 text-white rounded-lg mb-3" :on-click="() => onDeleteClick('/api/address/', item.id)" icon="IconX" label="Eliminar" type="button"></Button>
-                                    <Button button-class="border bg-blue-600 text-white rounded-lg mb-3" :on-click="() => editAddress(item)" icon="IconCheck" label="Editar" type="button"></Button>
-                                </div>
-                            </div>
-                            <div class="flex">
-
-                            </div>
-                        </div>
+                        <ViewAddressComponent :add-item-addresses="addItemAddresses" :item-addresses="employee.people.addresses" :edit-address="editAddress" :remove-item-addresses="onDeleteClick"></ViewAddressComponent>
                     </div>
                 </div>
             </div>
@@ -321,9 +266,10 @@
     import Modal from "../Modal.vue";
     import {Address} from "../../types/Addresses/Address";
     import TablerIcon from "../TablerIcon.vue";
-    import {apiGet, apiPut} from "../../src/services/api";
+    import {apiDelete, apiGet, apiPut} from "../../src/services/api";
     import AddressComponent from "../Addresses/AddressComponent.vue";
     import {useAutocomplete, useAddressValidation} from "../../composables/AddressValidation";
+    import ViewAddressComponent from "../Addresses/ViewAddressComponent.vue";
 
     const typeEmployees = ref<TypeEmployee[]>([]);
     const tabs = [
@@ -409,16 +355,21 @@
     const handleDelete = async (url: string, id: number) => {
         try {
             isLoader.value = true;
-            const res = await axios.delete(url + id );
+            const res = await apiDelete(url + id);
             showAlert(res.type, res.title, res.message);
             isLoader.value = false;
             await fetchEmployee();
         } catch (error) {
+            if(error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
             isLoader.value = false;
         }
     };
-    const onDeleteClick = (url: string, id: number) => {
-        confirmDelete(url, id, handleDelete);
+    const onDeleteClick = (id: number) => {
+        confirmDelete(`address/${route.params.id}/`, id, handleDelete);
     };
     const addItemAddresses = () => {
         isModalAddressOpen.value = true;

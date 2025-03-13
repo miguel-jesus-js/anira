@@ -2,12 +2,11 @@
 
 namespace App\Repositories\Addresses;
 
-use App\Interfaces\AddressesInterface;
-use App\Interfaces\AttachableInterface;
 use App\Models\Address;
 use App\Repositories\BaseRepository;
-use Exception;
-class AddressesRepository extends BaseRepository implements AddressesInterface
+use App\Repositories\Contracts\AddressesRepositoryInterface;
+
+class AddressesRepository extends BaseRepository implements AddressesRepositoryInterface
 {
     public function __construct(Address $address)
     {

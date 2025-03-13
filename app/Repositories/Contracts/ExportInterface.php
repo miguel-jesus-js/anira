@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Interfaces\Export;
+namespace App\Repositories\Contracts;
 
 use Maatwebsite\Excel\Concerns\FromView;
 

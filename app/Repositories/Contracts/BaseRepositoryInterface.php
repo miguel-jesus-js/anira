@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Interfaces;
+namespace App\Repositories\Contracts;
+
+use Illuminate\Database\Eloquent\Model;
 
 interface BaseRepositoryInterface
 {
@@ -9,4 +11,6 @@ interface BaseRepositoryInterface
     public function find(int $id);
     public function update(int $id, array $data);
     public function delete(int $id);
+    public function attach(int $modelId, Model $model);
+    public function detach(int $modelId, Model $model);
 }

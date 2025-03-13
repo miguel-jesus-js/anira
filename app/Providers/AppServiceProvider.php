@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use App\Interfaces\AddressesInterface;
-use App\Interfaces\BaseRepositoryInterface;
-use App\Repositories\Addresses\AddressesRepository;
-use App\Repositories\TypeCustomer\TypeCustomerRepository;
-use App\Repositories\TypeEmployee\TypeEmployeeRepository;
 use Illuminate\Support\ServiceProvider;
-
+use App\Repositories\Contracts\AddressesRepositoryInterface;
+use App\Repositories\Contracts\PeopleRepositoryInterface;
+use App\Repositories\Addresses\AddressesRepository;
+use App\Repositories\People\PeopleRepository;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -16,9 +14,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(BaseRepositoryInterface::class, TypeCustomerRepository::class);
-        $this->app->bind(BaseRepositoryInterface::class, TypeEmployeeRepository::class);
-        $this->app->bind(AddressesInterface::class, AddressesRepository::class);
+        $this->app->bind(AddressesRepositoryInterface::class, AddressesRepository::class);
+        $this->app->bind(PeopleRepositoryInterface::class, PeopleRepository::class);
     }
 
     /**

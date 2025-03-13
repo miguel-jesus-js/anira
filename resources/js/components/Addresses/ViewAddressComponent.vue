@@ -48,7 +48,7 @@
             </div>
             <div class="flex">
                 <Button button-class="bg-transparent text-blue-600" :on-click="() => editAddress(item)" icon="IconPencil"></Button>
-                <Button button-class="bg-transparent text-red-600" :on-click="() => removeItemAddresses(index)" icon="IconTrashFilled"></Button>
+                <Button button-class="bg-transparent text-red-600" :on-click="() => removeItemAddresses(item.id ?? index)" icon="IconTrashFilled"></Button>
             </div>
         </div>
     </div>

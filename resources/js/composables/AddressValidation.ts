@@ -45,11 +45,9 @@ export function useAddressValidation() {
                 showAlert(response.type, response.title, response.message);
             }
         } catch (error) {
-            debugger;
             if(error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
-            }
-            if(error.response && error.response.data.errors){
+            }else if(error.response && error.response.data.errors){
                 defaultErrorUser();
                 errorsAddress.value = error.response.data.errors;
             }else{

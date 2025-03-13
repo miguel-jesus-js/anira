@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Interfaces\BaseRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
-use Symfony\Component\HttpFoundation\Response;
+use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Traits\ApiResponse;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
@@ -70,6 +70,16 @@ abstract class BaseRepository implements BaseRepositoryInterface
         } catch (Exception $e) {
             throw new Exception(self::ERROR_DELETED, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function attach(int $modelId, Model $model)
+    {
+
+    }
+
+    public function detach(int $modelId, Model $model)
+    {
+
     }
 
     protected function applyFilters($query, array $filters){

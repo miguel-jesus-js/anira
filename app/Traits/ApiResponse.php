@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response as ResponsetatusCode;
+use Symfony\Component\HttpFoundation\Response as ResponseStatusCode;
 
 trait ApiResponse
 {
@@ -26,7 +26,7 @@ trait ApiResponse
      * @param int $code
      * @return JsonResponse
      */
-    private function successResponse(string $message, array $data = [], int $code = ResponsetatusCode::HTTP_OK): JsonResponse
+    private function successResponse(string $message, array $data = [], int $code = ResponseStatusCode::HTTP_OK): JsonResponse
     {
         return response()->json([
             'type' => 'success',
@@ -41,7 +41,7 @@ trait ApiResponse
      * @param int $code
      * @return JsonResponse
      */
-    private function errorResponse(string $message, int $code = ResponsetatusCode::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
+    private function errorResponse(string $message, int $code = ResponseStatusCode::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
     {
         return response()->json([
             'type' => 'error',

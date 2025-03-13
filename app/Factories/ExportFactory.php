@@ -6,9 +6,7 @@ use App\Exports\CustomerExport;
 use App\Exports\EmployeesExport;
 use App\Exports\TypeCustomerExport;
 use App\Exports\TypeEmployeeExport;
-use App\Interfaces\Export\ExportInterface;
 use Exception;
-use Maatwebsite\Excel\Concerns\FromCollection;
 
 class ExportFactory
 {
