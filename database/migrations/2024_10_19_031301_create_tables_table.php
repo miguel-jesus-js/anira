@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
             $table->foreignId('type_table_id')->constrained()->onDelete('cascade');
-            $table->string('name', 50)->nullable(false);
+            $table->integer('number')->nullable(false);
+            $table->string('name', 50)->nullable(false);;
+            $table->string('description', 50)->nullable(false);;
             $table->integer('capacity')->nullable(false);
             $table->integer('status')->nullable(false)->default(1);
             $table->timestamps();

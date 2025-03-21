@@ -1,77 +1,79 @@
 <template>
-    <div class="overflow-x-auto border border-gray-200 mt-10">
-        <table class="min-w-full divide-y divide-gray-200 table-auto">
-            <thead class="bg-[#6DBCB6]">
-            <tr>
-                <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">
-                    {{ column.label }}
-                </th>
-                <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">Acciones</th>
-            </tr>
-            </thead>
-            <tbody v-if="isFetch">
-            <tr>
-                <td :colspan="columns.length + 1" class="p-5">
-                    <LoaderTable></LoaderTable>
-                </td>
-            </tr>
-            </tbody>
-            <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
-            <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 odd:bg-gray-100 even:bg-white">
-                <template v-for="column in columns" :key="column.key">
-                    <td v-if="column.rowRenderer">
-                        <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
+    <div class="bg-white rounded-lg">
+        <div class="overflow-x-auto mt-10">
+            <table class="min-w-full divide-y divide-gray-200 table-auto border">
+                <thead class="bg-[#6DBCB6]">
+                <tr>
+                    <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">
+                        {{ column.label }}
+                    </th>
+                    <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">Acciones</th>
+                </tr>
+                </thead>
+                <tbody v-if="isFetch">
+                <tr>
+                    <td :colspan="columns.length + 1" class="p-5">
+                        <LoaderTable></LoaderTable>
                     </td>
-                    <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
-                        <p class="text-gray-600">
-                            {{ formatValue(row, column) }}
-                        </p>
+                </tr>
+                </tbody>
+                <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
+                <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 odd:bg-gray-100 even:bg-white">
+                    <template v-for="column in columns" :key="column.key">
+                        <td v-if="column.rowRenderer">
+                            <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
+                        </td>
+                        <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
+                            <p class="text-gray-600">
+                                {{ formatValue(row, column) }}
+                            </p>
+                        </td>
+                    </template>
+                    <th>
+                        <div class="flex">
+                            <Button @click="handleRedirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
+                            <Button  @click="onDeleteClick(urlDelete, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
+                        </div>
+                    </th>
+                </tr>
+                </tbody>
+                <tbody v-if="data.length < 1 && !isFetch">
+                <tr>
+                    <td :colspan="8" class="p-5 text-center">
+                        Sin datos
                     </td>
-                </template>
-                <th>
-                    <div class="flex">
-                        <Button @click="handleRedirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
-                        <Button  @click="onDeleteClick(urlDelete, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
-                    </div>
-                </th>
-            </tr>
-            </tbody>
-            <tbody v-if="data.length < 1 && !isFetch">
-            <tr>
-                <td :colspan="8" class="p-5 text-center">
-                    Sin datos
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="mt-6 sm:flex sm:items-center sm:justify-between" v-if="data.length > 0">
-        <div class="text-sm text-gray-500">
-            Pagína <span class="font-medium text-gray-700">{{ response.current_page }} de {{ response.last_page }}</span>
+                </tr>
+                </tbody>
+            </table>
         </div>
+        <div class="mt-6 sm:flex sm:items-center sm:justify-between p-4" v-if="data.length > 0">
+            <div class="text-sm text-gray-500">
+                Pagína <span class="font-medium text-gray-700">{{ response.current_page }} de {{ response.last_page }}</span>
+            </div>
 
-        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-            <button
-                :disabled="response.current_page == 1"
-                @click="handleClick(response.prev_page_url)"
-                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-l border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
-                <TablerIcon size="20" icon="IconChevronLeft"></TablerIcon>
-            </button>
-            <button
-                :disabled="response.current_page === page"
-                v-for="page in visiblePages"
-                :key="page"
-                @click="handleClick(`/api/users?page=${page}`)"
-                :class="['relative inline-flex items-center px-4 py-2 text-sm font-semibold border-t border-b focus:z-20 focus:outline-offset-0', response.current_page === page ? 'bg-[#A97E59] text-white hover:bg-blue-600' : 'bg-white text-gray-900 hover:bg-gray-50']">
-                {{ page }}
-            </button>
-            <button
-                :disabled="response.next_page_url == null"
-                @click="handleClick(response.next_page_url)"
-                class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-r border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
-                <TablerIcon size="20" icon="IconChevronRight"></TablerIcon>
-            </button>
-        </nav>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                    :disabled="response.current_page == 1"
+                    @click="handleClick(response.prev_page_url)"
+                    class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-l border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
+                    <TablerIcon size="20" icon="IconChevronLeft"></TablerIcon>
+                </button>
+                <button
+                    :disabled="response.current_page === page"
+                    v-for="page in visiblePages"
+                    :key="page"
+                    @click="handleClick(`/api/users?page=${page}`)"
+                    :class="['relative inline-flex items-center px-4 py-2 text-sm font-semibold border-t border-b focus:z-20 focus:outline-offset-0', response.current_page === page ? 'bg-[#A97E59] text-white hover:bg-blue-600' : 'bg-white text-gray-900 hover:bg-gray-50']">
+                    {{ page }}
+                </button>
+                <button
+                    :disabled="response.next_page_url == null"
+                    @click="handleClick(response.next_page_url)"
+                    class="flex items-center justify-center w-1/2 px-2 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border-r border-t border-b sm:w-auto gap-x-2 hover:bg-gray-100">
+                    <TablerIcon size="20" icon="IconChevronRight"></TablerIcon>
+                </button>
+            </nav>
+        </div>
     </div>
 </template>
 

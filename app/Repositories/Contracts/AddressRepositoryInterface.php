@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
-interface AddressesRepositoryInterface extends BaseRepositoryInterface
+interface AddressRepositoryInterface extends BaseRepositoryInterface
 {
     public function existAddressWithLocation(Float $latitude, Float $longitude);
 }

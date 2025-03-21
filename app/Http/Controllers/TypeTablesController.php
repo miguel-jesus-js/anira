@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\StatusBase;
-use App\Http\Requests\TypeEmployeesRequest;
-use App\Models\TypeEmployee;
-use App\Repositories\Contracts\TypeEmployeeRepositoryInterface;
+use App\Http\Requests\TypeTableRequest;
+use App\Models\TypeTable;
+use App\Repositories\TypeTable\TypeTableRepository;
 use App\Services\Export\ExportService;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
+use App\Enums\StatusBase;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class TypeEmployeeController extends Controller
+class TypeTablesController extends Controller
 {
     use ApiResponse;
-    protected TypeEmployeeRepositoryInterface $typeEmployeeRepository;
-    public function __construct(TypeEmployeeRepositoryInterface $typeEmployeeRepository)
+    protected TypeTableRepository $typeTableRepository;
+
+    public function __construct(TypeTableRepository $typeTableRepository)
     {
-        $this->typeEmployeeRepository = $typeEmployeeRepository;
+        $this->typeTableRepository = $typeTableRepository;
     }
 
     /**
@@ -31,12 +32,12 @@ class TypeEmployeeController extends Controller
             $filters = $request->query('filters', []);
             $paginate = $request->query('paginate', false);
             $perPage = $request->query('perPage', 10);
-            $typeEmployees = $this->typeEmployeeRepository->all($filters, [], $paginate, $perPage);
-            $columnsExport = TypeEmployee::columnsExport;
-            $filters = TypeEmployee::filters;
+            $tableTypes = $this->typeTableRepository->all($filters, [], $paginate, $perPage);
+            $columnsExport = TypeTable::columnsExport;
+            $filters = TypeTable::filters;
             $status = StatusBase::cases();
             $data = [
-                'type_employees' => $typeEmployees,
+                'type_tables' => $tableTypes,
                 'status' => $status,
                 'columns_export' => $columnsExport,
                 'filters' => $filters,
@@ -45,7 +46,6 @@ class TypeEmployeeController extends Controller
         } catch (Exception $e){
             return $this->errorResponse($e->getMessage(), $e->getCode());
         }
-
     }
 
     /**
@@ -56,21 +56,21 @@ class TypeEmployeeController extends Controller
     public function show(int $id): JsonResponse
     {
         try {
-            $typeEmployee = $this->typeEmployeeRepository->find($id);
-            return $this->successResponse(self::MESSAGE_CREATED, [$typeEmployee]);
+            $tableType = $this->typeTableRepository->find($id);
+            return $this->successResponse(self::MESSAGE_CREATED, [$tableType]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());
         }
     }
 
     /**
-     * @param TypeEmployeesRequest $request
+     * @param TypeTableRequest $request
      * @return JsonResponse
      */
-    public function store(TypeEmployeesRequest $request): JsonResponse
+    public function store(TypeTableRequest $request): JsonResponse
     {
         try {
-            $this->typeEmployeeRepository->create($request->all());
+            $this->typeTableRepository->create($request->all());
             return $this->successResponse(self::MESSAGE_CREATED);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());
@@ -78,14 +78,14 @@ class TypeEmployeeController extends Controller
     }
 
     /**
-     * @param TypeEmployeesRequest $request
+     * @param TypeTableRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(TypeEmployeesRequest $request, int $id): JsonResponse
+    public function update(TypeTableRequest $request, int $id): JsonResponse
     {
         try {
-            $this->typeEmployeeRepository->update($id, $request->all());
+            $this->typeTableRepository->update($id, $request->all());
             return $this->successResponse(self::MESSAGE_UPDATED);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -99,7 +99,7 @@ class TypeEmployeeController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->typeEmployeeRepository->delete($id);
+            $this->typeTableRepository->delete($id);
             return $this->successResponse(self::MESSAGE_DELETED);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -115,16 +115,15 @@ class TypeEmployeeController extends Controller
         $format = $request->query('format');
         $filters = $request->query('filters', []);
         $columnsSelected = $request->query('columns_selected', []);
-        $columns = array_intersect_key(TypeEmployee::columnsExport, array_flip($columnsSelected));
+        $columns = array_intersect_key(TypeTable::columnsExport, array_flip($columnsSelected));
 
         try {
             $export = new ExportService();
-            $archive = $export->exportBase64('type_employees', $format, $filters, $columns);
+            $archive = $export->exportBase64('table_types', $format, $filters, $columns);
 
             return $this->successResponse(self::MESSAGE_CREATED, $archive);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
     }
-
 }

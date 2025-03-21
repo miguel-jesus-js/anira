@@ -71,6 +71,7 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.first_name']"
                         >
                         </CustomInput>
                         <CustomInput
@@ -83,6 +84,7 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.last_name']"
                         >
                         </CustomInput>
                         <div class="block">
@@ -93,6 +95,7 @@
                                 required
                                 class="text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 h-10"
                                 :class="isEditing ? 'bg-gray-50 border border-gray-300 text-gray-900' : 'bg-[#F5F9FD] text-gray-500'"/>
+                            <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors['people.phone_number']" :key="index">{{ error }}</p>
                         </div>
                         <CustomSelect
                             icon="IconId"
@@ -101,8 +104,10 @@
                             label="Tipo de empleado"
                             v-model="employee.type_employee_id"
                             :options="typeEmployees"
+                            value_name="type_employee"
                             :select-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['type_employee_id'] ? errors['type_employee_id'] : []"
                         >
                         </CustomSelect>
                         <CustomInput
@@ -115,11 +120,11 @@
                             icon="IconId"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.dni']"
                         >
                         </CustomInput>
                         <br>
                     </div>
-
                 </div>
                 <div v-show="selectedTab === 1" class="mt-4 px-10">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
@@ -134,6 +139,7 @@
                             icon="IconMail"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.email']"
                         >
                         </CustomInput>
                         <CustomInput
@@ -146,6 +152,7 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['user.user_name']"
                         >
                         </CustomInput>
                     </div>
@@ -256,13 +263,12 @@
     import Vue3PhoneInput from 'vue3-phone-input';
     import Button from "../../components/Button.vue";
     import {useRoute} from "vue-router";
-    import axios from "axios";
     import {Employee} from "../../types/Employees/Employee";
     import CustomInput from "../CustomInput.vue";
     import CustomSelect from "../CustomSelect.vue";
     import {TypeEmployee} from "../../types/TypeEmployees/TypeEmployee";
     import LoaderFetch from '../Loader/LoaderFetch.vue';
-    import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
+    import {confirmDelete, defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
     import Modal from "../Modal.vue";
     import {Address} from "../../types/Addresses/Address";
     import TablerIcon from "../TablerIcon.vue";
@@ -287,6 +293,7 @@
     const isEditing = ref(false);
     const isEditingAddress = ref(false);
     const isModalAddressOpen = ref(false);
+    const errors = ref([]);
     const address = ref<Address>({
         address: '',
         street: '',
@@ -325,9 +332,13 @@
     const fetchTypeEmployees = async () => {
         try {
             const res = await apiGet('type-employees');
-            typeEmployees.value = res.data;
+            typeEmployees.value = res.data.type_employees;
         } catch (error) {
-            showAlert('error', 'Error externo', 'Ocurrió un error al procesar los datos');
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
         }
     };
     const fetchUpdateEmployee = async () => {
@@ -338,9 +349,15 @@
             isEditing.value = false
             showAlert(res.type, res.title, res.message);
         } catch (error) {
-            console.error('Error fetching users:', error);
+            if(error.response && error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errors.value = error.response.data.errors;
+            }else{
+                defaultError();
+            }
             isLoader.value = false;
-            isEditing.value = false
         }
     }
     const handleAddress = (peopleId: number) => {
@@ -351,7 +368,6 @@
         address.value = dataAddress;
         addItemAddresses();
     }
-
     const handleDelete = async (url: string, id: number) => {
         try {
             isLoader.value = true;

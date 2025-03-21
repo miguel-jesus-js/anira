@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('type_tables', function (Blueprint $table) {
             $table->id();
-            $table->integer('type')->nullable(false);
+            $table->string('type_table', 30)->nullable(false);
             $table->integer('status')->nullable(false)->default(1);
             $table->timestamps();
             $table->softDeletes();

@@ -28,7 +28,7 @@
         <div v-if="isLoader" class="absolute inset-0 flex justify-center items-center z-50 bg-gray-100 bg-opacity-50 rounded-lg">
             <LoaderFetch></LoaderFetch>
         </div>
-        <div class="grid sm:grid-cols-[100%] md:grid-cols-[30%_70%]" v-if="!isFetchTypeEmployee && Object.keys(typeEmployee).length != 0">
+        <div class="grid sm:grid-cols-[100%] md:grid-cols-[30%_70%]" v-if="!isFetchTypeTable && Object.keys(typeTable).length != 0">
             <div class="border-r">
                 <div
                     :class="[selectedTab === index ? 'bg-[#F5F9FD]' : 'bg-white']"
@@ -45,24 +45,24 @@
                     <Button button-class="border w-full bg-blue-600 text-white rounded-lg mb-3" @click="isEditing = !isEditing" icon="IconPencil" label="Editar" type="button"></Button>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mx-4 mt-6" v-show="isEditing">
-                    <Button button-class="border bg-white text-red-600 rounded-lg mb-3 hover:bg-red-600 hover:text-white" :on-click="fetchTypeEmployees" icon="IconX" label="Cancelar" type="button"></Button>
-                    <Button button-class="border bg-white text-blue-600 rounded-lg mb-3 hover:bg-blue-600 hover:text-white" :on-click="fetchUpdateTypeEmployees" icon="IconCheck" label="Guardar" type="button"></Button>
+                    <Button button-class="border bg-white text-red-600 rounded-lg mb-3 hover:bg-red-600 hover:text-white" :on-click="fetchTypeCustomer" icon="IconX" label="Cancelar" type="button"></Button>
+                    <Button button-class="border bg-white text-blue-600 rounded-lg mb-3 hover:bg-blue-600 hover:text-white" :on-click="fetchUpdateCustomer" icon="IconCheck" label="Guardar" type="button"></Button>
                 </div>
             </div>
             <div class="overflow-auto">
                 <div v-show="selectedTab === 0" class="mt-4 px-10">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
                         <CustomInput
-                            placeholder="Tipo de empleado"
-                            name="type_employee"
-                            id="type_employee"
-                            label="Vendedor"
+                            placeholder="Premium"
+                            name="type_table"
+                            id="type_table"
+                            label="Tipo de mesa"
                             required="true"
-                            v-model="typeEmployee.type_employee"
+                            v-model="typeTable.type_table"
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
-                            :errors="errors['type_employee']"
+                            :errors="errors['type_table']"
                         >
                         </CustomInput>
                     </div>
@@ -165,7 +165,7 @@
     import Button from "../../components/Button.vue";
     import {useRoute} from "vue-router";
     import CustomInput from "../CustomInput.vue";
-    import {TypeEmployee} from "../../types/TypeEmployees/TypeEmployee";
+    import {TypeTable} from "../../types/TypeTables/TypeTable";
     import LoaderFetch from '../Loader/LoaderFetch.vue';
     import {defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
     import TablerIcon from "../TablerIcon.vue";
@@ -176,34 +176,33 @@
     ];
     const selectedTab = ref(0);
     const route = useRoute();
-    const typeEmployee = ref<TypeEmployee>({});
-    const isFetchTypeEmployee = ref(false);
+    const typeTable = ref<TypeTable>({});
+    const isFetchTypeTable = ref(false);
     const isLoader = ref(false);
     const isEditing = ref(false);
     const errors = ref([]);
 
-    const fetchTypeEmployees = async () => {
-        isFetchTypeEmployee.value = true;
+    const fetchTypeCustomer = async () => {
+        isFetchTypeTable.value = true;
         isEditing.value = false;
         errors.value = [];
         try {
-            const payload = {paginate: false};
-            const res = await apiGet(`type-employees/${route.params.id}`, payload);
-            typeEmployee.value = res.data[0];
-            isFetchTypeEmployee.value = false;
+            const res = await apiGet(`type-tables/${route.params.id}`);
+            typeTable.value = res.data[0];
+            isFetchTypeTable.value = false;
         } catch (error) {
             if(error.response && error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
             }else{
                 defaultError();
             }
-            isFetchTypeEmployee.value = false;
+            isFetchTypeTable.value = false;
         }
     };
-    const fetchUpdateTypeEmployees = async () => {
+    const fetchUpdateCustomer = async () => {
         try {
             isLoader.value = true;
-            const res = await apiPut(`type-employees/${route.params.id}`, typeEmployee.value);
+            const res = await apiPut(`type-tables/${route.params.id}`, typeTable.value);
             isLoader.value = false;
             isEditing.value = false
             showAlert(res.type, res.title, res.message);
@@ -220,7 +219,7 @@
         }
     }
     onMounted(() => {
-        fetchTypeEmployees();
+        fetchTypeCustomer();
     })
 </script>
 

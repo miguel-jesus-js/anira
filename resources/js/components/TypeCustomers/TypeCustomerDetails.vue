@@ -53,15 +53,16 @@
                 <div v-show="selectedTab === 0" class="mt-4 px-10">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
                         <CustomInput
-                            placeholder="Vendedor"
+                            placeholder="Distinguido"
                             name="type_customer"
                             id="type_customer"
-                            label="Tipo de empleado"
+                            label="Tipo de cliente"
                             required="true"
                             v-model="typeCustomer.type_customer"
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['type_customer']"
                         >
                         </CustomInput>
                     </div>
@@ -166,7 +167,7 @@
     import CustomInput from "../CustomInput.vue";
     import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
     import LoaderFetch from '../Loader/LoaderFetch.vue';
-    import {defaultError, showAlert} from "../../composables/SweetAlert";
+    import {defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
     import TablerIcon from "../TablerIcon.vue";
     import {apiGet, apiPut} from "../../src/services/api";
 
@@ -179,9 +180,12 @@
     const isFetchTypeCustomer = ref(false);
     const isLoader = ref(false);
     const isEditing = ref(false);
+    const errors = ref([]);
 
     const fetchTypeCustomer = async () => {
         isFetchTypeCustomer.value = true;
+        isEditing.value = false;
+        errors.value = [];
         try {
             const res = await apiGet(`type-customers/${route.params.id}`);
             typeCustomer.value = res.data[0];
@@ -205,11 +209,13 @@
         } catch (error) {
             if(error.response && error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errors.value = error.response.data.errors;
             }else{
                 defaultError();
             }
             isLoader.value = false;
-            isEditing.value = false
         }
     }
     onMounted(() => {

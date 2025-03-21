@@ -6,8 +6,10 @@ import Customer from "./components/Customers/Customer.vue";
 import CustomerDetails from "./components/Customers/CustomerDetails.vue";
 import TypeEmployee from "./components/TypeEmployees/TypeEmployee.vue";
 import TypeEmployeesDetails from "./components/TypeEmployees/TypeEmployeeDetails.vue";
-import TypeCustomer from "./components/TypeCustomer/TypeCustomer.vue";
-import TypeCustomerDetails from "./components/TypeCustomer/TypeCustomerDetails.vue";
+import TypeCustomer from "./components/TypeCustomers/TypeCustomer.vue";
+import TypeCustomerDetails from "./components/TypeCustomers/TypeCustomerDetails.vue";
+import TypeTable from "./components/TypeTables/TypeTable.vue";
+import TypeTableDetails from "./components/TypeTables/TypeTableDetails.vue";
 
 
 const routes = [
@@ -35,6 +37,16 @@ const routes = [
         path: '/tipo-de-cliente-detalle/:id',
         name: 'TypeCustomerDetails',
         component: TypeCustomerDetails
+    },
+    {
+        path: '/tipo-de-mesas',
+        name: 'TypeTable',
+        component: TypeTable
+    },
+    {
+        path: '/tipo-de-mesa-detalle/:id',
+        name: 'TypeTableDetails',
+        component: TypeTableDetails
     },
     {
         path: '/empleados',

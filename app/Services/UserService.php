@@ -2,27 +2,29 @@
 
 namespace App\Services;
 
-use App\Models\Address;
-use App\Repositories\Addresses\AddressesRepository;
-use App\Repositories\Customers\CustomerRepository;
-use App\Repositories\Employee\EmployeeRepository;
-use App\Repositories\People\PeopleRepository;
-use App\Repositories\User\UserRepository;
+use App\Repositories\Contracts\AddressRepositoryInterface;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
+use App\Repositories\Contracts\PeopleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class UserService
 {
-    protected UserRepository $userRepository;
-    protected PeopleRepository $peopleRepository;
-    protected EmployeeRepository $employeeRepository;
-    protected CustomerRepository $customerRepository;
-    protected AddressesRepository $addressRepository;
+    use ApiResponse;
+    protected UserRepositoryInterface $userRepository;
+    protected PeopleRepositoryInterface $peopleRepository;
+    protected EmployeeRepositoryInterface $employeeRepository;
+    protected CustomerRepositoryInterface $customerRepository;
+    protected AddressRepositoryInterface $addressRepository;
     public function __construct(
-        UserRepository $userRepository,
-        PeopleRepository $peopleRepository,
-        EmployeeRepository $employeeRepository,
-        CustomerRepository $customerRepository,
-        AddressesRepository $addressRepository
+        UserRepositoryInterface     $userRepository,
+        PeopleRepositoryInterface   $peopleRepository,
+        EmployeeRepositoryInterface $employeeRepository,
+        CustomerRepositoryInterface $customerRepository,
+        AddressRepositoryInterface  $addressRepository
     )
     {
         $this->userRepository = $userRepository;
@@ -35,7 +37,7 @@ class UserService
     /**
      * @throws \Exception
      */
-    public function createUser(array $data)
+    public function createUser(array $data): true
     {
         DB::beginTransaction();
         try {
@@ -64,10 +66,10 @@ class UserService
                 $this->customerRepository->create($data);
             }
             DB::commit();
-            return $user;
-        } catch (\Exception $e) {
+            return true;
+        } catch (Exception $e) {
             DB::rollBack();
-            throw $e;
+            throw new Exception(self::ERROR_CREATED);
         }
     }
 }

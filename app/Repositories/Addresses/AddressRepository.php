@@ -4,9 +4,9 @@ namespace App\Repositories\Addresses;
 
 use App\Models\Address;
 use App\Repositories\BaseRepository;
-use App\Repositories\Contracts\AddressesRepositoryInterface;
+use App\Repositories\Contracts\AddressRepositoryInterface;
 
-class AddressesRepository extends BaseRepository implements AddressesRepositoryInterface
+class AddressRepository extends BaseRepository implements AddressRepositoryInterface
 {
     public function __construct(Address $address)
     {

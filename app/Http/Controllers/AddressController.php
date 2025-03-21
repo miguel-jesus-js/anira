@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddressRequest;
-use App\Repositories\Contracts\AddressesRepositoryInterface;
+use App\Repositories\Contracts\AddressRepositoryInterface;
 use App\Repositories\Contracts\PeopleRepositoryInterface;
 use App\Traits\ApiResponse;
 use Exception;
@@ -14,10 +14,10 @@ use Symfony\Component\HttpFoundation\Response as ResponseStatusCode;
 class AddressController extends Controller
 {
     use ApiResponse;
-    protected AddressesRepositoryInterface $addressesRepository;
+    protected AddressRepositoryInterface $addressesRepository;
     protected PeopleRepositoryInterface $peopleRepository;
 
-    public function __construct(AddressesRepositoryInterface $addressesRepository, PeopleRepositoryInterface $peopleRepository)
+    public function __construct(AddressRepositoryInterface $addressesRepository, PeopleRepositoryInterface $peopleRepository)
     {
         $this->addressesRepository = $addressesRepository;
         $this->peopleRepository = $peopleRepository;
@@ -78,7 +78,8 @@ class AddressController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param int $peopleId
+     * @param int $addressId
      * @return JsonResponse
      * @throws Exception
      */

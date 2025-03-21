@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TypeEmployeeController;
 use App\Http\Controllers\TypeCustomerController;
+use App\Http\Controllers\TypeTablesController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,3 +50,9 @@ Route::put('/address/{id}', [AddressController::class, 'update']);
 Route::delete('/address/{peopleId}/{addressId}', [AddressController::class, 'delete']);
 Route::post('/address-validate', [AddressController::class, 'validate']);
 
+Route::get('/type-tables', [TypeTablesController::class, 'index']);
+Route::post('/type-tables', [TypeTablesController::class, 'store']);
+Route::get('/type-tables/{id}', [TypeTablesController::class, 'show']);
+Route::put('/type-tables/{id}', [TypeTablesController::class, 'update']);
+Route::delete('/type-tables/{id}', [TypeTablesController::class, 'delete']);
+Route::get('/type-tables-export', [TypeTablesController::class, 'export']);

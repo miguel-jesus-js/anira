@@ -4,8 +4,9 @@ namespace App\Repositories\Customers;
 
 use App\Models\Customer;
 use App\Repositories\BaseRepository;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
 
-class CustomerRepository extends BaseRepository
+class CustomerRepository extends BaseRepository implements CustomerRepositoryInterface
 {
     public function __construct(Customer $customer)
     {

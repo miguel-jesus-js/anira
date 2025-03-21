@@ -1,10 +1,10 @@
 <template>
   <!-- component -->
-  <section class="p-4">
+  <section>
     <HeaderModule :total-records="response ? response.total : 0" title="EMPLEADOS">
         <template #section1>
             <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-            <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar empleado"></Button>
+            <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#fd6868] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar empleado"></Button>
         </template>
         <template #section2>
             <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
@@ -257,7 +257,7 @@
             >
             </CustomInput>
             <div class="block">
-                <label  class="block mb-2 text-sm font-sm text-gray-500">Télefono</label>
+                <label  class="block mb-2 text-sm font-sm text-gray-500">Teléfono</label>
                 <vue3-phone-input
                     v-model="filterPhone"
                     placeholder="Número de teléfono"
@@ -270,7 +270,7 @@
                 id="type_employee_id"
                 label="Tipo de empleado"
                 v-model="filters.type_employee_id"
-                :options="typeEmployees",
+                :options="typeEmployees"
                 value_name="type_employee"
             >
             </CustomSelect>
@@ -316,7 +316,7 @@
 </template>
 
 <script setup lang="ts">
-    import {onMounted, ref, markRaw, nextTick } from 'vue';
+    import {onMounted, ref, markRaw } from 'vue';
     import {Employee, CreateEmployee, ColumnsExportAnsFilters} from '../../types/Employees/Employee';
     import {Response} from '../../types/Response';
     import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
@@ -356,7 +356,6 @@
     const phone = ref({country_code: '', phone_number: ''});
     const filterPhone = ref({});
     const errors = ref({});
-    const errorsAddress = ref([]);
     const isFetchEmployees = ref(false);
     const itemAddresses = ref<Address[]>([]);
     const isEditingAddress = ref(false);
@@ -423,7 +422,7 @@
         latitude: '',
         longitude: ''
     });
-    const { fetchValidateAddress } = useAddressValidation();
+    const { fetchValidateAddress, errorsAddress } = useAddressValidation();
     const { initAutocomplete } = useAutocomplete();
     const { fetchExport } = useExport();
     const isDrawerOpen = ref(false);
@@ -455,8 +454,11 @@
             const res = await apiGet<TypeEmployees>('type-employees');
             typeEmployees.value = res.data.type_employees;
         } catch (error) {
-            if(error.response && error.response.data.type){
+            if(error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errorsAddress.value = error.response.data.errors;
             }else{
                 defaultError();
             }
@@ -471,6 +473,7 @@
                 showAlert(res.type, res.title, res.message);
                 await fetchEmployees();
                 closeModal();
+                employee.value = {};
             }else{
                 showAlert(res.type, res.title, res.message);
             }

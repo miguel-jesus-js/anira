@@ -11,21 +11,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $status
  */
-class TypeEmployee extends Model
+class TypeTable extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = ['type_employee', 'status'];
+
+    protected $fillable = ['type_table', 'status'];
 
     const filters = [
-        'type_employee' => '',
+        'type_table' => '',
     ];
 
     const columnsExport = [
-        'type_employee' => 'Tipo de empleado',
+        'type_table' => 'Tipo de empleado',
     ];
 
     public function scopeTypeEmployee($query, $type)
     {
-        return $query->where('type_employee', 'LIKE', '%'. $type .'%');
+        return $query->where('type_table', 'LIKE', '%'. $type .'%');
     }
 }

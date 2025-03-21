@@ -71,6 +71,7 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.first_name']"
                         >
                         </CustomInput>
                         <CustomInput
@@ -83,6 +84,7 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.last_name']"
                         >
                         </CustomInput>
                         <div class="block">
@@ -93,6 +95,7 @@
                                 required
                                 class="text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 h-10"
                                 :class="isEditing ? 'bg-gray-50 border border-gray-300 text-gray-900' : 'bg-[#F5F9FD] text-gray-500'"/>
+                            <p class="pl-1 text-red-500 text-sm py-1" v-for="(error, index) in errors['people.phone_number']" :key="index">{{ error }}</p>
                         </div>
                         <CustomSelect
                             icon="IconId"
@@ -101,8 +104,10 @@
                             label="Tipo de cliente"
                             v-model="customer.type_customer_id"
                             :options="typeCustomers"
+                            value_name="type_customer"
                             :select-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['type_customer_id'] ? errors['type_customer_id'] : []"
                         >
                         </CustomSelect>
                         <CustomInput
@@ -115,6 +120,7 @@
                             icon="IconId"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.dni']"
                         >
                         </CustomInput>
                         <br>
@@ -134,6 +140,7 @@
                             icon="IconMail"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['people.email']"
                         >
                         </CustomInput>
                         <CustomInput
@@ -146,68 +153,14 @@
                             icon="IconUser"
                             :input-class="isEditing ? 'border text-gray-900 bg-gray-50 border-gray-300' : 'bg-[#F5F9FD] text-gray-500'"
                             :disabled="!isEditing"
+                            :errors="errors['user.user_name']"
                         >
                         </CustomInput>
                     </div>
                 </div>
                 <div v-show="selectedTab === 2" class="mt-4 px-10">
                     <div class="grid grid-cols-1 gap-4 h-screen overflow-y-auto">
-                        <div class="flex justify-end">
-                            <Button button-class="border bg-green-600 text-white rounded-lg mb-3" :on-click="addItemAddresses" icon="IconPlus" label="Agregar dirección" type="button"></Button>
-                        </div>
-                        <div v-for="(item, index) in customer.people.addresses" :key="index" class="border rounded my-2">
-                            <div>
-                                <div class="flex justify-between items-center p-4">
-                                    <div class="w-full">
-                                        <div class="mb-3">
-                                            <dt class="text-sm text-gray-900">Dirección completa</dt>
-                                            <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.address }}</dd>
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4">
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Calle</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.street }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Colonia</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.neighborhood }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">N° interior</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.interior_number }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">N° Exterior</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.outer_number }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Ciudad</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.city }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Estado</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.state }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Localidad</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.locality }}</dd>
-                                            </div>
-                                            <div class="mb-3">
-                                                <dt class="text-sm text-gray-900">Código postal</dt>
-                                                <dd class="mt-2 text-xs text-gray-500 bg-[#F5F9FD] px-3 py-2 rounded">{{ item.cp }}</dd>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 mx-4 mt-6">
-                                    <Button button-class="border bg-red-600 text-white rounded-lg mb-3" :on-click="() => onDeleteClick(item.id)" icon="IconX" label="Eliminar" type="button"></Button>
-                                    <Button button-class="border bg-blue-600 text-white rounded-lg mb-3" :on-click="() => editAddress(item)" icon="IconCheck" label="Editar" type="button"></Button>
-                                </div>
-                            </div>
-                            <div class="flex">
-
-                            </div>
-                        </div>
+                        <ViewAddressComponent :add-item-addresses="addItemAddresses" :item-addresses="customer.people.addresses" :edit-address="editAddress" :remove-item-addresses="onDeleteClick"></ViewAddressComponent>
                     </div>
                 </div>
             </div>
@@ -300,121 +253,29 @@
             </div>
         </div>
     </div>
-    <Modal title="AGREGAR DIRECCIÓN" width="sm:max-w-2xl" :is-modal-open="isModalAddressOpen" @close="closeModalAddress" >
-        <form class="max-w-5xl" @submit.prevent="isEditingAddress ? fetchUpdateAddress(address.id) : fetchCreateAddress(customer.people_id)">
-            <CustomInput
-                ref="autocompleteInput"
-                label="Dirección"
-                id="address"
-                icon="IconLocationFilled"
-                v-model="address.address"
-                required="true"
-                placeholder="Dirección"
-                name="address"
-                :errors="errorsAddress['address']">
-            </CustomInput>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 grid-rows-1 gap-4 my-3">
-                <CustomInput
-                    label="Calle"
-                    id=""
-                    icon="IconSmartHome"
-                    v-model="address.street"
-                    required="true"
-                    placeholder="Anira 18"
-                    name="street"
-                    :errors="errorsAddress['street']">
-                </CustomInput>
-                <CustomInput
-                    label="Colonia"
-                    id=""
-                    icon="IconSmartHome"
-                    v-model="address.neighborhood"
-                    required="true"
-                    placeholder="Albania alta"
-                    name="neighborhood"
-                    :errors="errorsAddress['neighborhood']">
-                </CustomInput>
-                <CustomInput
-                    label="N° interior"
-                    id=""
-                    icon="IconNumber"
-                    v-model="address.interior_number"
-                    placeholder="S/N"
-                    name="interior_number"
-                    :errors="errorsAddress['interior_number']">
-                </CustomInput>
-                <CustomInput
-                    label="N° exterior"
-                    id=""
-                    icon="IconNumber"
-                    v-model="address.outer_number"
-                    placeholder="S/N"
-                    name="outer_number"
-                    :errors="errorsAddress['outer_number']">
-                </CustomInput>
-                <CustomInput
-                    label="Ciudad"
-                    id=""
-                    icon="IconBuildingSkyscraper"
-                    v-model="address.city"
-                    required="true"
-                    placeholder="Mexico"
-                    name="city"
-                    :errors="errorsAddress['city']">
-                </CustomInput>
-                <CustomInput
-                    label="Estado"
-                    id=""
-                    icon="IconBuildings"
-                    v-model="address.state"
-                    required="true"
-                    placeholder="Chiapas"
-                    name="state"
-                    :errors="errorsAddress['state']">
-                </CustomInput>
-                <CustomInput
-                    label="Localidad"
-                    id=""
-                    icon="IconMap"
-                    v-model="address.locality"
-                    required="true"
-                    placeholder="Tuxtla Gutierrez"
-                    name="locality"
-                    :errors="errorsAddress['locality']">
-                </CustomInput>
-                <CustomInput
-                    label="CP"
-                    id=""
-                    icon="IconMapCode"
-                    v-model="address.cp"
-                    required="true"
-                    placeholder="29950"
-                    name="cp"
-                    :errors="errorsAddress['cp']">
-                </CustomInput>
-            </div>
-            <Button button-class="bg-green-500 rounded text-white" icon="IconPlus" :label="isEditingAddress ? 'Actualizar' : 'Guardar'" type="submit"></Button>
-        </form>
+    <Modal :title="isEditingAddress ? 'EDITAR DIRECCIÓN' : 'AGREGAR DIRECCIÓN'" width="sm:max-w-2xl" :is-modal-open="isModalAddressOpen" @close="closeModalAddress" >
+        <AddressComponent :submit="() => handleAddress(employee.people_id)" :address="address" :errors-address="errorsAddress"></AddressComponent>
     </Modal>
-
 </template>
 
 <script setup lang="ts">
-    import {nextTick, onMounted, ref} from "vue";
+    import {onMounted, ref} from "vue";
     import Vue3PhoneInput from 'vue3-phone-input';
     import Button from "../../components/Button.vue";
     import {useRoute} from "vue-router";
-    import axios from "axios";
     import {Customer} from "../../types/Customers/Customer";
     import CustomInput from "../CustomInput.vue";
     import CustomSelect from "../CustomSelect.vue";
     import {TypeCustomer} from "../../types/TypeCustomers/TypeCustomer";
     import LoaderFetch from '../Loader/LoaderFetch.vue';
-    import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
+    import {confirmDelete, defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
     import Modal from "../Modal.vue";
     import {Address} from "../../types/Addresses/Address";
     import TablerIcon from "../TablerIcon.vue";
-    import {apiGet, apiPost, apiPut} from "../../src/services/api";
+    import {apiDelete, apiGet, apiPost, apiPut} from "../../src/services/api";
+    import ViewAddressComponent from "../Addresses/ViewAddressComponent.vue";
+    import AddressComponent from "../Addresses/AddressComponent.vue";
+    import {useAutocomplete, useAddressValidation} from "../../composables/AddressValidation";
 
     const typeCustomers = ref<TypeCustomer[]>([]);
 
@@ -446,7 +307,8 @@
         latitude: '',
         longitude: ''
     });
-    const errorsAddress = ref({});
+    const { initAutocomplete } = useAutocomplete();
+    const { fetchCreateAddress, errorsAddress } = useAddressValidation();
 
     const fetchCustomer = async () => {
         customer.value = {};
@@ -489,50 +351,17 @@
         } catch (error) {
             if(error.response && error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }if(error.response && error.response.data.errors){
+                defaultErrorUser();
+                errors.value = error.response.data.errors;
             }else{
                 defaultError();
             }
             isLoader.value = false;
-            isEditing.value = false
         }
     }
-    const fetchCreateAddress = async (peopleId: number) => {
-        try {
-            const res = await apiPost(`address/${peopleId}`, address.value);
-            if(res.type === 'success'){
-                showAlert(res.type, res.title, res.message);
-                closeModalAddress();
-                await fetchCustomer()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.type){
-                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
-                errorsAddress.value = error.response.data.errors;
-            }else{
-                defaultError();
-            }
-        }
-    }
-    const fetchUpdateAddress = async (addressId: number) => {
-        try {
-            const res = await putAddress(`address/${addressId}`, address.value);
-            if(res.type === 'success'){
-                showAlert(res.type, res.title, res.message);
-                closeModalAddress();
-                await fetchCustomer()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.type){
-                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
-                errorsAddress.value = error.response.data.errors;
-            }else{
-                defaultError();
-            }
-        }
+    const handleAddress = (peopleId: number) => {
+        fetchCreateAddress(isEditingAddress.value, peopleId, address, closeModalAddress, fetchEmployee);
     }
     const editAddress = (dataAddress: Address) => {
         isEditingAddress.value = true;
@@ -543,16 +372,21 @@
     const handleDelete = async (url: string, id: number) => {
         try {
             isLoader.value = true;
-            const res = await axios.delete(url + id );
-            showAlert(res.data.type, res.data.title, res.data.message);
+            const res = await apiDelete(url + id);
+            showAlert(res.type, res.title, res.message);
             isLoader.value = false;
-            fetchCustomer();
+            await fetchEmployee();
         } catch (error) {
+            if(error.response.data.type){
+                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
+            }else{
+                defaultError();
+            }
             isLoader.value = false;
         }
     };
-    const onDeleteClick = (url: string, id: number) => {
-        confirmDelete(url, id, handleDelete);
+    const onDeleteClick = (id: number) => {
+        confirmDelete(`address/${route.params.id}/`, id, handleDelete);
     };
     const addItemAddresses = () => {
         isModalAddressOpen.value = true;
@@ -560,52 +394,6 @@
     }
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
-    };
-    const initAutocomplete = async () => {
-        await nextTick();
-        const input = document.getElementById("address");
-
-        if (!window.google || !window.google.maps) {
-            console.error("Google Maps no cargado");
-            return;
-        }
-
-        const autocomplete = new google.maps.places.Autocomplete(input, {
-            types: ['address']
-        });
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            address.value.address = place.formatted_address;
-            place.address_components.forEach(component => {
-                const types = component.types;
-                if (types.includes("route")) {
-                    address.value.street = component.long_name;
-                }
-                if (types.includes("sublocality_level_1")) {
-                    address.value.neighborhood = component.long_name;
-                }
-                if (types.includes("street_number")) {
-                    address.value.outer_number = component.long_name;
-                }
-                if (types.includes("subpremise")) {
-                    address.value.interior_number = component.long_name;
-                }
-                if (types.includes("country")) {
-                    address.value.city = component.long_name;
-                }
-                if (types.includes("administrative_area_level_1")) {
-                    address.value.state = component.long_name;
-                }
-                if (types.includes("locality")) {
-                    address.value.locality = component.long_name;
-                }
-                if (types.includes("postal_code")) {
-                    address.value.cp = component.long_name;
-                }
-            });
-            address.value.latitude = place.geometry.location.lat();
-            address.value.longitude = place.geometry.location.lng();
-        });
     };
     onMounted(() => {
         fetchCustomer();

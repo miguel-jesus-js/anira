@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Repositories\Customers\CustomerRepository;
-use App\Repositories\People\PeopleRepository;
-use App\Repositories\User\UserRepository;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Repositories\Contracts\PeopleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Export\ExportService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -16,11 +16,11 @@ use Illuminate\Http\JsonResponse;
 class CustomerController extends Controller
 {
     use ApiResponse;
-    protected CustomerRepository $customerRepository;
-    protected PeopleRepository $peopleRepository;
-    protected UserRepository $userRepository;
+    protected CustomerRepositoryInterface $customerRepository;
+    protected PeopleRepositoryInterface $peopleRepository;
+    protected UserRepositoryInterface $userRepository;
 
-    public function __construct(CustomerRepository $customerRepository, PeopleRepository $peopleRepository, UserRepository $userRepository)
+    public function __construct(CustomerRepositoryInterface $customerRepository, PeopleRepositoryInterface $peopleRepository, UserRepositoryInterface $userRepository)
     {
         $this->customerRepository = $customerRepository;
         $this->peopleRepository = $peopleRepository;

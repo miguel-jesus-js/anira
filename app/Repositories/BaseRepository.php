@@ -17,6 +17,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->model = $model;
     }
 
+    /**
+     * @throws Exception
+     */
     public function create(array $data)
     {
         try {
@@ -40,6 +43,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
 
     }
+
+    /**
+     * @throws Exception
+     */
     public function find(int $id, array $relations = [])
     {
         try {

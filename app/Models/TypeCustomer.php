@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class TypeCustomer
+ * Class TypeCustomers
  * @property int $id
  * @property string $type_customer
  * @property int $status

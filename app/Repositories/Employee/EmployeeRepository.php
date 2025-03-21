@@ -4,8 +4,9 @@ namespace App\Repositories\Employee;
 
 use App\Models\Employee;
 use App\Repositories\BaseRepository;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
 
-class EmployeeRepository extends BaseRepository
+class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInterface
 {
     public function __construct(Employee $employee)
     {

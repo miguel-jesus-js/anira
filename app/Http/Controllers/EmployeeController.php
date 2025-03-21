@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Repositories\Employee\EmployeeRepository;
-use App\Repositories\People\PeopleRepository;
-use App\Repositories\User\UserRepository;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
+use App\Repositories\Contracts\PeopleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Export\ExportService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -16,10 +16,10 @@ use Illuminate\Http\JsonResponse;
 class EmployeeController extends Controller
 {
     use ApiResponse;
-    protected EmployeeRepository $employeeRepository;
-    protected PeopleRepository $peopleRepository;
-    protected UserRepository $userRepository;
-    public function __construct(EmployeeRepository $employeeRepository, PeopleRepository $peopleRepository, UserRepository $userRepository)
+    protected EmployeeRepositoryInterface $employeeRepository;
+    protected PeopleRepositoryInterface $peopleRepository;
+    protected UserRepositoryInterface $userRepository;
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, PeopleRepositoryInterface $peopleRepository, UserRepositoryInterface $userRepository)
     {
         $this->employeeRepository = $employeeRepository;
         $this->peopleRepository = $peopleRepository;
