@@ -1,8 +1,14 @@
 import {apiGet} from "../src/services/api";
 import {defaultError, showAlert} from "./SweetAlert";
+import {ref} from "vue";
 
 export function useExport(){
-    const fetchExport = async(url: String, payload: Object, format: String, toggleModalExport: () => void) =>{
+
+    const columnsSelected = ref([]);
+    const format = ref('');
+    const dataExport = ref('');
+
+    const fetchExport = async(url: String, payload: Object, toggleModalExport: () => void) =>{
         try {
             const res = await apiGet(url, payload);
             if(res.type === 'success'){
@@ -21,12 +27,15 @@ export function useExport(){
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', 'Empleados' + format); // Usar el nombre proporcionado por el backend
+                link.setAttribute('download', 'Empleados' + format.value); // Usar el nombre proporcionado por el backend
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 showAlert(res.type, res.title, res.message);
                 toggleModalExport()
+                columnsSelected.value = [];
+                format.value = '';
+                dataExport.value = '';
             }else{
                 showAlert(res.type, res.title, res.message);
             }
@@ -39,6 +48,9 @@ export function useExport(){
         }
     }
     return{
-        fetchExport
+        fetchExport,
+        columnsSelected,
+        format,
+        dataExport
     }
 }

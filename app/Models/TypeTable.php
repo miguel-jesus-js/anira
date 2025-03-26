@@ -22,7 +22,7 @@ class TypeTable extends Model
     ];
 
     const columnsExport = [
-        'type_table' => 'Tipo de empleado',
+        'type_table' => 'Tipo de tabla',
     ];
 
     public function scopeTypeEmployee($query, $type)

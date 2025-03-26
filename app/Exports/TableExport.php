@@ -2,20 +2,20 @@
 
 namespace App\Exports;
 
-use App\Repositories\Contracts\TypeTableRepositoryInterface;
+use App\Repositories\Contracts\TableRepositoryInterface;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Exception;
 
-class TypeTableExport implements FromView
+class TableExport implements FromView
 {
-    protected TypeTableRepositoryInterface $typeTableRepository;
+    protected TableRepositoryInterface $tableRepository;
     protected string $format;
     protected array $filters;
     protected array $columns;
     public function __construct(string $format, array $filters, array $columns)
     {
-        $this->typeTableRepository = app(TypeTableRepositoryInterface::class);
+        $this->tableRepository = app(TableRepositoryInterface::class);
         $this->format = $format;
         $this->filters = $filters;
         $this->columns = $columns;
@@ -27,7 +27,7 @@ class TypeTableExport implements FromView
      */
     public function view(): View
     {
-        $typeTables = $this->typeTableRepository->all($this->filters);
-        return view('exports.type_tables', ['columns' => $this->columns, 'type_tables' => $typeTables]);
+        $tables = $this->tableRepository->all($this->filters, ['typeTable']);
+        return view('exports.tables', ['columns' => $this->columns, 'tables' => $tables]);
     }
 }

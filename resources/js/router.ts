@@ -10,6 +10,8 @@ import TypeCustomer from "./components/TypeCustomers/TypeCustomer.vue";
 import TypeCustomerDetails from "./components/TypeCustomers/TypeCustomerDetails.vue";
 import TypeTable from "./components/TypeTables/TypeTable.vue";
 import TypeTableDetails from "./components/TypeTables/TypeTableDetails.vue";
+import Tables from "./components/Tables/Tables.vue";
+import TableDetails from "./components/Tables/TableDetails.vue";
 
 
 const routes = [
@@ -67,6 +69,16 @@ const routes = [
         path: '/cliente-detalle/:id',
         name: 'CustomerDetails',
         component: CustomerDetails
+    },
+    {
+        path: '/mesas',
+        name: 'Tables',
+        component: Tables
+    },
+    {
+        path: '/mesa-detalle/:id',
+        name: 'TableDetails',
+        component: TableDetails
     },
 ];
 

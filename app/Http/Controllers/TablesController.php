@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TypeTableRequest;
-use App\Models\TypeTable;
-use App\Repositories\TypeTable\TypeTableRepository;
+use App\Http\Requests\TableRequest;
+use App\Models\Table;
+use App\Repositories\Contracts\TableRepositoryInterface;
 use App\Services\Export\ExportService;
 use App\Traits\ApiResponse;
-use App\Enums\StatusBase;
-use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
-class TypeTablesController extends Controller
+use Illuminate\Http\JsonResponse;
+use Exception;
+class TablesController extends Controller
 {
     use ApiResponse;
-    protected TypeTableRepository $typeTableRepository;
+    protected TableRepositoryInterface $tableRepository;
 
-    public function __construct(TypeTableRepository $typeTableRepository)
+    public function __construct(TableRepositoryInterface $tableRepository)
     {
-        $this->typeTableRepository = $typeTableRepository;
+        $this->tableRepository = $tableRepository;
     }
 
     /**
@@ -32,13 +30,10 @@ class TypeTablesController extends Controller
             $filters = $request->query('filters', []);
             $paginate = $request->query('paginate', false);
             $perPage = $request->query('perPage', 10);
-            $tableTypes = $this->typeTableRepository->all($filters, [], $paginate, $perPage);
-            $columnsExport = TypeTable::columnsExport;
-            $filters = TypeTable::filters;
-            $status = StatusBase::cases();
+            $typeCustomers = $this->tableRepository->all($filters, ['typeTable'], $paginate, $perPage);
+            $columnsExport = Table::columnsExport;
             $data = [
-                'type_tables' => $tableTypes,
-                'status' => $status,
+                'tables' => $typeCustomers,
                 'columns_export' => $columnsExport,
                 'filters' => $filters,
             ];
@@ -46,6 +41,7 @@ class TypeTablesController extends Controller
         } catch (Exception $e){
             return $this->errorResponse($e->getMessage(), $e->getCode());
         }
+
     }
 
     /**
@@ -56,21 +52,21 @@ class TypeTablesController extends Controller
     public function show(int $id): JsonResponse
     {
         try {
-            $tableType = $this->typeTableRepository->find($id);
-            return $this->successResponse(self::MESSAGE_CREATED, [$tableType]);
+            $typeEmployee = $this->tableRepository->find($id);
+            return $this->successResponse(self::MESSAGE_CREATED, [$typeEmployee]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());
         }
     }
 
     /**
-     * @param TypeTableRequest $request
+     * @param TableRequest $request
      * @return JsonResponse
      */
-    public function store(TypeTableRequest $request): JsonResponse
+    public function store(TableRequest $request): JsonResponse
     {
         try {
-            $this->typeTableRepository->create($request->all());
+            $this->tableRepository->create($request->all());
             return $this->successResponse(self::MESSAGE_CREATED);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());
@@ -78,14 +74,14 @@ class TypeTablesController extends Controller
     }
 
     /**
-     * @param TypeTableRequest $request
+     * @param TableRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(TypeTableRequest $request, int $id): JsonResponse
+    public function update(TableRequest $request, int $id): JsonResponse
     {
         try {
-            $this->typeTableRepository->update($id, $request->all());
+            $this->tableRepository->update($id, $request->all());
             return $this->successResponse(self::MESSAGE_UPDATED);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -99,7 +95,7 @@ class TypeTablesController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->typeTableRepository->delete($id);
+            $this->tableRepository->delete($id);
             return $this->successResponse(self::MESSAGE_DELETED);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -115,11 +111,11 @@ class TypeTablesController extends Controller
         $format = $request->query('format');
         $filters = $request->query('filters', []);
         $columnsSelected = $request->query('columns_selected', []);
-        $columns = array_intersect_key(TypeTable::columnsExport, array_flip($columnsSelected));
+        $columns = array_intersect_key(Table::columnsExport, array_flip($columnsSelected));
 
         try {
             $export = new ExportService();
-            $archive = $export->exportBase64('type_tables', $format, $filters, $columns);
+            $archive = $export->exportBase64('tables', $format, $filters, $columns);
 
             return $this->successResponse(self::MESSAGE_CREATED, $archive);
         } catch (Exception $e) {

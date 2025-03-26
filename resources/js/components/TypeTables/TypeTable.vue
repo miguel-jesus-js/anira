@@ -200,7 +200,7 @@
             format: format.value,
             columns_selected: columnsSelected.value
         };
-        fetchExport('employees-export', payload, format.value, toggleModalExport);
+        fetchExport('type-tables-export', payload, format.value, toggleModalExport);
     }
     const handleInputChange = () => {
         fetchTypeTable();

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\TablesController;
 use App\Http\Controllers\TypeEmployeeController;
 use App\Http\Controllers\TypeCustomerController;
 use App\Http\Controllers\TypeTablesController;
@@ -56,3 +57,10 @@ Route::get('/type-tables/{id}', [TypeTablesController::class, 'show']);
 Route::put('/type-tables/{id}', [TypeTablesController::class, 'update']);
 Route::delete('/type-tables/{id}', [TypeTablesController::class, 'delete']);
 Route::get('/type-tables-export', [TypeTablesController::class, 'export']);
+
+Route::get('/tables', [TablesController::class, 'index']);
+Route::post('/tables', [TablesController::class, 'store']);
+Route::get('/tables/{id}', [TablesController::class, 'show']);
+Route::put('/tables/{id}', [TablesController::class, 'update']);
+Route::delete('/tables/{id}', [TablesController::class, 'delete']);
+Route::get('/tables-export', [TablesController::class, 'export']);
