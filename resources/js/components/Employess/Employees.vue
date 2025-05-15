@@ -523,6 +523,7 @@
         }
         isModalAddressOpen.value = false;
         address.value = {};
+        isEditingAddress.value = false;
     }
     const cleanFilters = () => {
         filters.value = {
@@ -554,6 +555,7 @@
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
         address.value = {};
+        isEditingAddress.value = false;
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;

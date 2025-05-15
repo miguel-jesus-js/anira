@@ -2,12 +2,12 @@
     <div class="bg-white rounded-lg">
         <div class="overflow-x-auto mt-10">
             <table class="min-w-full divide-y divide-gray-200 table-auto border">
-                <thead class="bg-[#6DBCB6]">
+                <thead class="bg-gray-100">
                 <tr>
-                    <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">
+                    <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                         {{ column.label }}
                     </th>
-                    <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-white">Acciones</th>
+                    <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">Acciones</th>
                 </tr>
                 </thead>
                 <tbody v-if="isFetch">
@@ -18,31 +18,31 @@
                 </tr>
                 </tbody>
                 <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
-                <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 odd:bg-gray-100 even:bg-white">
-                    <template v-for="column in columns" :key="column.key">
-                        <td v-if="column.rowRenderer">
-                            <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
-                        </td>
-                        <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
-                            <p class="text-gray-600">
-                                {{ formatValue(row, column) }}
-                            </p>
-                        </td>
-                    </template>
-                    <th>
-                        <div class="flex">
-                            <Button @click="handleRedirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
-                            <Button  @click="onDeleteClick(urlDelete, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
-                        </div>
-                    </th>
-                </tr>
+                    <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 bg-white">
+                        <template v-for="column in columns" :key="column.key">
+                            <td v-if="column.rowRenderer">
+                                <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
+                            </td>
+                            <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
+                                <p class="text-gray-600">
+                                    {{ formatValue(row, column) }}
+                                </p>
+                            </td>
+                        </template>
+                        <th>
+                            <div class="flex">
+                                <Button @click="handleRedirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
+                                <Button  @click="onDeleteClick(urlDelete, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
+                            </div>
+                        </th>
+                    </tr>
                 </tbody>
                 <tbody v-if="data.length < 1 && !isFetch">
-                <tr>
-                    <td :colspan="8" class="p-5 text-center">
-                        Sin datos
-                    </td>
-                </tr>
+                    <tr>
+                        <td :colspan="8" class="p-5 text-center">
+                            Sin datos
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>

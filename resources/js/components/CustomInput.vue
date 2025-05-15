@@ -12,9 +12,11 @@
                 :placeholder="placeholder"
                 :required="required"
                 :value="modelValue"
+                :autocomplete="autocomplete"
                 @input="onInput"
+                @focus="onFocus"
                 :class="[
-                'text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5',
+                'text-sm rounded-lg block w-full ps-10 p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none',
                 errors ? 'border-red-500 bg-red-100' : inputClass
                 ]"
                 :disabled="disabled"
@@ -32,7 +34,7 @@
         inputClass: {
             type: String,
             required: false,
-            default: 'border text-gray-900 bg-gray-50 border-gray-300'
+            default: 'border text-gray-900 bg-white border-gray-100'
         },
         label: {
             type: String,
@@ -58,6 +60,11 @@
             type: String,
             required: false,
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: 'on'
+        },
         modelValue: {
             type: String,
             required: true
@@ -76,11 +83,14 @@
             default: false
         }
     });
-    const emits = defineEmits(['update:modelValue', 'input-change']);
+    const emits = defineEmits(['update:modelValue', 'input-change', 'input-focus']);
     const onInput = (event) => {
         const value = event.target.value;
         emits('update:modelValue', value);
         emits('input-change', value);
+    };
+    const onFocus = (event) => {
+        emits('input-focus', event);
     };
     const iconComponent = computed(() => {
       return TablerIcons[props.icon] || null;

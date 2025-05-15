@@ -19,6 +19,7 @@ class UserService
     protected EmployeeRepositoryInterface $employeeRepository;
     protected CustomerRepositoryInterface $customerRepository;
     protected AddressRepositoryInterface $addressRepository;
+    private const MODEL_PEOPLE = 0;
     public function __construct(
         UserRepositoryInterface     $userRepository,
         PeopleRepositoryInterface   $peopleRepository,
@@ -44,19 +45,9 @@ class UserService
             $user = $this->userRepository->create($data['user']);
             $data['people'] = array_merge($data['people'], ['user_id' => $user->id]);
             $people = $this->peopleRepository->create($data['people']);
-            if(sizeof($data['addresses']) > 0)
+            foreach ($data['addresses'] as $address)
             {
-                foreach ($data['addresses'] as $address)
-                {
-                    $existingAddress = $this->addressRepository->existAddressWithLocation($address['latitude'], $address['longitude']);
-                    if(is_null($existingAddress))
-                    {
-                        $newAddress = $this->addressRepository->create($data['addresses'][0]);
-                        $this->peopleRepository->attach($people->id, $newAddress);
-                    }else{
-                        $this->peopleRepository->attach($people->id, $existingAddress);
-                    }
-                }
+                $this->addressRepository->attachAddressToEntity($people, $address);
             }
             $data= array_merge($data, ['people_id' => $people->id]);
             if($data['type_entity'] == 'employee')

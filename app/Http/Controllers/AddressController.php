@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddressRequest;
 use App\Repositories\Contracts\AddressRepositoryInterface;
+use App\Repositories\Contracts\BranchRepositoryInterface;
 use App\Repositories\Contracts\PeopleRepositoryInterface;
 use App\Traits\ApiResponse;
 use Exception;
@@ -14,39 +15,36 @@ use Symfony\Component\HttpFoundation\Response as ResponseStatusCode;
 class AddressController extends Controller
 {
     use ApiResponse;
-    protected AddressRepositoryInterface $addressesRepository;
+    protected AddressRepositoryInterface $addressRepository;
     protected PeopleRepositoryInterface $peopleRepository;
+    protected BranchRepositoryInterface $branchRepository;
 
-    public function __construct(AddressRepositoryInterface $addressesRepository, PeopleRepositoryInterface $peopleRepository)
+    private const MODEL_PEOPLE = 0;
+    private const MODEL_BRANCH = 1;
+
+    public function __construct(AddressRepositoryInterface $addressRepository, PeopleRepositoryInterface $peopleRepository, BranchRepositoryInterface $branchRepository)
     {
-        $this->addressesRepository = $addressesRepository;
+        $this->addressRepository = $addressRepository;
         $this->peopleRepository = $peopleRepository;
+        $this->branchRepository = $branchRepository;
     }
 
 
     /**
-     * @param int $peopleId
+     * @param int $model
+     * @param int $modelId
      * @param AddressRequest $request
      * @return JsonResponse
      */
-    public function store(int $peopleId, AddressRequest $request): JsonResponse
+    public function store(int $model, int $modelId, AddressRequest $request): JsonResponse
     {
         try {
             $addressInfo = $request->all();
-            $existingAddress = $this->addressesRepository->existAddressWithLocation($addressInfo['latitude'], $addressInfo['longitude']);
-            $people = $this->peopleRepository->find($peopleId);
-            if(is_null($existingAddress))
-            {
-                $newAddress = $this->addressesRepository->create($addressInfo);
-                $this->attachAddressToPerson($people->id, $newAddress);
-            }else{
-                if(!$existingAddress->people()->exists())
-                {
-                    $this->attachAddressToPerson($people->id, $existingAddress);
-                }else{
-                    return $this->errorResponse('La dirección ya existe', ResponseStatusCode::HTTP_CONFLICT);
-                }
-            }
+            $entity = match ($model) {
+                self::MODEL_PEOPLE => $this->peopleRepository->find($modelId),
+                self::MODEL_BRANCH => $this->branchRepository->find($modelId),
+            };
+            $this->addressRepository->attachAddressToEntity($entity, $addressInfo);
             return $this->successResponse(self::MESSAGE_CREATED);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());
@@ -61,7 +59,7 @@ class AddressController extends Controller
     public function update(int $id, AddressRequest $request): JsonResponse
     {
         try {
-            $this->addressesRepository->update($id, $request->all());
+            $this->addressRepository->update($id, $request->all());
             return $this->successResponse(self::MESSAGE_UPDATED);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());

@@ -29,13 +29,13 @@ export function useAddressValidation() {
         }
     };
 
-    const fetchCreateAddress = async (isEditingAddress: Boolean, peopleId: number, address: Address, closeModalAddress: () => void, reloadModule: () => void) => {
+    const fetchCreateAddress = async (isEditingAddress: Boolean, entity: number, entityId: number, address: Address, closeModalAddress: () => void, reloadModule: () => void) => {
         try {
             let response;
             if(isEditingAddress){
                 response = await apiPut(`address/${address.value.id}`, address.value);
             }else{
-                response = await apiPost(`address/${peopleId}`, address.value);
+                response = await apiPost(`address/${entity}/${entityId}`, address.value);
             }
             if(response.type === 'success'){
                 showAlert(response.type, response.title, response.message);

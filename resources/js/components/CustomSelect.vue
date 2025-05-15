@@ -12,7 +12,7 @@
                 @input="$emit('update:modelValue', $event.target.value.toString())"
                 :class="selectClass"
                 :disabled="disabled"
-                class="text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5">
+                class="text-sm rounded-lg block w-full ps-10 p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none">
                 <option value="0" disabled selected>Selecciona una opción</option>
                 <option v-for="option in options" :key="option.id" :value="option.id">{{ option[value_name] }}</option>
             </select>
@@ -30,7 +30,7 @@
         selectClass: {
             type: String,
             required: false,
-            default: 'border text-gray-900 bg-gray-50 border-gray-300'
+            default: 'border text-gray-900 bg-white border-gray-100'
         },
         label: {
             type: String,
@@ -53,7 +53,7 @@
             required: true,
         },
         options: {
-            type: Array as PropType<TypeEmployee[]>,
+            type: [],
             required: true,
         },
         value_name:{

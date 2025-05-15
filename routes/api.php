@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TablesController;
@@ -46,7 +47,7 @@ Route::put('/customers/{id}', [CustomerController::class, 'update']);
 Route::delete('/customers/{id}', [CustomerController::class, 'delete']);
 Route::get('/customers-export', [CustomerController::class, 'export']);
 
-Route::post('/address/{id}', [AddressController::class, 'store']);
+Route::post('/address/{model}/{id}', [AddressController::class, 'store']);
 Route::put('/address/{id}', [AddressController::class, 'update']);
 Route::delete('/address/{peopleId}/{addressId}', [AddressController::class, 'delete']);
 Route::post('/address-validate', [AddressController::class, 'validate']);
@@ -64,3 +65,10 @@ Route::get('/tables/{id}', [TablesController::class, 'show']);
 Route::put('/tables/{id}', [TablesController::class, 'update']);
 Route::delete('/tables/{id}', [TablesController::class, 'delete']);
 Route::get('/tables-export', [TablesController::class, 'export']);
+
+Route::get('/branches', [BranchController::class, 'index']);
+Route::post('/branches', [BranchController::class, 'store']);
+Route::get('/branches/{id}', [BranchController::class, 'show']);
+Route::put('/branches/{id}', [BranchController::class, 'update']);
+Route::delete('/branches/{id}', [BranchController::class, 'delete']);
+Route::get('/branches-export', [BranchController::class, 'export']);

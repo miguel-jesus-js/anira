@@ -12,7 +12,8 @@ import TypeTable from "./components/TypeTables/TypeTable.vue";
 import TypeTableDetails from "./components/TypeTables/TypeTableDetails.vue";
 import Tables from "./components/Tables/Tables.vue";
 import TableDetails from "./components/Tables/TableDetails.vue";
-
+import Branch from "./components/Branches/Branch.vue";
+import BranchDetails from "./components/Branches/BranchDetails.vue";
 
 const routes = [
     {
@@ -79,6 +80,16 @@ const routes = [
         path: '/mesa-detalle/:id',
         name: 'TableDetails',
         component: TableDetails
+    },
+    {
+        path: '/sucursales',
+        name: 'Branches',
+        component: Branch
+    },
+    {
+        path: '/sucursal-detalle/:id',
+        name: 'BranchDetails',
+        component: BranchDetails
     },
 ];
 

@@ -1,107 +1,99 @@
 <template>
-    <div class="bg-[#fee8ed] p-10 w-full h-screen flex flex-col">
-        <div class="bg-[#F3F7FB] flex flex-col h-full">
-            <!-- Navbar fijo -->
-            <nav class="bg-white flex-shrink-0">
-                <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                    <div class="relative flex h-16 items-center justify-between">
-                        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                            <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
-                                <span class="absolute -inset-0.5"></span>
-                                <span class="sr-only">Open main menu</span>
-                                <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                            <div class="flex shrink-0 items-center">
-                                <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+    <div class="h-screen flex flex-col">
+        <!-- Navbar -->
+        <header class="bg-gray-900 text-white fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-50">
+            <h1 class="text-xl font-semibold">Mi Aplicación</h1>
+        </header>
+
+        <div class="flex flex-1 pt-16">
+            <aside
+                :class="[
+                  'bg-white text-gray-400 font-bold transition-all duration-300 relative h-full',
+                  sidebarOpen ? 'w-64' : 'w-20'
+                ]">
+                <button @click="sidebarOpen = !sidebarOpen" class="p-4 text-gray-600 w-full text-center">
+                    x
+                </button>
+
+                <nav class="mt-2 grid" :class="sidebarOpen ? 'grid grid-cols-2 p-3' : 'grid grid-cols-1 p-1'">
+                    <div
+                        v-for="(item, index) in menuItems"
+                        :key="index"
+                        class="relative group"
+                        @mouseenter="handleHover(item.title)"
+                        @mouseleave="handleLeave">
+                        <router-link
+                            class="h-20 m-1 flex flex-col items-center justify-center text-gray-500 rounded-lg hover:bg-orange-400 hover:text-white cursor-pointer bg-gray-50"
+                            :class="sidebarOpen ? 'w-auto' : 'w-200 my-1 mx-0'"
+                            :to="item.path">
+                            <TablerIcon size="35" :icon="item.icon" />
+                            <span class="text-xs mt-1 text-center">{{ item.title }}</span>
+                        </router-link>
+
+                        <transition name="fade">
+                            <div
+                                v-if="showDropdown === item.title"
+                                class="absolute left-full top-2 ml-2 w-40 bg-gray-700 rounded shadow-lg p-2 z-50">
+                                <a
+                                    v-for="(sub, i) in item.subItems"
+                                    :key="i"
+                                    href="#"
+                                    class="block text-sm text-gray-200 hover:text-white">
+                                    {{ sub }}
+                                </a>
                             </div>
-                            <div class="hidden sm:ml-6 sm:block">
-                                <div class="flex space-x-4">
-                                    <a href="#" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
-                                    <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-700 hover:text-white">Team</a>
-                                    <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-700 hover:text-white">Projects</a>
-                                    <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-700 hover:text-white">Calendar</a>
-                                </div>
-                            </div>
-                        </div>
+                        </transition>
+                    </div>
+                </nav>
+            </aside>
+            <main class="flex-1 bg-gray-100 p-6 overflow-auto">
+                <div class="relative group w-20 h-20 flex flex-col items-center justify-center bg-gray-100 rounded-lg cursor-pointer">
+                    <span class="text-2xl">⚙️</span>
+
+                    <div
+                        class="absolute left-1/2 transform -translate-x-1/2 mt-12 hidden group-hover:block bg-black text-white text-xs rounded py-0.5 px-2 whitespace-nowrap z-10"
+                    >
+                        Configuración
                     </div>
                 </div>
-            </nav>
-
-            <div class="flex flex-1 overflow-hidden">
-                <!-- Sidebar fijo -->
-                <div class="bg-white w-64 flex-shrink-0 overflow-y-auto">
-                    <ul class="space-y-2 mt-10">
-                        <div v-for="(item, index) in accordions" :key="index">
-                            <div @click="toggleAccordion(index)" class="flex justify-between items-center cursor-pointer p-4 hover:bg-[#7F8691]">
-                                <div class="flex">
-                                    <TablerIcon size="20" :icon="item.icon" class="text-black pr-3"></TablerIcon>
-                                    <span class="text-sm">{{ item.menu }}</span>
-                                </div>
-                                <tabler-icon size="20" icon="IconChevronUp" class="text-black transition-transform duration-300" :class="{'rotate-180': item.isOpen}"></tabler-icon>
-                            </div>
-                            <div v-show="item.isOpen" class="ml-10 text-black">
-                                <ul v-for="(submenu, key) in item.submenu">
-                                    <li class="inline-flex items-center m-1">
-                                        <TablerIcon size="20" icon="IconUser"></TablerIcon>
-                                        <router-link :to="{ name: submenu.link }">
-                                            {{ submenu.title }}
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </ul>
-                </div>
-
-                <!-- Contenedor del router-view que hace scroll si es necesario -->
-                <div class="flex-1 overflow-auto p-5">
-                    <router-view></router-view>
-                </div>
-            </div>
+                <router-view></router-view>
+            </main>
         </div>
     </div>
-
 </template>
 
-<script lang="ts" setup>
-    import Button from "../components/Button.vue";
-    import {ref} from "vue";
-    import TablerIcon from "../components/TablerIcon.vue";
-    const isSidebarOpen = ref(true);
-    const accordions = ref(
-        [
-            { menu: 'Usuarios', icon: 'IconUsers',
-                submenu: [{title: 'Empleados', link: 'Employees', icon: ''}, {title: 'Clientes', link: 'Customers', icon: ''}],
-                isOpen: false },
-            { menu: 'Ecommerce', icon: 'IconShoppingBag', submenu: [], isOpen: false },
-            { menu: 'Inventario', icon: 'IconPresentationAnalytics', submenu: [], isOpen: false },
-        ]
-    );
+<script setup>
+    import { ref } from 'vue'
+    import TablerIcon from "./TablerIcon.vue";
 
-    const toggleAccordion = (index) => {
-        accordions.value.forEach((accordion, i) => {
-            if (i !== index) {
-                accordion.isOpen = false;
-            }
-        });
-        accordions.value[index].isOpen = !accordions.value[index].isOpen;
-    };
+    const sidebarOpen = ref(true)
+    const showDropdown = ref(null)
+    let hoverTimeout = null
 
-    const toggleSidebar = () => {
-        isSidebarOpen.value = !isSidebarOpen.value;
+    const menuItems = [
+        { title: 'Usuarios', icon: 'IconUsersGroup', path: '#', subItems: ['Resumen', 'Gráficos'] },
+        { title: 'Sucursales', icon: 'IconGitBranch', path: '/sucursales', subItems: null },
+        { title: 'Tipo de clientes', icon: 'IconUserCog', path: '/tipo-de-clientes', subItems: null },
+        { title: 'Tipo de empleados', icon: 'IconUserDollar', path: '/tipo-de-empleados', subItems: null },
+        { title: 'Mesas', icon: 'IconTable', path: '#', subItems: null },
+    ]
+
+    function toggleDropdown(title) {
+        showDropdown.value = showDropdown.value === title ? null : title
     }
 
+    function handleHover(title) {
+        clearTimeout(hoverTimeout)
+        showDropdown.value = title
+    }
+
+    function handleLeave() {
+        hoverTimeout = setTimeout(() => {
+            showDropdown.value = null
+        }, 200)
+    }
 </script>
 
 <style scoped>
-    .radius-1{
-        border-radius: 0 0 0 10px;
-    }
-    nav{
-        border-radius: 10px 10px 0 0;
-    }
+
 </style>

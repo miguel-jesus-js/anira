@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <i>
         <component :is="iconComponent" :size="size" stroke="1.5"/>
-    </div>
+    </i>
 </template>
 
 <script setup lang="ts">

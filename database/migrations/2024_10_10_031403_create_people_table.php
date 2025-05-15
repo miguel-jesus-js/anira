@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email', 100)->nullable(false)->unique();
             $table->string('dni', 50)->nullable(true)->unique();
             $table->char('country_code', 5)->nullable(false);
-            $table->char('phone_number', 11)->nullable(false);
+            $table->char('phone_number', 11)->nullable(false)->unique();
             $table->string('profile_picture', 100)->nullable(false)->default('img/default.png');
             $table->timestamps();
             $table->softDeletes();

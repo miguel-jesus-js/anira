@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Branch\BranchRepository;
+use App\Repositories\Contracts\BranchRepositoryInterface;
 use App\Repositories\Contracts\CustomerRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Repositories\Contracts\TableRepositoryInterface;
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PeopleRepositoryInterface::class, PeopleRepository::class);
         $this->app->bind(TypeTableRepositoryInterface::class, TypeTableRepository::class);
         $this->app->bind(TableRepositoryInterface::class, TableRepository::class);
+        $this->app->bind(BranchRepositoryInterface::class, BranchRepository::class);
     }
 
     /**

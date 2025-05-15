@@ -15,23 +15,4 @@ class PeopleRepository extends BaseRepository implements PeopleRepositoryInterfa
     {
         parent::__construct($people);
     }
-
-
-    /**
-     * @throws Exception
-     */
-    public function attach(int $modelId, Address|Model $model): void
-    {
-        $people = $this->find($modelId);
-        $people->addresses()->attach($model);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function detach(int $modelId, Address|Model $model): void
-    {
-        $people = $this->find($modelId);
-        $people->addresses()->detach($model);
-    }
 }
