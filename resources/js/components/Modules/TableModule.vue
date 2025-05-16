@@ -3,36 +3,35 @@
         <div class="overflow-x-auto mt-10">
             <table class="min-w-full divide-y divide-gray-200 table-auto border">
                 <thead class="bg-gray-100">
-                <tr>
-                    <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
-                        {{ column.label }}
-                    </th>
-                    <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">Acciones</th>
-                </tr>
+                    <tr>
+                        <th v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
+                            {{ column.label }}
+                        </th>
+                        <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">ACCIONES</th>
+                    </tr>
                 </thead>
                 <tbody v-if="isFetch">
-                <tr>
-                    <td :colspan="columns.length + 1" class="p-5">
-                        <LoaderTable></LoaderTable>
-                    </td>
-                </tr>
+                    <tr>
+                        <td :colspan="columns.length + 1" class="p-5">
+                            <LoaderTable></LoaderTable>
+                        </td>
+                    </tr>
                 </tbody>
                 <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
                     <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 bg-white">
-                        <template v-for="column in columns" :key="column.key">
-                            <td v-if="column.rowRenderer">
-                                <component :is="column.rowRenderer" :status="formatValue(row, column)"></component>
-                            </td>
-                            <td v-else class="px-4 py-1 text-sm whitespace-nowrap text-left">
-                                <p class="text-gray-600">
-                                    {{ formatValue(row, column) }}
-                                </p>
-                            </td>
-                        </template>
+                        <td v-for="column in columns" :key="column.key" class="text-left px-2">
+                            <slot
+                            :name="column.key"
+                            :row="row"
+                            :value="getNestedValue(row, column.key)">
+
+                                <small>{{ getNestedValue(row, column.key) ?? '-' }}</small>
+                            </slot>
+                        </td>
                         <th>
                             <div class="flex">
-                                <Button @click="handleRedirect(urlView, row.id)" icon="IconEye" button-class="px-1 text-gray-500"></Button>
-                                <Button  @click="onDeleteClick(urlDelete, row.id)" icon="IconTrashX" button-class="px-1 text-gray-500"></Button>
+                                <Button icon="IconEye" button-class="px-1 text-gray-500" :on-click="() => handleRedirect(urlView, row.id)" text-tooltip="Detalles"></Button>
+                                <Button icon="IconTrashX" button-class="px-1 text-gray-500" :on-click="() => onDeleteClick(urlDelete, row.id)" text-tooltip="Eliminar"></Button>
                             </div>
                         </th>
                     </tr>
@@ -78,62 +77,31 @@
 </template>
 
 <script setup lang="ts">
+    import {computed, defineProps} from "vue";
     import LoaderTable from "../../components/Loader/LoaderTable.vue";
-    import {computed, PropType} from "vue";
     import {Column} from "../../types/TableModule/Column";
     import {Row} from "../../types/TableModule/Row";
     import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import Button from "../../components/Button.vue";
     import TablerIcon from "../../components/TablerIcon.vue";
+
     import {useRedirect} from "../../composables/Redirect";
-    import {confirmDelete, defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
-    import axios from "axios";
+    import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
     import {apiDelete} from "../../src/services/api";
 
-    const props = defineProps({
-        columns: {
-            type: Array as PropType<Column[]>,
-            required: true
-        },
-        isFetch: {
-            type: Boolean,
-            required: true,
-        },
-        data: {
-            type: Array as PropType<Row[]>,
-            required: true
-        },
-        rowRenderer: {
-            type: Function as PropType<(row: Column) => JSX.Element>, // Acepta una función de renderizado
-            default: null,
-        },
-        response: {
-            type: Object as PropType<Response>,
-            default: () => ({}),
-        },
-        onClick: {
-            type: Function,
-            default: () => {},
-        },
-        urlView: {
-            type: String,
-            required: true
-        },
-        urlDelete: {
-            type: String,
-            required: true
-        }
-    });
-    const getNestedValue = (obj: Record<string, any>, path: string): any => {
-        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-    };
-    const formatValue = (row: Row, column: Column): any => {
-        const value = getNestedValue(row, column.key);
-        if (column.enum) {
-            return column.enum[value as keyof typeof StatusEmployeeEnum] || value;
-        }
-        return value;
-    };
+    const props = defineProps<{
+        columns: Column[]
+        isFetch: boolean
+        data: Row[]
+        response?: Response
+        onClick?: () => void
+        urlView: string
+        urlDelete: string
+    }>()
+    function getNestedValue(obj: any, path: string): any {
+        return path.split('.').reduce((o, key) => o?.[key], obj)
+    }
+
     const visiblePages = computed(() => {
         const totalPages = props.response?.last_page || 0;
         const currentPage = props.response?.current_page || 1;

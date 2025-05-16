@@ -15,7 +15,9 @@
             </template>
         </HeaderModule>
         <TableModule :columns="columns" :is-fetch="isFetchBranch" :data="branches" :response="response" :onClick="fetchBranches" url-view="BranchDetails" url-delete="branches/">
-
+          <template #status="{row}">
+              <SpanStatus :status="StatusBase[row.status]"></SpanStatus>
+          </template>
         </TableModule>
         <Modal title="AGREGAR SUCURSALS" :is-modal-open="isModalOpen" @close="closeModal">
             <form class="max-w-5xl" @submit.prevent="fetchCreateBranch">
@@ -183,6 +185,7 @@
     import {Address} from "../../types/Addresses/Address";
     import {useAddressValidation, useAutocomplete} from "../../composables/AddressValidation";
     import AddressComponent from "../Addresses/AddressComponent.vue";
+    import {StatusBase} from "../../src/enum/StatusBase";
 
     const branches = ref<Branch>([]);
     const response = ref<Response<Branch> | null>(null);

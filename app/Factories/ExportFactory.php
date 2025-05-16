@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 
+use App\Exports\BranchExport;
 use App\Exports\CustomerExport;
 use App\Exports\EmployeesExport;
 use App\Exports\TableExport;
@@ -21,7 +22,7 @@ class ExportFactory
      *
      * @throws Exception
      */
-    public static function make(string $model, string $format, array $filters, array $columns): TypeEmployeeExport|EmployeesExport|TypeCustomerExport|CustomerExport|TypeTableExport|TableExport
+    public static function make(string $model, string $format, array $filters, array $columns): TypeEmployeeExport|EmployeesExport|TypeCustomerExport|CustomerExport|TypeTableExport|TableExport|BranchExport
     {
         return match ($model) {
             'employees' => new EmployeesExport($format, $filters, $columns),
@@ -30,6 +31,7 @@ class ExportFactory
             'type_customers' => new TypeCustomerExport($format, $filters, $columns),
             'type_tables' => new TypeTableExport($format, $filters, $columns),
             'tables' => new TableExport($format, $filters, $columns),
+            'branch' => new BranchExport($format, $filters, $columns),
             default => throw new Exception("Export {$model} no implementado"),
         };
     }

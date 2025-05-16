@@ -6,6 +6,7 @@ use App\Http\Requests\BranchRequest;
 use App\Models\Branch;
 use App\Repositories\Contracts\AddressRepositoryInterface;
 use App\Repositories\Contracts\BranchRepositoryInterface;
+use App\Services\Export\ExportService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Exception;
@@ -108,6 +109,25 @@ class BranchController extends Controller
         try {
             $this->branchRepository->delete($branchId);
             return $this->successResponse(self::MESSAGE_DELETED);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function export(Request $request): JsonResponse
+    {
+        $format = $request->query('format');
+        $filters = $request->query('filters', []);
+        $columnsSelected = $request->query('columns_selected');
+        $columns = array_intersect_key(Branch::columnsExport, array_flip($columnsSelected));
+        try {
+            $export = new ExportService();
+            $archive = $export->exportBase64('branch', $format, $filters, $columns);
+            return $this->successResponse(self::MESSAGE_CREATED, $archive);
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
         }

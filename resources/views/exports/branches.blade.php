@@ -49,22 +49,22 @@
         </tr>
         </thead>
         <tbody>
-        @for ($i = 0; $i < sizeof($type_tables); $i++)
+        @for ($i = 0; $i < sizeof($branches); $i++)
             <tr>
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
                         @case('address_id')
-                            <th>{{ $type_tables[$i][$key]  }}</th>
+                            <th>{{ isset($branches[$i]['address']) ? $branches[$i]['address']['address'] : '' }}</th>
                             @break
                         @case('name')
-                            <th>{{ $type_tables[$i][$key]  }}</th>
+                            <th>{{ $branches[$i][$key]  }}</th>
                             @break
                         @case('email')
-                            <th>{{ $type_tables[$i][$key]  }}</th>
+                            <th>{{ $branches[$i][$key]  }}</th>
                             @break
                         @case('phone_number')
-                            <th>{{ $type_tables[$i][$key]  }}</th>
+                            <th>{{ $branches[$i][$key]  }}</th>
                             @break
                     @endswitch
                 @endforeach

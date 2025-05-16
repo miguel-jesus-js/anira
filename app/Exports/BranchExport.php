@@ -28,7 +28,7 @@ class BranchExport implements FromView
      */
     public function view(): View
     {
-        $branches = $this->branchRepository->all($this->filters);
+        $branches = $this->branchRepository->all($this->filters, ['address']);
         return view('exports.branches', ['columns' => $this->columns,'branches' => $branches]);
     }
 }

@@ -47,15 +47,6 @@
                 </nav>
             </aside>
             <main class="flex-1 bg-gray-100 p-6 overflow-auto">
-                <div class="relative group w-20 h-20 flex flex-col items-center justify-center bg-gray-100 rounded-lg cursor-pointer">
-                    <span class="text-2xl">⚙️</span>
-
-                    <div
-                        class="absolute left-1/2 transform -translate-x-1/2 mt-12 hidden group-hover:block bg-black text-white text-xs rounded py-0.5 px-2 whitespace-nowrap z-10"
-                    >
-                        Configuración
-                    </div>
-                </div>
                 <router-view></router-view>
             </main>
         </div>
