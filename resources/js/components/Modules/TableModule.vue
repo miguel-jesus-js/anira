@@ -1,6 +1,19 @@
 <template>
-    <div class="bg-white rounded-lg">
-        <div class="overflow-x-auto mt-10">
+    <div class="mt-4">
+        <div class="flex justify-end">
+            <CustomSelect
+                value_name="label"
+                :options="rowNumbers"
+                icon="IconListNumbers"
+                :model-value="localSelected"
+                name="row_number"
+                id="row_number"
+                label="Filas"
+                select-class="bg-white"
+                @onChangeSelect="emitChange"
+            ></CustomSelect>
+        </div>
+        <div class="overflow-x-auto bg-white rounded-lg">
             <table class="min-w-full divide-y divide-gray-200 table-auto border">
                 <thead class="bg-gray-100">
                     <tr>
@@ -21,17 +34,16 @@
                     <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 bg-white">
                         <td v-for="column in columns" :key="column.key" class="text-left px-2">
                             <slot
-                            :name="column.key"
+                            :name="column.alias ?? column.key"
                             :row="row"
-                            :value="getNestedValue(row, column.key)">
-
+                           >
                                 <small>{{ getNestedValue(row, column.key) ?? '-' }}</small>
                             </slot>
                         </td>
                         <th>
                             <div class="flex">
-                                <Button icon="IconEye" button-class="px-1 text-gray-500" :on-click="() => handleRedirect(urlView, row.id)" text-tooltip="Detalles"></Button>
-                                <Button icon="IconTrashX" button-class="px-1 text-gray-500" :on-click="() => onDeleteClick(urlDelete, row.id)" text-tooltip="Eliminar"></Button>
+                                <Button icon="IconEye" button-class="px-1 text-blue-600" :on-click="() => handleRedirect(urlView, row.id)" text-tooltip="Detalles"></Button>
+                                <Button icon="IconTrashX" button-class="px-1 text-red-600" :on-click="() => onDeleteClick(urlDelete, row.id)" text-tooltip="Eliminar"></Button>
                             </div>
                         </th>
                     </tr>
@@ -77,31 +89,46 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, defineProps} from "vue";
+    import {computed, defineProps, ref} from "vue";
     import LoaderTable from "../../components/Loader/LoaderTable.vue";
     import {Column} from "../../types/TableModule/Column";
     import {Row} from "../../types/TableModule/Row";
-    import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import Button from "../../components/Button.vue";
     import TablerIcon from "../../components/TablerIcon.vue";
 
     import {useRedirect} from "../../composables/Redirect";
     import {confirmDelete, defaultError, showAlert} from "../../composables/SweetAlert";
     import {apiDelete} from "../../src/services/api";
+    import CustomSelect from "../CustomSelect.vue";
+    import {OptionSelect} from "../../types/General/OptionSelect";
 
-    const props = defineProps<{
+    const rowNumbers: OptionSelect[] = [
+        {id:10, label: 10},
+        {id:20, label: 30},
+        {id:40, label: 40},
+        {id:50, label: 50},
+    ]
+    const props = withDefaults(defineProps<{
         columns: Column[]
         isFetch: boolean
-        data: Row[]
+        data: Row[],
+        rowNumber: Number,
         response?: Response
         onClick?: () => void
         urlView: string
-        urlDelete: string
-    }>()
+        urlDelete: string,
+        handleSelect?: () => void,
+    }>(), {
+        rowNumber: 10
+    });
     function getNestedValue(obj: any, path: string): any {
         return path.split('.').reduce((o, key) => o?.[key], obj)
     }
-
+    const emit = defineEmits(['onOptionChange']);
+    const localSelected = ref(props.rowNumber);
+    const emitChange = (value: number) => {
+        emit('onOptionChange', value);
+    };
     const visiblePages = computed(() => {
         const totalPages = props.response?.last_page || 0;
         const currentPage = props.response?.current_page || 1;

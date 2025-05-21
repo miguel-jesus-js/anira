@@ -10,6 +10,7 @@
                 :name="name"
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value.toString())"
+                @change="handleSelect"
                 :class="selectClass"
                 :disabled="disabled"
                 class="text-sm rounded-lg block w-full ps-10 p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none">
@@ -22,57 +23,38 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, PropType} from "vue";
+    import {computed, defineProps} from "vue";
     import * as TablerIcons from "@tabler/icons-vue";
-    import {TypeEmployee} from "../types/TypeEmployees/TypeEmployee";
+    import {OptionSelect} from "../types/General/OptionSelect";
 
-    const props = defineProps({
-        selectClass: {
-            type: String,
-            required: false,
-            default: 'border text-gray-900 bg-white border-gray-100'
-        },
-        label: {
-            type: String,
-            required: true,
-        },
-        id: {
-            type: String,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        modelValue: {
-            type: [String, Number],
-            required: true,
-        },
-        icon: {
-            type: String,
-            required: true,
-        },
-        options: {
-            type: [],
-            required: true,
-        },
-        value_name:{
-            type: String,
-            required: true
-        },
-        errors: {
-            type: Array,
-            required: false,
-        },
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
-    })
+    const props = withDefaults(defineProps<{
+        selectClass: String,
+        label: String,
+        id: String,
+        name: String,
+        modelValue: String,
+        icon: String,
+        options: OptionSelect[],
+        value_name: String,
+        errors?: Array,
+        disabled?: Boolean,
+    }>(),{
+        selectClass: 'border text-gray-900 bg-white border-gray-100',
+    });
+
+    const emit = defineEmits(['update:modelValue', 'onChangeSelect']);
+
+    const handleSelect = (event: Event) => {
+        const target = event.target as HTMLSelectElement;
+        const value = target.value;
+        emit('onChangeSelect', parseInt(value));
+    };
+
     const iconComponent = computed(() => {
         return TablerIcons[props.icon] || null;
     })
+
+
 </script>
 
 <style scoped>

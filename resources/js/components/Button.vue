@@ -20,10 +20,10 @@
 
     const props = withDefaults(defineProps<{
         buttonClass: String
-        onClick: () => void,
-        icon: String
+        onClick?: () => void,
+        icon?: String
         label?: String
-        type: String,
+        type?: String,
         textTooltip?: String
     }>(), {
         type: 'button'

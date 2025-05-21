@@ -1,33 +1,43 @@
 <template>
     <!-- component -->
     <section class="p-4">
-        <HeaderModule :total-records="response ? response.total : 0" title="SUCURSALES">
-            <template #section1>
-                <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-                <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar tipo"></Button>
-            </template>
-            <template #section2>
-                <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
-                <Button :onClick="fetchBranches" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
-            </template>
-            <template #section3>
-                <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.name" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
-            </template>
+        <HeaderModule
+            :total-records="response ? response.total : 0"
+            title="SUCURSALES"
+            add-text-button="Agregar sucursal"
+            :open-modal="openModal"
+            :open-modal-export="toggleModalExport"
+            :reload="fetchBranches"
+        >
         </HeaderModule>
-        <TableModule :columns="columns" :is-fetch="isFetchBranch" :data="branches" :response="response" :onClick="fetchBranches" url-view="BranchDetails" url-delete="branches/">
+        <TableModule
+            :columns="columns"
+            :is-fetch="isFetchBranch"
+            :data="branches"
+            :row-number="perPage"
+            :response="response"
+            :onClick="fetchBranches"
+            url-view="BranchDetails"
+            url-delete="branches/"
+            @onOptionChange="handleSelectRow"
+        >
+            <template #address_id="{row}">
+                <p class="line-clamp-6 sm:line-clamp-none">
+                    <small>{{ row.address?.address ?? 'Sin dirección' }}</small>
+                </p>
+            </template>
           <template #status="{row}">
               <SpanStatus :status="StatusBase[row.status]"></SpanStatus>
           </template>
         </TableModule>
-        <Modal title="AGREGAR SUCURSALS" :is-modal-open="isModalOpen" @close="closeModal">
+        <Modal title="AGREGAR SUCURSAL" :is-modal-open="isModalOpen" @close="closeModal">
             <form class="max-w-5xl" @submit.prevent="fetchCreateBranch">
-                <!-- Pestañas (Botones) -->
                 <div class="flex bg-gray-100 rounded p-2">
                     <Button
                         v-for="(tab, index) in tabs"
                         :key="index"
-                        :class="['py-4 text-sm font-medium w-full rounded text-gray-600', selectedTab === index ? 'bg-white shadow-md' : '']"
-                        @click="selectedTab = index"
+                        :button-class="['py-4 text-sm font-medium w-full rounded text-gray-600 w-full', selectedTab === index ? 'bg-white shadow-md' : '']"
+                        :on-click="() => selectedTab = index"
                         :label="tab.label"
                         :icon="tab.icon"
                     >
@@ -74,9 +84,9 @@
                     </div>
                 </div>
                 <div class="flex justify-end">
-                    <Button v-if="selectedTab != 0" :on-click="previousTabs" class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
-                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
-                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateBranch" icon="IconDeviceFloppy" class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                    <Button v-if="selectedTab != 0" :on-click="previousTabs" icon="IconChevronLeft" button-class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
+                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" icon="IconChevronRight" button-class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
+                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateBranch" icon="IconDeviceFloppy" button-class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
                 </div>
             </form>
         </Modal>
@@ -154,7 +164,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <Button button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
+                    <Button :on-click="fetchExport" button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
                 </div>
             </form>
         </Modal>
@@ -163,10 +173,9 @@
 </template>
 
 <script setup lang="ts">
-    import {onMounted, ref, markRaw } from 'vue';
+    import {onMounted, ref } from 'vue';
     import {Branch, createBranch, ColumnsExportAnsFilters} from '../../types/Branches/Branch';
     import {Response} from '../../types/Response';
-    import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import CustomInput from '../CustomInput.vue';
     import Vue3PhoneInput from 'vue3-phone-input';
     import {defaultError, defaultErrorUser, showAlert} from "../../composables/SweetAlert";
@@ -189,11 +198,31 @@
 
     const branches = ref<Branch>([]);
     const response = ref<Response<Branch> | null>(null);
+    const perPage = ref(10);
     const employees = ref<Employee[]>([]);
     const options = ref<OptionSelect[]>([]);
     const isModalOpen = ref(false);
     const isModalAddressOpen = ref(false);
-    const address = ref<Address>({
+    const isEditingAddress = ref(false);
+    const { fetchValidateAddress, errorsAddress } = useAddressValidation();
+    const { initAutocomplete } = useAutocomplete();
+    const isModalExport = ref(false);
+    const selectedTab = ref(0);
+    const tabs = [
+        {label: 'Información', icon: 'IconBuilding'},
+        {label: 'Dirección', icon: 'IconMapPin'},
+    ];
+    const errors = ref([]);
+    const isFetchBranch = ref(false);
+    const itemAddresses = ref<Address[]>([]);
+    const getInitialBranch = (): createBranch => ({
+        employee_id: '',
+        name: '',
+        email: '',
+        phone_number: '',
+        address: itemAddresses.value
+    })
+    const getInitialAddress = (): Address => ({
         address: '',
         street: '',
         neighborhood: '',
@@ -205,36 +234,28 @@
         cp: '0',
         latitude: '',
         longitude: ''
-    });
-    const isEditingAddress = ref(false);
-    const { fetchValidateAddress, errorsAddress } = useAddressValidation();
-    const { initAutocomplete } = useAutocomplete();
-    const isModalExport = ref(false);
-    const selectedTab = ref(0);
-    const tabs = [
-        {label: 'Información', icon: 'IconBuilding'},
-        {label: 'Dirección', icon: 'IconMapPin'},
-    ];
-    const errors = ref({});
-    const isFetchBranch = ref(false);
-    const itemAddresses = ref<Address[]>([]);
-    const branch = ref<createBranch>({
-        employee_id: '',
-        name: '',
-        email: '',
-        phone_number: '',
-        address: itemAddresses
-    });
+    })
+    const branch = ref<createBranch>(getInitialBranch());
+    const address = ref<Address>(getInitialAddress());
     const phone = ref({country_code: '', phone_number: ''});
     const columnsExport = ref<ColumnsExportAnsFilters>([]);
     const columns = ref<Column>([
-        {key: 'id', label: 'ID'},
-        {key: 'address.address', label: 'DIRECCIÓN'},
+        {key: 'id', label: 'ID', inputs: [
+                {
+                    type: 'input',
+                    dataType: 'text',
+                    data: [],
+                    name: 'id',
+                    
+                }
+            ]
+        },
+        {key: 'address.address', label: 'DIRECCIÓN', alias: 'address_id'},
         {key: 'employee.name', label: 'ENCARGADO'},
         {key: 'name', label: 'NOMBRE'},
         {key: 'email', label: 'CORREO'},
         {key: 'phone_number', label: 'TELÉFONO'},
-        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
+        {key: 'status', label: 'ESTADO'},
     ]);
     const dataExport = ref('');
     const format = ref('');
@@ -250,12 +271,16 @@
     const handleSelect = (option: OptionSelect) => {
         branch.value.employee_id = option.id;
     };
-    const fetchBranches = async (pageUrl: string = 'branches') => {
+    const handleSelectRow = (rowNumber: number) => {
+        perPage.value = rowNumber;
+        fetchBranches();
+    };
+    const fetchBranches = async () => {
         branches.value = [];
         isFetchBranch.value = true;
         try {
-            const payload = {filters: filters.value, paginate: true};
-            const res = await apiGet(pageUrl, payload);
+            const payload = {filters: filters.value, paginate: true, perPage: perPage.value};
+            const res = await apiGet('branches', payload);
             branches.value = res.data.branches.data;
             response.value = res.data.branches;
             columnsExport.value = res.data.columns_export;
@@ -287,12 +312,13 @@
     const fetchCreateBranch = async () => {
         branch.value.country_code = phone.value.callingCode;
         branch.value.phone_number = phone.value.nationalNumber;
+        errors.value = [];
         try {
             const res = await apiPost('branches', branch.value);
             showAlert(res.type, res.title, res.message);
             await fetchBranches();
             closeModal();
-            branch.value = {};
+            itemAddresses.value = [];
         } catch (error) {
             if(error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
@@ -315,18 +341,11 @@
             }
             const res = await apiGet('branches-export', payload);
             if(res.type === 'success'){
-                // Extraer datos del JSON
                 const { file, mime } = res.data;
-
-                // Decodificar el archivo base64
                 const byteCharacters = atob(file);
                 const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
                 const byteArray = new Uint8Array(byteNumbers);
-
-                // Crear un Blob con el contenido del archivo
                 const blob = new Blob([byteArray], { type: mime });
-
-                // Crear URL y desencadenar la descarga
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -368,7 +387,8 @@
             itemAddresses.value.push({ ...address.value });
         }
         isModalAddressOpen.value = false;
-        address.value = {};
+        address.value = getInitialAddress();
+        errors.value = [];
     }
     const removeItemAddresses = (index: number) => {
         itemAddresses.value.splice(index, 1);
@@ -387,13 +407,20 @@
         fetchEmployees();
     };
     const closeModal = () => {
+        branch.value = getInitialBranch();
+        phone.value = {country_code: '', phone_number: ''}
         isModalOpen.value = false;
+        errors.value = [];
     };
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
+        isEditingAddress.value = false;
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;
+        dataExport.value = '';
+        format.value = '';
+        columnsSelected.value = [];
     }
     onMounted(() => {
         fetchBranches();

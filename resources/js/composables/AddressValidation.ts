@@ -32,6 +32,7 @@ export function useAddressValidation() {
     const fetchCreateAddress = async (isEditingAddress: Boolean, entity: number, entityId: number, address: Address, closeModalAddress: () => void, reloadModule: () => void) => {
         try {
             let response;
+            errorsAddress.value = [];
             if(isEditingAddress){
                 response = await apiPut(`address/${address.value.id}`, address.value);
             }else{
