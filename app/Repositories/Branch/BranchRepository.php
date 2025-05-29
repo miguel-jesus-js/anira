@@ -32,4 +32,32 @@ class BranchRepository extends BaseRepository implements BranchRepositoryInterfa
         $branch = $this->find($modelId);
         $branch->address()->detach($model);
     }
+
+    protected function applyFilters($query, array $filters): void
+    {
+        if(isset($filters['id']))
+        {
+            $query->id($filters['id']);
+        }
+        if(isset($filters['address_id']))
+        {
+            $query->addressByAddress($filters['address_id']);
+        }
+        if(isset($filters['employee_id']))
+        {
+            $query->mandated($filters['employee_id']);
+        }
+        if(isset($filters['email']))
+        {
+            $query->email($filters['email']);
+        }
+        if(isset($filters['phone_number']))
+        {
+            $query->phone($filters['phone_number']);
+        }
+        if(isset($filters['status']))
+        {
+            $query->status($filters['status']);
+        }
+    }
 }

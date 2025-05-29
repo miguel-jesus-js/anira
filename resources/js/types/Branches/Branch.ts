@@ -16,9 +16,11 @@ export interface Branch {
 export interface createBranch extends Omit<Branch, 'id, ,employee, address_id, employee_id'>{}
 
 export interface ColumnsExportAnsFilters {
-    address_id: number | null,
-    employee_id: number | null,
+    id: number | null;
+    address_id: string | null,
+    employee_id: string | null,
     name: string | null,
     email: string | null,
     phone_number: string | null,
+    status: string | null
 }

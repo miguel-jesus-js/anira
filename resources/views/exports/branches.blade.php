@@ -54,6 +54,9 @@
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
+                        @case('id')
+                            <th>{{ $branches[$i]['id'] }}</th>
+                            @break
                         @case('address_id')
                             <th>{{ isset($branches[$i]['address']) ? $branches[$i]['address']['address'] : '' }}</th>
                             @break
@@ -65,6 +68,9 @@
                             @break
                         @case('phone_number')
                             <th>{{ $branches[$i][$key]  }}</th>
+                            @break
+                        @case('status')
+                            <th>{{ $branches[$i]['status_text']  }}</th>
                             @break
                     @endswitch
                 @endforeach

@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn-primary {
+    @apply bg-[#6DBCB6] text-white mx-2 py-1 rounded-lg;
+}

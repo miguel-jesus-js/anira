@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label :for="id" class="block mb-2 text-sm font-sm text-gray-500">{{ label }}</label>
+        <label v-if="label != ''" :for="id" class="block mb-2 text-sm font-sm text-gray-500">{{ label }}</label>
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                 <component :is="iconComponent" class="w-4 h-4 text-gray-500" />
@@ -11,10 +11,9 @@
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value.toString())"
                 @change="handleSelect"
-                :class="selectClass"
                 :disabled="disabled"
-                class="text-sm rounded-lg block w-full ps-10 p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none">
-                <option value="0" disabled selected>Selecciona una opción</option>
+                :class="['text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none', errors ? 'border-red-500 bg-red-100' : selectClass, !icon ? 'ps-2' : 'ps-10']">
+                <option value="" disabled>Elige</option>
                 <option v-for="option in options" :key="option.id" :value="option.id">{{ option[value_name] }}</option>
             </select>
         </div>
@@ -28,12 +27,12 @@
     import {OptionSelect} from "../types/General/OptionSelect";
 
     const props = withDefaults(defineProps<{
-        selectClass: String,
-        label: String,
+        selectClass?: String,
+        label?: String,
         id: String,
         name: String,
         modelValue: String,
-        icon: String,
+        icon?: String,
         options: OptionSelect[],
         value_name: String,
         errors?: Array,

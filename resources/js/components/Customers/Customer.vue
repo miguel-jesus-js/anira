@@ -396,7 +396,6 @@
         {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
     ]);
     const dataExport = ref('');
-    const format = ref('');
     const columnsSelected = ref([]);
     const filters = ref<ColumnsExportAnsFilters>({
         first_name: '',
@@ -423,7 +422,7 @@
     });
     const { fetchValidateAddress, errorsAddress } = useAddressValidation();
     const { initAutocomplete } = useAutocomplete();
-    const { fetchExport } = useExport();
+    const { fetchExport, format } = useExport();
     const isDrawerOpen = ref(false);
     const fetchCustomers = async (pageUrl: string = 'customers') => {
         customers.value = [];
@@ -494,7 +493,7 @@
             format: format.value,
             columns_selected: columnsSelected.value
         };
-        fetchExport('employees-export', payload, format.value, toggleModalExport);
+        fetchExport('employees-export', payload, toggleModalExport);
     }
     const addItemAddresses = () => {
         isModalAddressOpen.value = true;

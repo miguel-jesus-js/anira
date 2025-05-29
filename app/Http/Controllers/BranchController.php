@@ -34,7 +34,7 @@ class BranchController extends Controller
             $filters = $request->query('filters', []);
             $paginate = $request->query('paginate', false);
             $perPage = $request->query('perPage', 10);
-            $branches = $this->branchRepository->all($filters, ['address'], $paginate, $perPage);
+            $branches = $this->branchRepository->all($filters, ['address', 'employee', 'employee.people'], $paginate, $perPage);
             $columnsExport = Branch::columnsExport;
             $data = [
                 'branches' => $branches,

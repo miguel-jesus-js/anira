@@ -24,15 +24,15 @@ export function useExport(){
                 const blob = new Blob([byteArray], { type: mime });
 
                 // Crear URL y desencadenar la descarga
-                const url = URL.createObjectURL(blob);
+                const urlDownload = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'Empleados' + format.value); // Usar el nombre proporcionado por el backend
+                link.href = urlDownload;
+                link.setAttribute('download', url); // Usar el nombre proporcionado por el backend
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 showAlert(res.type, res.title, res.message);
-                toggleModalExport()
+                toggleModalExport();
                 columnsSelected.value = [];
                 format.value = '';
                 dataExport.value = '';

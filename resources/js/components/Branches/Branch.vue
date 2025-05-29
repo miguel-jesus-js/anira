@@ -17,6 +17,9 @@
             :row-number="perPage"
             :response="response"
             :onClick="fetchBranches"
+            :fetch="fetchBranches"
+            :clean-filters="cleanFilters"
+            :filters="filters"
             url-view="BranchDetails"
             url-delete="branches/"
             @onOptionChange="handleSelectRow"
@@ -85,8 +88,8 @@
                 </div>
                 <div class="flex justify-end">
                     <Button v-if="selectedTab != 0" :on-click="previousTabs" icon="IconChevronLeft" button-class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
-                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" icon="IconChevronRight" button-class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
-                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateBranch" icon="IconDeviceFloppy" button-class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" icon="IconChevronRight" button-class="btn-primary" label="Siguiente"></Button>
+                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateBranch" icon="IconDeviceFloppy" button-class="btn-primary" label="Registrar"></Button>
                 </div>
             </form>
         </Modal>
@@ -94,7 +97,7 @@
             <AddressComponent :submit="validateAddress" :address="address" :errors-address="errorsAddress"></AddressComponent>
         </Modal>
         <Modal title="EXPORTAR" :is-modal-open="isModalExport" width="sm:max-w-xl" @close="toggleModalExport">
-            <form @submit.prevent="fetchExport">
+            <form @submit.prevent="handleExport">
                 <p class="mb-5 text-md text-gray-600">Datos a exportar</p>
                 <div class="flex gap-10 mb-5">
                     <div class="inline-flex items-center">
@@ -164,7 +167,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <Button :on-click="fetchExport" button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
+                    <Button button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
                 </div>
             </form>
         </Modal>
@@ -173,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-    import {onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
     import {Branch, createBranch, ColumnsExportAnsFilters} from '../../types/Branches/Branch';
     import {Response} from '../../types/Response';
     import CustomInput from '../CustomInput.vue';
@@ -195,6 +198,7 @@
     import {useAddressValidation, useAutocomplete} from "../../composables/AddressValidation";
     import AddressComponent from "../Addresses/AddressComponent.vue";
     import {StatusBase} from "../../src/enum/StatusBase";
+    import {useExport} from "../../composables/Export";
 
     const branches = ref<Branch>([]);
     const response = ref<Response<Branch> | null>(null);
@@ -206,6 +210,7 @@
     const isEditingAddress = ref(false);
     const { fetchValidateAddress, errorsAddress } = useAddressValidation();
     const { initAutocomplete } = useAutocomplete();
+    const {fetchExport, format} = useExport();
     const isModalExport = ref(false);
     const selectedTab = ref(0);
     const tabs = [
@@ -239,34 +244,90 @@
     const address = ref<Address>(getInitialAddress());
     const phone = ref({country_code: '', phone_number: ''});
     const columnsExport = ref<ColumnsExportAnsFilters>([]);
-    const columns = ref<Column>([
-        {key: 'id', label: 'ID', inputs: [
-                {
-                    type: 'input',
-                    dataType: 'text',
-                    data: [],
-                    name: 'id',
-                    
-                }
-            ]
-        },
-        {key: 'address.address', label: 'DIRECCIÓN', alias: 'address_id'},
-        {key: 'employee.name', label: 'ENCARGADO'},
-        {key: 'name', label: 'NOMBRE'},
-        {key: 'email', label: 'CORREO'},
-        {key: 'phone_number', label: 'TELÉFONO'},
-        {key: 'status', label: 'ESTADO'},
-    ]);
-    const dataExport = ref('');
-    const format = ref('');
-    const columnsSelected = ref([]);
-    const filters = ref<ColumnsExportAnsFilters>({
+    const getInitFilters = (): ColumnsExportAnsFilters => ({
+        id: '',
         address_id: '',
         employee_id: '',
         name: '',
         email: '',
-        phone_number: ''
-    });
+        phone_number: '',
+        status: ''
+    })
+    const filters = ref(getInitFilters());
+    const statusBaseArray: OptionSelect[] = [
+        {id: StatusBase.Inactivo, label: StatusBase[StatusBase.Inactivo],},
+        {id: StatusBase.Activo, label: StatusBase[StatusBase.Activo],}
+    ];
+    const columns = ref<Column>([
+        {
+            key: 'id',
+            label: 'ID',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'id',
+                placeholder: 'ID',
+            }
+        },
+        {
+            key: 'address.address',
+            label: 'DIRECCIÓN',
+            alias: 'address_id',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'address_id',
+                placeholder: 'Calle 18...',
+            }},
+        {
+            key: 'employee.people.first_name',
+            label: 'ENCARGADO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'employee_id',
+                placeholder: 'Jesus',
+            }},
+        {
+            key: 'name',
+            label: 'NOMBRE',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'sucursal',
+                placeholder: 'Sucursal 1',
+            }},
+        {
+            key: 'email',
+            label: 'CORREO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'email',
+                placeholder: 'sucursal@gmail.com',
+            }},
+        {
+            key: 'phone_number',
+            label: 'TELÉFONO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'phone_number',
+                placeholder: '9191513420',
+            }},
+        {
+            key: 'status',
+            label: 'ESTADO',
+            customInput: {
+                type: 'select',
+                dataType: 'text',
+                data: statusBaseArray,
+                id: 'status',
+                placeholder: 'ID',
+            }},
+    ]);
+    const dataExport = ref('');
+    const columnsSelected = ref([]);
 
     const handleSelect = (option: OptionSelect) => {
         branch.value.employee_id = option.id;
@@ -331,40 +392,14 @@
             }
         }
     }
-    const fetchExport = async () => {
-        try {
-            const payload = {
-                data_export: dataExport.value,
-                filters: filters.value,
-                format: format.value,
-                columns_selected: columnsSelected.value
-            }
-            const res = await apiGet('branches-export', payload);
-            if(res.type === 'success'){
-                const { file, mime } = res.data;
-                const byteCharacters = atob(file);
-                const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: mime });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'Tipo de clientes' + format.value); // Usar el nombre proporcionado por el backend
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showAlert(res.type, res.title, res.message);
-                toggleModalExport()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.type){
-                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
-            }else{
-                defaultError()
-            }
-        }
+    const handleExport = () => {
+        const payload = {
+            data_export: dataExport.value,
+            filters: filters.value,
+            format: format.value,
+            columns_selected: columnsSelected.value
+        };
+        fetchExport('branches-export', payload, toggleModalExport);
     }
     const addItemAddresses = () => {
         if(itemAddresses.value.length > 0){
@@ -393,7 +428,8 @@
     const removeItemAddresses = (index: number) => {
         itemAddresses.value.splice(index, 1);
     }
-    const handleInputChange = () => {
+    const cleanFilters = () => {
+        filters.value = getInitFilters();
         fetchBranches();
     }
     const nextTab = () => {

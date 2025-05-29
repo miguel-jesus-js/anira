@@ -31,6 +31,27 @@
                     </tr>
                 </tbody>
                 <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
+                    <tr>
+                        <td v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
+                            <component
+                                :is="getComponent(column.customInput.type)"
+                                :type="column.customInput.dataType"
+                                :id="column.customInput.id"
+                                :name="column.customInput.id"
+                                :placeholder="column.customInput.placeholder"
+                                :options="column.customInput?.data"
+                                :model-value="filters[column.customInput?.id]"
+                                value_name="label"
+                                @update:modelValue="value => filters[column.customInput.id] = value"
+                            />
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <Button icon="IconSearch" button-class="px-1 text-blue-600" :on-click="() => fetch()" text-tooltip="Buscar"></Button>
+                                <Button icon="IconEraser" button-class="px-1 text-red-600" :on-click="() => cleanFilters()" text-tooltip="Limpiar"></Button>
+                            </div>
+                        </td>
+                    </tr>
                     <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 bg-white">
                         <td v-for="column in columns" :key="column.key" class="text-left px-2">
                             <slot
@@ -101,6 +122,7 @@
     import {apiDelete} from "../../src/services/api";
     import CustomSelect from "../CustomSelect.vue";
     import {OptionSelect} from "../../types/General/OptionSelect";
+    import CustomInput from "../CustomInput.vue";
 
     const rowNumbers: OptionSelect[] = [
         {id:10, label: 10},
@@ -114,13 +136,25 @@
         data: Row[],
         rowNumber: Number,
         response?: Response
-        onClick?: () => void
+        onClick?: () => void,
+        cleanFilters?: () => void,
+        fetch?: () => void,
+        filters?: {},
         urlView: string
         urlDelete: string,
         handleSelect?: () => void,
     }>(), {
         rowNumber: 10
     });
+
+    const getComponent = (type: string) => {
+        switch (type) {
+            case 'input': return CustomInput;
+            case 'select': return CustomSelect;
+            default: return CustomInput;
+        }
+    };
+
     function getNestedValue(obj: any, path: string): any {
         return path.split('.').reduce((o, key) => o?.[key], obj)
     }
