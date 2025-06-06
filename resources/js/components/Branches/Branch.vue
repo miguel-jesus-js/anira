@@ -226,7 +226,7 @@ import {onMounted, ref} from 'vue';
         email: '',
         phone_number: '',
         address: itemAddresses.value
-    })
+    });
     const getInitialAddress = (): Address => ({
         address: '',
         street: '',
@@ -252,7 +252,7 @@ import {onMounted, ref} from 'vue';
         email: '',
         phone_number: '',
         status: ''
-    })
+    });
     const filters = ref(getInitFilters());
     const statusBaseArray: OptionSelect[] = [
         {id: StatusBase.Inactivo, label: StatusBase[StatusBase.Inactivo],},
@@ -444,7 +444,7 @@ import {onMounted, ref} from 'vue';
     };
     const closeModal = () => {
         branch.value = getInitialBranch();
-        phone.value = {country_code: '', phone_number: ''}
+        phone.value = {country_code: '', phone_number: ''};
         isModalOpen.value = false;
         errors.value = [];
     };

@@ -1,22 +1,29 @@
 <template>
     <!-- component -->
     <section class="p-4">
-        <HeaderModule :total-records="response ? response.total : 0" title="CLIENTES">
-            <template #section1>
-                <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-                <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar cliente"></Button>
-            </template>
-            <template #section2>
-                <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
-                <Button icon="IconFilter" button-class="border-0 text-[#F2E9E0]" label="Filtros" :on-click="toggleDrawer"></Button>
-                <Button :onClick="fetchCustomers" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
-            </template>
-            <template #section3>
-                <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
-            </template>
+        <HeaderModule
+            :total-records="response ? response.total : 0"
+            title="CLIENTES"
+            add-text-button="Agregar cliente"
+            :open-modal="openModal"
+            :open-modal-export="toggleModalExport"
+            :reload="fetchCustomers"
+        >
         </HeaderModule>
-        <TableModule :columns="columns" :is-fetch="isFetchCustomers" :data="customers" :response="response" :onClick="fetchCustomers" url-view="CustomerDetails" url-delete="api/customers/">
-
+        <TableModule
+            :columns="columns"
+            :is-fetch="isFetchCustomers"
+            :data="customers"
+            :row-number="perPage"
+            :response="response"
+            :onClick="fetchCustomers"
+            :fetch="fetchCustomers"
+            :clean-filters="cleanFilters"
+            :filters="filters"
+            url-view="CustomerDetails"
+            url-delete="api/customers/"
+            @onOptionChange="handleSelectRow"
+        >
         </TableModule>
         <Modal title="AGREGAR EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
             <form class="max-w-5xl" @submit.prevent="fetchCreateUser">
@@ -25,7 +32,7 @@
                     <Button
                         v-for="(tab, index) in tabs"
                         :key="index"
-                        :class="['py-2 px-4 text-sm font-medium focus:outline-none', selectedTab === index ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
+                        :button-class="['py-2 px-4 text-sm font-medium focus:outline-none', selectedTab === index ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
                         @click="selectedTab = index"
                         :label="tab.label"
                         :icon="tab.icon"
@@ -150,9 +157,9 @@
                     </div>
                 </div>
                 <div class="flex justify-end">
-                    <Button v-if="selectedTab != 0" :on-click="previousTabs" class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
-                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
-                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateUser" icon="IconDeviceFloppy" class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                    <Button v-if="selectedTab != 0" :on-click="previousTabs" icon="IconChevronLeft" button-class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
+                    <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" icon="IconChevronRight" button-class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
+                    <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateUser" icon="IconDeviceFloppy" button-class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
                 </div>
             </form>
         </Modal>
@@ -315,7 +322,7 @@
 </template>
 
 <script setup lang="ts">
-    import {onMounted, ref, markRaw, nextTick } from 'vue';
+    import {onMounted, ref, markRaw } from 'vue';
     import {Customer, CreateCustomer, ColumnsExportAnsFilters} from '../../types/Customers/Customer';
     import {Response} from '../../types/Response';
     import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
@@ -338,9 +345,12 @@
     import {useAddressValidation, useAutocomplete} from "../../composables/AddressValidation";
     import ViewAddressComponent from "../Addresses/ViewAddressComponent.vue";
     import {useExport} from "../../composables/Export";
+    import {createBranch} from "../../types/Branches/Branch";
 
     const customers = ref<Customer>([]);
     const response = ref<Response<Customer> | null>(null);
+    const perPage = ref(10);
+
     const isModalOpen = ref(false);
     const isModalAddressOpen = ref(false);
     const isModalExport = ref(false);
@@ -358,24 +368,7 @@
     const isFetchCustomers = ref(false);
     const itemAddresses = ref<Address[]>([]);
     const isEditingAddress = ref(false);
-    const customer = ref<CreateCustomer>({
-        type_customer_id: '0',
-        type_entity: 'customer',
-        user: {
-            user_name: '',
-            password: '',
-            password_repeat: '',
-        },
-        people: {
-            first_name: '',
-            last_name: '',
-            email: '',
-            dni: '0',
-            country_code: '',
-            phone_number: ''
-        },
-        addresses: itemAddresses
-    });
+
     const columnsExport = ref<ColumnsExportAnsFilters>({
         first_name: '',
         last_name: '',
@@ -420,10 +413,42 @@
         latitude: '',
         longitude: ''
     });
+    const getInitialCustomer = (): CreateCustomer => ({
+        type_customer_id: '0',
+        type_entity: 'customer',
+        user: {
+            user_name: '',
+            password: '',
+            password_repeat: '',
+        },
+        people: {
+            first_name: '',
+            last_name: '',
+            email: '',
+            dni: '0',
+            country_code: '',
+            phone_number: ''
+        },
+        addresses: itemAddresses
+    });
+    const customer = ref(getInitialCustomer());
     const { fetchValidateAddress, errorsAddress } = useAddressValidation();
     const { initAutocomplete } = useAutocomplete();
     const { fetchExport, format } = useExport();
     const isDrawerOpen = ref(false);
+    const getInitFilters = (): ColumnsExportAnsFilters => ({
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone_number: '',
+        type_customer_id: '',
+        user_name: '',
+        status: ''
+    });
+    const handleSelectRow = (rowNumber: number) => {
+        perPage.value = rowNumber;
+        fetchBranches();
+    };
     const fetchCustomers = async (pageUrl: string = 'customers') => {
         customers.value = [];
         isFetchCustomers.value = true;
@@ -505,6 +530,10 @@
     const removeItemAddresses = (index: number) => {
         itemAddresses.value.splice(index, 1);
     }
+    const cleanFilters = () => {
+        filters.value = getInitFilters();
+        fetchCustomers();
+    }
     const editAddress = (dataAddress: Address) => {
         isEditingAddress.value = true;
         address.value = dataAddress;
@@ -518,20 +547,6 @@
         isModalAddressOpen.value = false;
         address.value = {};
     }
-    const cleanFilters = () => {
-        filters.value = {
-            first_name: '',
-            last_name: '',
-            email:'',
-            dni:  '',
-            phone_number: '',
-            user_name: '',
-            type_customer_id: '0',
-            status: '',
-        }
-        filterPhone.value = {};
-        fetchCustomers();
-    }
     const nextTab = () => {
         selectedTab.value = selectedTab.value + 1;
     }
@@ -543,7 +558,10 @@
         fetchTypeCustomers();
     };
     const closeModal = () => {
+        customer.value = getInitialCustomer();
+        phone.value = {country_code: '', phone_number: ''};
         isModalOpen.value = false;
+        errors.value = [];
     };
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
