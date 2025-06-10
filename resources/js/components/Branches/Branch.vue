@@ -324,7 +324,8 @@ import {onMounted, ref} from 'vue';
                 data: statusBaseArray,
                 id: 'status',
                 placeholder: 'ID',
-            }},
+            }
+        },
     ]);
     const dataExport = ref('');
     const columnsSelected = ref([]);

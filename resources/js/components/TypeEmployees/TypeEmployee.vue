@@ -1,20 +1,30 @@
 <template>
     <!-- component -->
     <section class="p-4">
-        <HeaderModule :total-records="response ? response.total : 0" title="TIPO DE EMPLEADOS">
-            <template #section1>
-                <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-                <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar tipo"></Button>
-            </template>
-            <template #section2>
-                <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
-                <Button :onClick="fetchTypeEmployees" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
-            </template>
-            <template #section3>
-                <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.type_employee" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
-            </template>
+        <HeaderModule
+            :total-records="response ? response.total : 0"
+            title="TIPO DE EMPLEADOS"
+            add-text-button="Agregar tipo"
+            :open-modal="openModal"
+            :open-modal-export="toggleModalExport"
+            :reload="fetchTypeEmployees"
+        >
+
         </HeaderModule>
-        <TableModule :columns="columns" :is-fetch="isFetchTypeEmployee" :data="typeEmployees" :response="response" :onClick="fetchTypeEmployees" url-view="TypeEmployeesDetails" url-delete="type-employees/">
+        <TableModule
+            :columns="columns"
+            :is-fetch="isFetchTypeEmployee"
+            :data="typeEmployees"
+            :row-number="perPage"
+            :response="response"
+            :onClick="fetchTypeEmployees"
+            :fetch="fetchTypeEmployees"
+            :clean-filters="cleanFilters"
+            :filters="filters"
+            url-view="TypeEmployeesDetails"
+            url-delete="type-employees/"
+            @onOptionChange="handleSelectRow"
+        >
 
         </TableModule>
         <Modal title="AGREGAR TIPO DE EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
@@ -31,7 +41,7 @@
                 >
                 </CustomInput>
                 <div class="flex justify-end mt-4">
-                    <Button :on-click="fetchCreateTypeEmployee" icon="IconDeviceFloppy" class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                    <Button :on-click="fetchCreateTypeEmployee" icon="IconDeviceFloppy" button-class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
                 </div>
             </form>
         </Modal>
@@ -130,30 +140,74 @@
     import Modal from "../Modal.vue";
     import TablerIcon from "../TablerIcon.vue";
     import {apiGet, apiPost} from "../../src/services/api";
+    import {OptionSelect} from "../../types/General/OptionSelect";
+    import {StatusBase} from "../../src/enum/StatusBase";
+    import {createBranch} from "../../types/Branches/Branch";
 
     const typeEmployees = ref<TypeEmployee>([]);
     const response = ref<Response<TypeEmployee> | null>(null);
+    const perPage = ref(10);
     const isModalOpen = ref(false);
     const isModalExport = ref(false);
     const errors = ref({});
     const isFetchTypeEmployee = ref(false);
-    const typeEmployee = ref<CreateTypeEmployee>({
-        type_employee: '',
+    const getInitialTypeEmployee = (): CreateTypeEmployee => ({
+        type_employee: ''
     });
+    const typeEmployee = ref(getInitialTypeEmployee());
     const columnsExport = ref<ColumnsExportAnsFilters>({
         type_employee: '',
     });
-    const columns = ref<Column>([
-        {key: 'id', label: 'ID'},
-        {key: 'type_employee', label: 'TIPO DE EMPLEADO'},
-        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
-    ]);
+    const getInitFilters = (): ColumnsExportAnsFilters => ({
+        id: '',
+        type_employee: '',
+        status: ''
+    });
     const dataExport = ref('');
     const format = ref('');
     const columnsSelected = ref([]);
-    const filters = ref<ColumnsExportAnsFilters>({
-        type_employee: ''
-    })
+    const filters = ref(getInitFilters());
+    const statusBaseArray: OptionSelect[] = [
+        {id: StatusBase.Inactivo, label: StatusBase[StatusBase.Inactivo],},
+        {id: StatusBase.Activo, label: StatusBase[StatusBase.Activo],}
+    ];
+    const columns = ref<Column>([
+        {
+            key: 'id',
+            label: 'ID',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'id',
+                placeholder: 'ID',
+            }
+        },
+        {
+            key: 'type_employee',
+            label: 'TIPO DE EMPLEADO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'type_employee',
+                placeholder: 'Vendedor',
+            }
+        },
+        {
+            key: 'status',
+            label: 'ESTADO',
+            customInput: {
+                type: 'select',
+                dataType: 'text',
+                data: statusBaseArray,
+                id: 'status',
+                placeholder: 'ID',
+            }
+        },
+    ]);
+    const handleSelectRow = (rowNumber: number) => {
+        perPage.value = rowNumber;
+        fetchTypeEmployees();
+    };
     const fetchTypeEmployees = async (pageUrl: string = 'type-employees') => {
         typeEmployees.value = [];
         isFetchTypeEmployee.value = true;
@@ -235,6 +289,10 @@
             }
         }
     }
+    const cleanFilters = () => {
+        filters.value = getInitFilters();
+        fetchTypeEmployees();
+    }
     const handleInputChange = () => {
         fetchTypeEmployees();
     }
@@ -242,10 +300,15 @@
         isModalOpen.value = true;
     };
     const closeModal = () => {
+        typeEmployee.value = getInitialTypeEmployee();
         isModalOpen.value = false;
+        errors.value = [];
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;
+        dataExport.value = '';
+        format.value = '';
+        columnsSelected.value = [];
     }
     onMounted(() => {
         fetchTypeEmployees();

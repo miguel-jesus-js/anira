@@ -17,15 +17,36 @@ class TypeEmployee extends Model
     protected $fillable = ['type_employee', 'status'];
 
     const filters = [
+        'id' => '',
         'type_employee' => '',
+        'status' => '',
     ];
 
     const columnsExport = [
+        'id' => 'ID',
         'type_employee' => 'Tipo de empleado',
+        'status' => 'Estado',
     ];
 
+    public function getStatusTextAttribute(): string
+    {
+        return match ($this->attributes['status'])
+        {
+            0 => 'INACTIVO',
+            1 => 'ACTIVO',
+        };
+    }
+
+    public function scopeId($query, $id)
+    {
+        return $query->where('id', $id);
+    }
     public function scopeTypeEmployee($query, $type)
     {
         return $query->where('type_employee', 'LIKE', '%'. $type .'%');
+    }
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('id', $status);
     }
 }

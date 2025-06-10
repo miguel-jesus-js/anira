@@ -23,16 +23,9 @@
                         <th class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">ACCIONES</th>
                     </tr>
                 </thead>
-                <tbody v-if="isFetch">
+                <tbody class="bg-white divide-y divide-gray-200" >
                     <tr>
-                        <td :colspan="columns.length + 1" class="p-5">
-                            <LoaderTable></LoaderTable>
-                        </td>
-                    </tr>
-                </tbody>
-                <tbody class="bg-white divide-y divide-gray-200" v-if="data.length > 0 && !isFetch">
-                    <tr>
-                        <td v-for="column in columns" :key="column.key" scope="col" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
+                        <td v-for="column in columns" :key="column.key" class="px-5 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
                             <component
                                 :is="getComponent(column.customInput.type)"
                                 :type="column.customInput.dataType"
@@ -52,6 +45,16 @@
                             </div>
                         </td>
                     </tr>
+                    <tr v-if="isFetch">
+                        <td :colspan="columns.length + 1" class="p-5">
+                            <LoaderTable></LoaderTable>
+                        </td>
+                    </tr>
+                    <tr v-if="data.length == 0">
+                        <td :colspan="columns.length + 1" class="p-5 text-center">
+                            Sin datos
+                        </td>
+                    </tr>
                     <tr v-for="(row, index) in data" :key="index" class="hover:bg-gray-100 bg-white">
                         <td v-for="column in columns" :key="column.key" class="text-left px-2">
                             <slot
@@ -67,13 +70,6 @@
                                 <Button icon="IconTrashX" button-class="px-1 text-red-600" :on-click="() => onDeleteClick(urlDelete, row.id)" text-tooltip="Eliminar"></Button>
                             </div>
                         </th>
-                    </tr>
-                </tbody>
-                <tbody v-if="data.length < 1 && !isFetch">
-                    <tr>
-                        <td :colspan="8" class="p-5 text-center">
-                            Sin datos
-                        </td>
                     </tr>
                 </tbody>
             </table>

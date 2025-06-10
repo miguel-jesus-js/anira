@@ -15,8 +15,14 @@ class TypeEmployeeRepository extends BaseRepository implements TypeEmployeeRepos
 
     protected function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['type_employee'])) {
-            $query->where('type_employee', $filters['type_employee']);
+        if (isset($filters['id'])) {
+            $query->id('id', $filters['id']);
+        }
+        if (isset($filters['type_employee'])) {
+            $query->typeEmployee('type_employee', $filters['type_employee']);
+        }
+        if (isset($filters['type_employee'])) {
+            $query->typeEmployee('type_employee', $filters['type_employee']);
         }
     }
 }
