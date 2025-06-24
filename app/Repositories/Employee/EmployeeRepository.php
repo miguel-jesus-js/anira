@@ -15,35 +15,39 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
 
     protected function applyFilters($query, array $filters): void
     {
-        if(!empty($filters['first_name']))
+        if(isset($filters['id']))
+        {
+            $query->id($filters['id']);
+        }
+        if(isset($filters['first_name']))
         {
             $query->firstName($filters['first_name']);
         }
-        if(!empty($filters['last_name']))
+        if(isset($filters['last_name']))
         {
             $query->lastName($filters['last_name']);
         }
-        if(!empty($filters['email']))
+        if(isset($filters['email']))
         {
             $query->email($filters['email']);
         }
-        if(!empty($filters['dni']))
+        if(isset($filters['dni']))
         {
             $query->dni($filters['dni']);
         }
-        if(!empty($filters['phone_number']))
+        if(isset($filters['phone_number']))
         {
             $query->phone($filters['phone_number']);
         }
-        if(!empty($filters['user_name']))
+        if(isset($filters['user_name']))
         {
             $query->userName($filters['user_name']);
         }
-        if(!empty($filters['type_employee_id']))
+        if(isset($filters['type_employee_id']))
         {
             $query->type($filters['type_employee_id']);
         }
-        if(!empty($filters['status']))
+        if(isset($filters['status']))
         {
             $query->status($filters['status']);
         }

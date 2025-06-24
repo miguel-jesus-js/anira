@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasPeopleScopes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
@@ -25,6 +26,7 @@ class Employee extends Model
     ];
 
     const columnsExport = [
+        'id' => 'ID',
         'first_name' => 'Nombre(s)',
         'last_name' => 'Apellido(s)',
         'email' => 'Correo',
@@ -39,15 +41,28 @@ class Employee extends Model
         'Inactivo',
         'Activo',
     ];
+
+    public function getStatusTextAttribute(): string
+    {
+        return match ($this->attributes['status'])
+        {
+            0 => 'Inactivo',
+            1 => 'Activo',
+        };
+    }
+    public function scopeId($query, $id)
+    {
+        return $query->where('id', $id);
+    }
     public function scopeType($query, $type)
     {
         return  $query->where('type_employee_id', $type);
     }
-    public function people()
+    public function people(): BelongsTo
     {
         return $this->belongsTo(People::class);
     }
-    public function typeEmployee()
+    public function typeEmployee(): BelongsTo
     {
         return $this->belongsTo(TypeEmployee::class);
     }

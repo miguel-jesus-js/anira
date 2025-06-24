@@ -452,6 +452,7 @@ import {onMounted, ref} from 'vue';
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
         isEditingAddress.value = false;
+        errorsAddress.value = [];
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;

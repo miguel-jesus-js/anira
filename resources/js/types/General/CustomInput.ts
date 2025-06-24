@@ -3,6 +3,7 @@ export interface CustomInput {
     dataType: string,
     data?: [],
     id: string,
-    placeholder: string
-    modelValue: string
+    placeholder?: string
+    modelValue: string,
+    value_name?: string
 }

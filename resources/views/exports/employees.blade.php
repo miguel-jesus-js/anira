@@ -54,6 +54,9 @@
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
+                        @case('id')
+                            <th>{{ $employees[$i][$key]  }}</th>
+                            @break
                         @case('first_name')
                             <th>{{ $employees[$i]['people'][$key]  }}</th>
                             @break
@@ -76,7 +79,7 @@
                             <th>{{ $employees[$i]['typeEmployee']['type_employee']  }}</th>
                             @break
                         @case('status')
-                            <th>{{ \App\Models\Employee::STATUS[$employees[$i]['status']]  }}</th>
+                            <th>{{ $employees[$i]['status_text']  }}</th>
                             @break
                     @endswitch
                 @endforeach

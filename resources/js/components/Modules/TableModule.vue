@@ -34,7 +34,7 @@
                                 :placeholder="column.customInput.placeholder"
                                 :options="column.customInput?.data"
                                 :model-value="filters[column.customInput?.id]"
-                                value_name="label"
+                                :value_name="column.customInput.value_name"
                                 @update:modelValue="value => filters[column.customInput.id] = value"
                             />
                         </td>
@@ -50,7 +50,7 @@
                             <LoaderTable></LoaderTable>
                         </td>
                     </tr>
-                    <tr v-if="data.length == 0">
+                    <tr v-if="data.length == 0 && !isFetch">
                         <td :colspan="columns.length + 1" class="p-5 text-center">
                             Sin datos
                         </td>

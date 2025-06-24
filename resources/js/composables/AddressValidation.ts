@@ -8,6 +8,7 @@ export function useAddressValidation() {
 
     const fetchValidateAddress = async (address: Address, addAddress: () => void, closeModalAddress: () => void) => {
         try {
+            errorsAddress.value = [];
             const res = await apiPost('address-validate', address);
             if (res.type === 'success') {
                 addAddress();

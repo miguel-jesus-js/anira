@@ -1,22 +1,33 @@
 <template>
   <!-- component -->
   <section>
-    <HeaderModule :total-records="response ? response.total : 0" title="EMPLEADOS">
-        <template #section1>
-            <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-            <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#fd6868] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar empleado"></Button>
-        </template>
-        <template #section2>
-            <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
-            <Button icon="IconFilter" button-class="border-0 text-[#F2E9E0]" label="Filtros" :on-click="toggleDrawer"></Button>
-            <Button :onClick="fetchEmployees" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
-        </template>
-        <template #section3>
-            <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.email" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
-        </template>
-    </HeaderModule>
-    <TableModule :columns="columns" :is-fetch="isFetchEmployees" :data="employees" :response="response" :onClick="fetchEmployees" url-view="EmployeeDetails" url-delete="employees/">
+    <HeaderModule
+        :total-records="response ? response.total : 0"
+        title="EMPLEADOS"
+        add-text-button="Agregar empleado"
+        :open-modal="openModal"
+        :open-modal-export="toggleModalExport"
+        :reload="fetchEmployees"
+    >
 
+    </HeaderModule>
+    <TableModule
+        :columns="columns"
+        :is-fetch="isFetchEmployees"
+        :data="employees"
+        :row-number="perPage"
+        :response="response"
+        :onClick="fetchEmployees"
+        :fetch="fetchEmployees"
+        :clean-filters="cleanFilters"
+        :filters="filters"
+        url-view="EmployeeDetails"
+        url-delete="employees/"
+        @onOptionChange="handleSelectRow"
+    >
+        <template #status="{row}">
+            <SpanStatus :status="StatusBase[row.status]"></SpanStatus>
+        </template>
     </TableModule>
     <Modal title="AGREGAR EMPLEADO" :is-modal-open="isModalOpen" @close="closeModal">
         <form class="max-w-5xl" @submit.prevent="fetchCreateUser">
@@ -25,7 +36,7 @@
                 <Button
                     v-for="(tab, index) in tabs"
                     :key="index"
-                    :class="['py-2 px-4 text-sm font-medium focus:outline-none', selectedTab === index ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
+                    :button-class="['py-2 px-4 text-sm font-medium focus:outline-none', selectedTab === index ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600']"
                     @click="selectedTab = index"
                     :label="tab.label"
                     :icon="tab.icon"
@@ -150,9 +161,9 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <Button v-if="selectedTab != 0" :on-click="previousTabs" class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
-                <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
-                <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateUser" icon="IconDeviceFloppy" class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                <Button v-if="selectedTab != 0" :on-click="previousTabs" icon="IconChevronLeft" button-class="mx-2 py-1 bg-gray-400 rounded-lg text-white" label="Anterior"></Button>
+                <Button v-if="selectedTab + 1 < tabs.length" :on-click="nextTab" icon="IconChevronRight" button-class="mx-2 py-1 bg-green-400 rounded-lg text-white" label="Siguiente"></Button>
+                <Button v-if="selectedTab + 1 == tabs.length" :on-click="fetchCreateUser" icon="IconDeviceFloppy" button-class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
             </div>
         </form>
     </Modal>
@@ -230,7 +241,7 @@
             </div>
 
             <div class="flex justify-end">
-                <Button button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="submit"></Button>
+                <Button :on-click="handleExport" button-class="bg-green-600 text-white rounded-lg" icon="IconFileDownload" label="Exportar" type="button"></Button>
             </div>
         </form>
     </Modal>
@@ -316,10 +327,9 @@
 </template>
 
 <script setup lang="ts">
-    import {onMounted, ref, markRaw } from 'vue';
+    import {onMounted, ref } from 'vue';
     import {Employee, CreateEmployee, ColumnsExportAnsFilters} from '../../types/Employees/Employee';
     import {Response} from '../../types/Response';
-    import {StatusEmployeeEnum} from "../../types/Employees/StatusEmployeeEnum";
     import CustomInput from '../CustomInput.vue'
     import CustomSelect from '../CustomSelect.vue';
     import Vue3PhoneInput from 'vue3-phone-input';
@@ -339,9 +349,12 @@
     import {useAddressValidation, useAutocomplete} from "../../composables/AddressValidation";
     import ViewAddressComponent from "../Addresses/ViewAddressComponent.vue";
     import {useExport} from "../../composables/Export";
+    import {OptionSelect} from "../../types/General/OptionSelect";
+    import {StatusBase} from "../../src/enum/StatusBase";
 
     const employees = ref<Employee>([]);
     const response = ref<Response<Employee> | null>(null);
+    const perPage = ref(10);
     const isModalOpen = ref(false);
     const isModalAddressOpen = ref(false);
     const isModalExport = ref(false);
@@ -359,7 +372,7 @@
     const isFetchEmployees = ref(false);
     const itemAddresses = ref<Address[]>([]);
     const isEditingAddress = ref(false);
-    const employee = ref<CreateEmployee>({
+    const getInitialEmployee = (): CreateEmployee => ({
         type_employee_id: '0',
         type_entity: 'employee',
         user: {
@@ -377,39 +390,7 @@
         },
         addresses: itemAddresses
     });
-    const columnsExport = ref<ColumnsExportAnsFilters>({
-        first_name: '',
-        last_name: '',
-        email:'',
-        dni:  '',
-        phone_number: '',
-        user_name: '',
-        type_employee_id: '',
-        status: '',
-    });
-    const columns = ref<Column>([
-        {key: 'id', label: 'ID'},
-        {key: 'people.first_name', label: 'NOMBRE(S)'},
-        {key: 'people.last_name', label: 'APELLIDO(S)'},
-        {key: 'people.email', label: 'CORREO'},
-        {key: 'people.phone_number', label: 'TELÉFONO'},
-        {key: 'type_employee.type', label: 'TIPO'},
-        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
-    ]);
-    const dataExport = ref('');
-    const format = ref('');
-    const columnsSelected = ref([]);
-    const filters = ref<ColumnsExportAnsFilters>({
-        first_name: '',
-        last_name: '',
-        email:'',
-        dni:  '',
-        phone_number: '',
-        user_name: '',
-        type_employee_id: '0',
-        status: '',
-    })
-    const address = ref<Address>({
+    const getInitialAddress = (): Address => ({
         address: '',
         street: '',
         neighborhood: '',
@@ -421,7 +402,114 @@
         cp: '0',
         latitude: '',
         longitude: ''
+    })
+    const getInitialFilters = (): ColumnsExportAnsFilters => ({
+        first_name: '',
+        last_name: '',
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_employee_id: '',
+        status: '',
     });
+    const employee = ref(getInitialEmployee());
+    const columnsExport = ref<ColumnsExportAnsFilters>({
+        first_name: '',
+        last_name: '',
+        email:'',
+        dni:  '',
+        phone_number: '',
+        user_name: '',
+        type_employee_id: '',
+        status: '',
+    });
+    const statusBaseArray: OptionSelect[] = [
+        {id: StatusBase.Inactivo, label: StatusBase[StatusBase.Inactivo],},
+        {id: StatusBase.Activo, label: StatusBase[StatusBase.Activo],}
+    ];
+    const columns = ref<Column>([
+        {
+            key: 'id',
+            label: 'ID',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'id',
+                placeholder: 'ID',
+            }
+        },
+        {
+            key: 'people.first_name',
+            label: 'NOMBRE(S)',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'first_name',
+                placeholder: 'Nombre',
+            }
+        },
+        {
+            key: 'people.last_name',
+            label: 'APELLIDO(S)',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'last_name',
+                placeholder: 'Apellido',
+            }
+        },
+        {
+            key: 'people.email',
+            label: 'CORREO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'email',
+                placeholder: 'Correo',
+            }
+        },
+        {
+            key: 'people.phone_number',
+            label: 'TELÉFONO',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'phone_number',
+                placeholder: 'Teléfono',
+            }
+        },
+        {
+            key: 'type_employee.type',
+            label: 'TIPO',
+            customInput: {
+                type: 'select',
+                dataType: 'text',
+                data: typeEmployees,
+                id: 'type_employee',
+                value_name: 'type_employee'
+            }
+        },
+        {
+            key: 'status',
+            label: 'ESTADO',
+            customInput: {
+                type: 'select',
+                dataType: 'text',
+                data: statusBaseArray,
+                id: 'status',
+            }
+        },
+    ]);
+    const dataExport = ref('');
+    const format = ref('');
+    const columnsSelected = ref([]);
+    const handleSelectRow = (rowNumber: number) => {
+        perPage.value = rowNumber;
+        fetchEmployees();
+    };
+    const filters = ref(getInitialFilters());
+    const address = ref(getInitialAddress());
     const { fetchValidateAddress, errorsAddress } = useAddressValidation();
     const { initAutocomplete } = useAutocomplete();
     const { fetchExport } = useExport();
@@ -458,7 +546,6 @@
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
             }else if(error.response && error.response.data.errors){
                 defaultErrorUser();
-                errorsAddress.value = error.response.data.errors;
             }else{
                 defaultError();
             }
@@ -496,7 +583,7 @@
                 format: format.value,
                 columns_selected: columnsSelected.value
         };
-        fetchExport('employees-export', payload, format.value, toggleModalExport);
+        fetchExport('employees-export', payload, toggleModalExport);
     }
     const validateAddress = async () => {
         await fetchValidateAddress(address.value, addAddress, closeModalAddress);
@@ -522,20 +609,11 @@
             itemAddresses.value.push({ ...address.value });
         }
         isModalAddressOpen.value = false;
-        address.value = {};
+        address.value = getInitialAddress();
         isEditingAddress.value = false;
     }
     const cleanFilters = () => {
-        filters.value = {
-            first_name: '',
-            last_name: '',
-            email:'',
-            dni:  '',
-            phone_number: '',
-            user_name: '',
-            type_employee_id: '0',
-            status: '',
-        }
+        filters.value = getInitialFilters();
         filterPhone.value = {};
         fetchEmployees();
     }
@@ -550,15 +628,21 @@
         fetchTypeEmployees();
     };
     const closeModal = () => {
+        employee.value = getInitialEmployee();
+        phone.value = {country_code: '', phone_number: ''};
         isModalOpen.value = false;
+        errors.value = [];
     };
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
-        address.value = {};
         isEditingAddress.value = false;
+        errorsAddress.value = [];
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;
+        dataExport.value = '';
+        format.value = '';
+        columnsSelected.value = [];
     }
     const toggleDrawer = () => {
         fetchTypeEmployees();
@@ -566,6 +650,7 @@
     }
     onMounted(() => {
         fetchEmployees();
+        fetchTypeEmployees();
     })
 
 </script>
