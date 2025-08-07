@@ -3,7 +3,7 @@
         <label v-if="label != ''" :for="id" class="block mb-2 text-sm font-sm text-gray-500">{{ label }}</label>
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                <component :is="iconComponent" class="w-4 h-4 text-gray-500" />
+                <component :is="iconComponent" :class="['w-4 h-4 text-gray-500', errors ? 'text-red-600' : '']" />
             </div>
             <input
                 :type="type"
@@ -17,7 +17,7 @@
                 @focus="onFocus"
                 :class="[
                 'text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none',
-                errors ? 'border-red-500 bg-red-100' : inputClass, !icon ? 'ps-2' : 'ps-10'
+                errors ? 'border-red-500 bg-red-100 text-red-600 placeholder-red-300 focus:ring-red-200': inputClass, !icon ? 'ps-2' : 'ps-10'
                 ]"
                 :disabled="disabled"
             />

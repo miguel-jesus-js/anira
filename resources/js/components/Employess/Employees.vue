@@ -368,12 +368,12 @@
     const typeEmployees = ref<TypeEmployee[]>([]);
     const phone = ref({country_code: '', phone_number: ''});
     const filterPhone = ref({});
-    const errors = ref({});
+    const errors = ref([]);
     const isFetchEmployees = ref(false);
     const itemAddresses = ref<Address[]>([]);
     const isEditingAddress = ref(false);
     const getInitialEmployee = (): CreateEmployee => ({
-        type_employee_id: '0',
+        type_employee_id: '',
         type_entity: 'employee',
         user: {
             user_name: '',
@@ -384,7 +384,7 @@
             first_name: '',
             last_name: '',
             email: '',
-            dni: '0',
+            dni: '',
             country_code: '',
             phone_number: ''
         },
@@ -498,6 +498,7 @@
                 dataType: 'text',
                 data: statusBaseArray,
                 id: 'status',
+                value_name: 'label'
             }
         },
     ]);
@@ -636,7 +637,8 @@
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
         isEditingAddress.value = false;
-        errorsAddress.value = [];
+        errorsAddress.value = {};
+        address.value = getInitialAddress();
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;

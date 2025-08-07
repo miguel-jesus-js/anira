@@ -15,8 +15,14 @@ class TypeCustomerRepository extends BaseRepository implements TypeCustomerRepos
 
     protected function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['type_customer'])) {
-            $query->where('type_customer', $filters['type_customer']);
+        if (isset($filters['id'])) {
+            $query->id($filters['id']);
+        }
+        if (isset($filters['type_customer'])) {
+            $query->typeCustomer($filters['type_customer']);
+        }
+        if (isset($filters['status'])) {
+            $query->status($filters['status']);
         }
     }
 }

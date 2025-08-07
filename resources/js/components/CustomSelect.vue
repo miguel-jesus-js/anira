@@ -12,7 +12,7 @@
                 @input="$emit('update:modelValue', $event.target.value.toString())"
                 @change="handleSelect"
                 :disabled="disabled"
-                :class="['text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none', errors ? 'border-red-500 bg-red-100' : selectClass, !icon ? 'ps-2' : 'ps-10']">
+                :class="['text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring focus:ring-blue-200 focus:outline-none', errors?.length > 0 ? 'border-red-500 bg-red-100' : selectClass, !icon ? 'ps-2' : 'ps-10']">
                 <option value="" disabled>Elige</option>
                 <option v-for="option in options" :key="option.id" :value="option.id">{{ option[value_name] }}</option>
             </select>

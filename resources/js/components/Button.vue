@@ -29,8 +29,9 @@
         type: 'button'
     });
     const handleClick = () => {
-        props.onClick();
-    };
+        if (typeof props.onClick === 'function') {
+            props.onClick();
+        }};
 </script>
 
 <style scoped>

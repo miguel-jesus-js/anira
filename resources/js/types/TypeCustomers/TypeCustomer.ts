@@ -7,6 +7,8 @@ export interface TypeCustomer {
 export type CreateTypeCustomer = Omit<TypeCustomer, 'id'>;
 
 export interface ColumnsExportAnsFilters {
+    id: number | null
     type_customer: string | null,
+    status: number | null,
 }
 

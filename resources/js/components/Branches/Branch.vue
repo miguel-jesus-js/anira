@@ -323,7 +323,7 @@ import {onMounted, ref} from 'vue';
                 dataType: 'text',
                 data: statusBaseArray,
                 id: 'status',
-                placeholder: 'ID',
+                value_name: 'label'
             }
         },
     ]);
@@ -452,7 +452,8 @@ import {onMounted, ref} from 'vue';
     const closeModalAddress = () => {
         isModalAddressOpen.value = false;
         isEditingAddress.value = false;
-        errorsAddress.value = [];
+        errorsAddress.value = {};
+        address.value = getInitialAddress();
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;

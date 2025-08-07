@@ -1,21 +1,33 @@
 <template>
     <!-- component -->
     <section class="p-4">
-        <HeaderModule :total-records="response ? response.total : 0" title="TIPO DE CLIENTES">
-            <template #section1>
-                <Button icon="IconCloudUpload" label="Importar" button-class="border rounded-lg bg-white"></Button>
-                <Button :onClick="openModal" buttonClass="border rounded-lg bg-[#A97E59] text-[#F2E9E0] hover:bg-blue-600" icon="IconPlus" label="Agregar tipo"></Button>
-            </template>
-            <template #section2>
-                <Button :on-click="toggleModalExport" icon="IconCloudDownload" button-class="border-0 text-[#F2E9E0]" label="Exportar"></Button>
-                <Button :onClick="fetchTypeCustomers" button-class="border-0 text-[#F2E9E0]" icon="IconRefresh" label="Recargar"></Button>
-            </template>
-            <template #section3>
-                <CustomInput input-class="border text-gray-900 bg-gray-50 border-gray-300 " icon="IconSearch" v-model="filters.type_customer" @input-change="handleInputChange" required="false" placeholder="Buscar..."  name="search" id="search"></CustomInput>
-            </template>
-        </HeaderModule>
-        <TableModule :columns="columns" :is-fetch="isFetchTypeCustomer" :data="typeCustomers" :response="response" :onClick="fetchTypeCustomers" url-view="TypeCustomerDetails" url-delete="type-customers/">
+        <HeaderModule
+            :total-records="response ? response.total : 0"
+            title="TIPO DE CLIENTES"
+            add-text-button="Agregar tipo"
+            :open-modal="openModal"
+            :open-modal-export="toggleModalExport"
+            :reload="fetchTypeCustomers"
+        >
 
+        </HeaderModule>
+        <TableModule
+            :columns="columns"
+            :is-fetch="isFetchTypeCustomer"
+            :data="typeCustomers"
+            :row-number="perPage"
+            :response="response"
+            :onClick="fetchTypeCustomers"
+            :fetch="fetchTypeCustomers"
+            :clean-filters="cleanFilters"
+            :filters="filters"
+            url-view="TypeCustomerDetails"
+            url-delete="type-customers/"
+            @onOptionChange="handleSelectRow"
+        >
+            <template #status="{row}">
+                <SpanStatus :status="StatusBase[row.status]"></SpanStatus>
+            </template>
         </TableModule>
         <Modal title="AGREGAR TIPO DE CLIENTE" :is-modal-open="isModalOpen" @close="closeModal">
             <form class="max-w-5xl" @submit.prevent="fetchCreateTypeCustomer">
@@ -31,12 +43,13 @@
                 >
                 </CustomInput>
                 <div class="flex justify-end mt-4">
-                    <Button :on-click="fetchCreateTypeCustomer" icon="IconDeviceFloppy" class="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
+                    <Button :on-click="fetchCreateTypeCustomer" icon="IconDeviceFloppy" buttonClass
+                        ="mx-2 py-1 bg-blue-400 rounded-lg text-white" label="Registrar"></Button>
                 </div>
             </form>
         </Modal>
         <Modal title="EXPORTAR" :is-modal-open="isModalExport" width="sm:max-w-xl" @close="toggleModalExport">
-            <form @submit.prevent="fetchExport">
+            <form @submit.prevent="handleExport">
                 <p class="mb-5 text-md text-gray-600">Datos a exportar</p>
                 <div class="flex gap-10 mb-5">
                     <div class="inline-flex items-center">
@@ -129,30 +142,76 @@
     import Modal from "../Modal.vue";
     import TablerIcon from "../TablerIcon.vue";
     import {apiGet, apiPost} from "../../src/services/api";
+    import {OptionSelect} from "../../types/General/OptionSelect";
+    import {StatusBase} from "../../src/enum/StatusBase";
+    import {useExport} from "../../composables/Export";
 
     const typeCustomers = ref<TypeCustomer>([]);
     const response = ref<Response<TypeCustomer> | null>(null);
+    const perPage = ref(10);
     const isModalOpen = ref(false);
     const isModalExport = ref(false);
     const errors = ref({});
     const isFetchTypeCustomer = ref(false);
-    const typeCustomer = ref<CreateTypeCustomer>({
-        type_customer: '',
+    const { fetchExport } = useExport();
+
+    const getInitialTypeCustomer = (): CreateTypeCustomer => ({
+        type_customer: ''
     });
+    const typeCustomer = ref(getInitialTypeCustomer());
     const columnsExport = ref<ColumnsExportAnsFilters>({
         type_customer: '',
     });
+    const statusBaseArray: OptionSelect[] = [
+        {id: StatusBase.Inactivo, label: StatusBase[StatusBase.Inactivo],},
+        {id: StatusBase.Activo, label: StatusBase[StatusBase.Activo],}
+    ]
     const columns = ref<Column>([
-        {key: 'id', label: 'ID'},
-        {key: 'type_customer', label: 'TIPO DE CLIENTE'},
-        {key: 'status', label: 'ESTADO', enum: StatusEmployeeEnum, rowRenderer: markRaw(SpanStatus)},
+        {
+            key: 'id',
+            label: 'ID',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'id',
+                placeholder: 'ID',
+            }
+        },
+        {
+            key: 'type_customer',
+            label: 'TIPO DE CLIENTE',
+            customInput: {
+                type: 'input',
+                dataType: 'text',
+                id: 'type_customer',
+                placeholder: 'Tipo de cliente',
+            }
+        },
+        {
+            key: 'status',
+            label: 'ESTADO',
+            customInput: {
+                type: 'select',
+                dataType: 'text',
+                data: statusBaseArray,
+                id: 'status',
+                value_name: 'label'
+            }
+        },
     ]);
+    const handleSelectRow = (rowNumber: number) => {
+        perPage.value = rowNumber;
+        fetchTypeCustomers();
+    };
+    const getInitFilters = (): ColumnsExportAnsFilters => ({
+        id: '',
+        type_customer: '',
+        status: ''
+    })
     const dataExport = ref('');
     const format = ref('');
     const columnsSelected = ref([]);
-    const filters = ref<ColumnsExportAnsFilters>({
-        type_customer: ''
-    })
+    const filters = ref(getInitFilters());
     const fetchTypeCustomers = async (pageUrl: string = 'type-customers') => {
         typeCustomers.value = [];
         isFetchTypeCustomer.value = true;
@@ -179,7 +238,7 @@
             showAlert(res.type, res.title, res.message);
             await fetchTypeCustomers();
             closeModal();
-            typeCustomer.value = {};
+            typeCustomer.value = getInitialTypeCustomer();
         } catch (error) {
             if(error.response.data.type){
                 showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
@@ -192,47 +251,18 @@
             }
         }
     }
-    const fetchExport = async () => {
-        try {
-            const payload = {
-                data_export: dataExport.value,
-                filters: filters.value,
-                format: format.value,
-                columns_selected: columnsSelected.value
-            }
-            const res = await apiGet('type-customers-export', payload);
-            if(res.type === 'success'){
-                // Extraer datos del JSON
-                const { file, mime } = res.data;
-
-                // Decodificar el archivo base64
-                const byteCharacters = atob(file);
-                const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-                const byteArray = new Uint8Array(byteNumbers);
-
-                // Crear un Blob con el contenido del archivo
-                const blob = new Blob([byteArray], { type: mime });
-
-                // Crear URL y desencadenar la descarga
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'Tipo de clientes' + format.value); // Usar el nombre proporcionado por el backend
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showAlert(res.type, res.title, res.message);
-                toggleModalExport()
-            }else{
-                showAlert(res.type, res.title, res.message);
-            }
-        } catch (error) {
-            if(error.response && error.response.data.type){
-                showAlert(error.response.data.type, error.response.data.title, error.response.data.message);
-            }else{
-                defaultError()
-            }
-        }
+    const handleExport = () => {
+        const payload = {
+            data_export: dataExport.value,
+            filters: filters.value,
+            format: format.value,
+            columns_selected: columnsSelected.value
+        };
+        fetchExport('type-customers-export', payload, toggleModalExport);
+    }
+    const cleanFilters = () => {
+        filters.value = getInitFilters();
+        fetchTypeCustomers();
     }
     const handleInputChange = () => {
         fetchTypeCustomers();
@@ -241,10 +271,15 @@
         isModalOpen.value = true;
     };
     const closeModal = () => {
+        typeCustomer.value = getInitialTypeCustomer();
         isModalOpen.value = false;
+        errors.value = [];
     };
     const toggleModalExport = () => {
         isModalExport.value = !isModalExport.value;
+        dataExport.value = '';
+        format.value = '';
+        columnsSelected.value = [];
     }
     onMounted(() => {
         fetchTypeCustomers();

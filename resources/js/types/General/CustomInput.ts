@@ -1,6 +1,6 @@
 export interface CustomInput {
     type: string,
-    dataType: string,
+    dataType?: string,
     data?: [],
     id: string,
     placeholder?: string

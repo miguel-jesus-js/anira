@@ -54,7 +54,13 @@
                 <td>{{ $i+1 }}</td>
                 @foreach ($columns as $key => $column)
                     @switch($key)
+                        @case('id')
+                            <th>{{ $type_customers[$i][$key]  }}</th>
+                            @break
                         @case('type_customer')
+                            <th>{{ $type_customers[$i][$key]  }}</th>
+                            @break
+                        @case('status')
                             <th>{{ $type_customers[$i][$key]  }}</th>
                             @break
                     @endswitch

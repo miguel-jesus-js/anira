@@ -58,6 +58,10 @@ class Employee extends Model
     {
         return  $query->where('type_employee_id', $type);
     }
+    public function scopeStatus($query, $status)
+    {
+        return  $query->where('status', $status);
+    }
     public function people(): BelongsTo
     {
         return $this->belongsTo(People::class);

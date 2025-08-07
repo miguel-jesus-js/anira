@@ -92,7 +92,7 @@
                     :errors="errorsAddress['cp']">
                 </CustomInput>
             </div>
-            <Button button-class="bg-green-500 rounded text-white" icon="IconPlus" label="Guardar" type="submit"></Button>
+            <Button :on-click="submit" button-class="bg-green-500 rounded text-white" icon="IconPlus" label="Guardar"></Button>
         </form>
     </div>
 </template>
@@ -106,7 +106,7 @@
     const props = defineProps<{
         submit: Function,
         address: Address,
-        errorsAddress: Array
+        errorsAddress: Object
     }>();
 </script>
 
